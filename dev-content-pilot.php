@@ -10,7 +10,7 @@
     Author: Developers@Work
     Author URI: https://developerswork.online
     License: GPLv2 or later
-    Text Domain: dev-wp-content-autopilot
+    Text Domain: dev-content-pilot
 */
 
 // If Absolute Path is not defined no point in starting this script.
@@ -24,7 +24,7 @@ if(file_exists(dirname(__FILE__).'/vendor/autoload.php')){
 define('PLUGIN_NAME', 'Content Pilot');
 define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'PLUGIN_SLUG', 'dev-wp-content-pilot' );
+define( 'PLUGIN_SLUG', 'dev-content-pilot' );
 
 
 use Dev\WpContentAutopilot\Main;
