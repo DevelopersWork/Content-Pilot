@@ -2,6 +2,7 @@
     "recommendations": [
         "felixfbecker.php-debug",
         "bmewburn.vscode-intelephense-client",
-        "felixfbecker.php-pack"
+        "felixfbecker.php-pack",
+        "valeryanm.vscode-phpsab"
     ]
 }

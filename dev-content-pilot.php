@@ -14,7 +14,7 @@
 */
 
 // If Absolute Path is not defined no point in starting this script.
-defined('ABSPATH') or die("This is gonna be a highlight real for sure...");
+if( ! defined('ABSPATH') ) or die("This is gonna be a highlight real for sure...");
 
 // Require once the Composer Autoload
 if(file_exists(dirname(__FILE__).'/vendor/autoload.php')){

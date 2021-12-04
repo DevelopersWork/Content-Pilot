@@ -14,5 +14,9 @@
             "email": "admin@developerswork.com"
         }
     ],
-    "require": {}
+    "require": {
+        "google/apiclient": "^2.0",
+        "cache/filesystem-adapter": "^1.1",
+        "php-console/php-console": "^3.1"
+    }
 }
