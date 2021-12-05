@@ -1,49 +1,22 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => NULL,
+        'reference' => 'bbd0b3e6e67619c08f66c58f5b9b7512d2a03cb1',
         'name' => 'dev/wp-content-autopilot',
         'dev' => true,
     ),
     'versions' => array(
-        'cache/adapter-common' => array(
-            'pretty_version' => '1.2.0',
-            'version' => '1.2.0.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../cache/adapter-common',
-            'aliases' => array(),
-            'reference' => '6b87c5cbdf03be42437b595dbe5de8e97cd1d497',
-            'dev_requirement' => false,
-        ),
-        'cache/filesystem-adapter' => array(
-            'pretty_version' => '1.1.0',
-            'version' => '1.1.0.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../cache/filesystem-adapter',
-            'aliases' => array(),
-            'reference' => '1501ca71502f45114844824209e6a41d87afb221',
-            'dev_requirement' => false,
-        ),
-        'cache/tag-interop' => array(
-            'pretty_version' => '1.0.1',
-            'version' => '1.0.1.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../cache/tag-interop',
-            'aliases' => array(),
-            'reference' => '909a5df87e698f1665724a9e84851c11c45fbfb9',
-            'dev_requirement' => false,
-        ),
         'dev/wp-content-autopilot' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => NULL,
+            'reference' => 'bbd0b3e6e67619c08f66c58f5b9b7512d2a03cb1',
             'dev_requirement' => false,
         ),
         'firebase/php-jwt' => array(
@@ -109,24 +82,6 @@
             'reference' => '089edd38f5b8abba6cb01567c2a8aaa47cec4c72',
             'dev_requirement' => false,
         ),
-        'league/flysystem' => array(
-            'pretty_version' => '1.1.8',
-            'version' => '1.1.8.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../league/flysystem',
-            'aliases' => array(),
-            'reference' => 'c995bb0c23c58c9813d081f9523c9b7bb496698e',
-            'dev_requirement' => false,
-        ),
-        'league/mime-type-detection' => array(
-            'pretty_version' => '1.9.0',
-            'version' => '1.9.0.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../league/mime-type-detection',
-            'aliases' => array(),
-            'reference' => 'aa70e813a6ad3d1558fc927863d47309b4c23e69',
-            'dev_requirement' => false,
-        ),
         'monolog/monolog' => array(
             'pretty_version' => '2.3.5',
             'version' => '2.3.5.0',
@@ -154,15 +109,6 @@
             'reference' => '996434e5492cb4c3edcb9168db6fbb1359ef965a',
             'dev_requirement' => false,
         ),
-        'php-console/php-console' => array(
-            'pretty_version' => '3.1.8',
-            'version' => '3.1.8.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../php-console/php-console',
-            'aliases' => array(),
-            'reference' => 'aa1d71d4ea3dc91e126edc9aa4f3c10eb8559cff',
-            'dev_requirement' => false,
-        ),
         'phpseclib/phpseclib' => array(
             'pretty_version' => '3.0.12',
             'version' => '3.0.12.0',
@@ -180,12 +126,6 @@
             'aliases' => array(),
             'reference' => 'd11b50ad223250cf17b86e38383413f5a6764bf8',
             'dev_requirement' => false,
-        ),
-        'psr/cache-implementation' => array(
-            'dev_requirement' => false,
-            'provided' => array(
-                0 => '^1.0',
-            ),
         ),
         'psr/http-client' => array(
             'pretty_version' => '1.0.1',
@@ -245,21 +185,6 @@
             'dev_requirement' => false,
             'provided' => array(
                 0 => '1.0.0 || 2.0.0 || 3.0.0',
-            ),
-        ),
-        'psr/simple-cache' => array(
-            'pretty_version' => '1.0.1',
-            'version' => '1.0.1.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../psr/simple-cache',
-            'aliases' => array(),
-            'reference' => '408d5eafb83c57f6365a3ca330ff23aa4a5fa39b',
-            'dev_requirement' => false,
-        ),
-        'psr/simple-cache-implementation' => array(
-            'dev_requirement' => false,
-            'provided' => array(
-                0 => '^1.0',
             ),
         ),
         'ralouphie/getallheaders' => array(

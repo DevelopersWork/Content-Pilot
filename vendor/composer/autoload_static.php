@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit6520919131185968bd925860058035fe
+class ComposerStaticInit90a01d84a0c7e2ce23bb039082d032f7
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
@@ -23,22 +23,15 @@ class ComposerStaticInit6520919131185968bd925860058035fe
         ),
         'P' => 
         array (
-            'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
             'Psr\\Cache\\' => 10,
-            'PhpConsole\\' => 11,
             'ParagonIE\\ConstantTime\\' => 23,
         ),
         'M' => 
         array (
             'Monolog\\' => 8,
-        ),
-        'L' => 
-        array (
-            'League\\MimeTypeDetection\\' => 25,
-            'League\\Flysystem\\' => 17,
         ),
         'G' => 
         array (
@@ -57,22 +50,12 @@ class ComposerStaticInit6520919131185968bd925860058035fe
         array (
             'Dev\\WpContentAutopilot\\' => 23,
         ),
-        'C' => 
-        array (
-            'Cache\\TagInterop\\' => 17,
-            'Cache\\Adapter\\Filesystem\\' => 25,
-            'Cache\\Adapter\\Common\\' => 21,
-        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'phpseclib3\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
-        ),
-        'Psr\\SimpleCache\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
         ),
         'Psr\\Log\\' => 
         array (
@@ -91,10 +74,6 @@ class ComposerStaticInit6520919131185968bd925860058035fe
         array (
             0 => __DIR__ . '/..' . '/psr/cache/src',
         ),
-        'PhpConsole\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/php-console/php-console/src/PhpConsole',
-        ),
         'ParagonIE\\ConstantTime\\' => 
         array (
             0 => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src',
@@ -102,14 +81,6 @@ class ComposerStaticInit6520919131185968bd925860058035fe
         'Monolog\\' => 
         array (
             0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
-        ),
-        'League\\MimeTypeDetection\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/league/mime-type-detection/src',
-        ),
-        'League\\Flysystem\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/league/flysystem/src',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
@@ -143,18 +114,6 @@ class ComposerStaticInit6520919131185968bd925860058035fe
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
-        'Cache\\TagInterop\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/cache/tag-interop',
-        ),
-        'Cache\\Adapter\\Filesystem\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/cache/filesystem-adapter',
-        ),
-        'Cache\\Adapter\\Common\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/cache/adapter-common',
-        ),
     );
 
     public static $classMap = array (
@@ -185,9 +144,9 @@ class ComposerStaticInit6520919131185968bd925860058035fe
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit6520919131185968bd925860058035fe::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit6520919131185968bd925860058035fe::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit6520919131185968bd925860058035fe::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit90a01d84a0c7e2ce23bb039082d032f7::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit90a01d84a0c7e2ce23bb039082d032f7::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit90a01d84a0c7e2ce23bb039082d032f7::$classMap;
 
         }, null, ClassLoader::class);
     }

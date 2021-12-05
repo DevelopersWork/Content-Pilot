@@ -14,18 +14,12 @@
 */
 
 // If Absolute Path is not defined no point in starting this script.
-if( ! defined('ABSPATH') ) or die("This is gonna be a highlight real for sure...");
+if( ! defined('ABSPATH') ) exit();
 
-// Require once the Composer Autoload
-if(file_exists(dirname(__FILE__).'/vendor/autoload.php')){
-    require_once dirname(__FILE__).'/vendor/autoload.php';
-}
-
-define('PLUGIN_NAME', 'Content Pilot');
-define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
-define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'PLUGIN_SLUG', 'dev-content-pilot' );
-
+// If Composer isn't loaded something is fishy
+if( ! file_exists ( dirname(__FILE__) . '/vendor/autoload.php' ) ) exit();
+    
+require_once dirname(__FILE__) . '/vendor/autoload.php';
 
 use Dev\WpContentAutopilot\Main;
 use Dev\WpContentAutopilot\Core\{Store};
@@ -67,6 +61,11 @@ register_deactivation_hook( __FILE__, 'onDeactivate' );
  * Initialize all the core classes of the plugin
  */
 if ( class_exists('DevWPContentAutopilot')) {
+
+    define('PLUGIN_NAME', 'Content Pilot');
+    define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+    define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+    define( 'PLUGIN_SLUG', 'dev-content-pilot' );
     
     file_put_contents('php://stderr', print_r(PLUGIN_NAME . ": {STARTED}\n", TRUE));
 
