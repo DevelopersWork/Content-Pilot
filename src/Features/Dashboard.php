@@ -4,6 +4,8 @@
  */
 namespace Dev\WpContentAutopilot\Features;
 
+use Dev\WpContentAutopilot\Core\YouTube;
+
 class Dashboard {
 
     private $store;
@@ -33,10 +35,18 @@ class Dashboard {
         $API = $this -> store -> get('SetupAPI');
         $api = new $API();
         $api -> addPages($page) -> asSubPage('Dashboard') -> register();
+
+       
     }
 
     public function render(){
-        require_once PLUGIN_PATH . "/src/Pages/Dashboard.php";
+        // require_once PLUGIN_PATH . "/src/Pages/Dashboard.php";
+
+        $yt = new YouTube($this -> store);
+        $response = $yt -> createClient() -> createService() -> search();
+
+
+        print_r($response);
     }
 
 }

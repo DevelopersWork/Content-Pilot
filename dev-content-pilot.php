@@ -33,6 +33,9 @@ class DevWPContentAutopilot {
         $store = new Store();
 
         $store->set('name', plugin_basename(__FILE__));
+
+        $store->set('Google_Client', Google_Client:: class);
+        $store->set('Google_Service_YouTube', Google_Service_YouTube:: class);
         
         $this->process = new Main($store);
     }

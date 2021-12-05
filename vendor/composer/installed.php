@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'bbd0b3e6e67619c08f66c58f5b9b7512d2a03cb1',
+        'reference' => '7a261ac7a0c719a3a0d205903025f88c5f222745',
         'name' => 'dev/wp-content-autopilot',
         'dev' => true,
     ),
@@ -16,7 +16,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'bbd0b3e6e67619c08f66c58f5b9b7512d2a03cb1',
+            'reference' => '7a261ac7a0c719a3a0d205903025f88c5f222745',
             'dev_requirement' => false,
         ),
         'firebase/php-jwt' => array(
