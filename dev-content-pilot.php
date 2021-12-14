@@ -50,7 +50,6 @@ class DevWPContentAutopilot {
 function onActivate() {
 	Dev\WpContentAutopilot\Core\Activate:: activate();
 }
-register_activation_hook( __FILE__, 'onActivate' );
 
 /**
  * The code that runs during plugin deactivation
@@ -58,7 +57,6 @@ register_activation_hook( __FILE__, 'onActivate' );
 function onDeactivate() {
 	Dev\WpContentAutopilot\Core\Deactivate:: deactivate();
 }
-register_deactivation_hook( __FILE__, 'onDeactivate' );
 
 /**
  * Initialize all the core classes of the plugin
@@ -73,5 +71,11 @@ if ( class_exists('DevWPContentAutopilot')) {
     file_put_contents('php://stderr', print_r(PLUGIN_NAME . ": {STARTED}\n", TRUE));
 
     $devWPContentAutopilot = new DevWPContentAutopilot();
+
+    register_activation_hook( __FILE__, 'onActivate' );
+
+    register_deactivation_hook( __FILE__, 'onDeactivate' );
+
     $devWPContentAutopilot -> init();
+    
 }
