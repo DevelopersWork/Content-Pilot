@@ -144,11 +144,11 @@ class SetupAPI {
 
     }
 
-    private function isKeyExists($key, $array) {
+    public static function isKeyExists($key, $array) {
         return array_key_exists($key, $array);
     }
 
-    private function createPage($_page) {
+    public function createPage($_page) {
         $page = array();
 
         if ( ! $this->isKeyExists('page_title', $_page) ) 
@@ -181,7 +181,7 @@ class SetupAPI {
         return $page;
     }
 
-    private function createSetting($_setting) {
+    public function createSetting($_setting) {
         $setting = array();
 
         if ( ! $this->isKeyExists('option_group', $_setting) )
@@ -197,7 +197,7 @@ class SetupAPI {
         return $setting;
     }
 
-    private function createSection($_section) {
+    public function createSection($_section) {
         $section = array();
 
         if ( ! $this->isKeyExists('id', $_section) ) 
@@ -216,27 +216,34 @@ class SetupAPI {
         return $section;
     }
 
-    private function createField($_field) {
+    public function createField($_field) {
         $field = array();
 
         if ( ! $this->isKeyExists('id', $_field) ) 
             return array();
         $field['id'] = $_field['id'];
+        
         if ( ! $this->isKeyExists('title', $_field) ) 
             return array();
         $field['title'] = $_field['title'];
-        if ( ! $this->isKeyExists('callback', $_field) ) 
-            return array();
-        $field['callback'] = $_field['callback'];
+        
         if ( ! $this->isKeyExists('page', $_field) ) 
             return array();
         $field['page'] = $_field['page'];
+        
         if ( ! $this->isKeyExists('section', $_field) ) 
             return array();
         $field['section'] = $_field['section'];
-        if ( ! $this->isKeyExists('args', $_field) ) 
-            return array();
-        $field['args'] = $_field['args'];
+
+        if ( $this->isKeyExists('callback', $_field) ) 
+            $field['callback'] = '';
+        else
+            $field['callback'] = $_field['callback'];
+        
+        if ( $this->isKeyExists('args', $_field) ) 
+            $field['args'] = '';
+        else
+            $field['args'] = $_field['args'];
 
         return $field;
     }

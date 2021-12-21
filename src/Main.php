@@ -26,6 +26,15 @@ class Main {
         $_service = new Services($this -> store, $services);
         $_service -> register();
 
+        add_action('admin_enqueue_scripts', array($this, 'enqueue'));
+
+    }
+
+    function enqueue() {
+
+        wp_enqueue_script(PLUGIN_NAME . ' Script', PLUGIN_URL . 'assets/js/script.js');
+        wp_enqueue_style(PLUGIN_NAME . ' Style', PLUGIN_URL . 'assets/css/style.css');
+
     }
     
 }
