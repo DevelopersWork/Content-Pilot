@@ -34,11 +34,7 @@ class Configuration extends Manager {
 
     public function renderPage() {
 
-		$tabs = $this -> generateTabs();
-
-		$fields = $this -> generateFields();
-
-		parent::renderPage();
+		$_metadata = $this -> data;
 
         return include_once PLUGIN_PATH . "/src/Pages/Configuration.php";
     }

@@ -11,7 +11,7 @@ class Manager {
 
     private $page, $settings, $sections, $fields;
 
-    private $tabs;
+    public $data = array();
     
     function __construct( $store, $class = null ) {
 
@@ -29,10 +29,7 @@ class Manager {
 
         $this -> page = array();
 
-        $store -> get( $name )['page'] = $this -> page;
-        $store -> get( $name )['settings'] = $this -> settings;
-        $store -> get( $name )['sections'] = $this -> sections;
-        $store -> get( $name )['fields'] = $this -> fields;
+        $this -> syncStore();
     
     }
 
@@ -57,9 +54,7 @@ class Manager {
             'menu_slug' => $slug . '-' . strtolower($this -> title), 
             'callback' => $callback,
 
-            'settings' =>  $this -> settings,
-            'sections' => $this -> sections,
-            'fields' => $this -> fields
+            'sections' => array(),
         );
 
         $API = $this -> store -> get('SetupAPI');
@@ -72,7 +67,7 @@ class Manager {
                 $this -> page['position'] = $position;
         }
 
-        return $this;
+        return $this -> syncStore();
     }
 
     public function createSection($title, $callback, $parent = null) {
@@ -89,8 +84,12 @@ class Manager {
             'callback' => $callback,
             'issection' => ( $parent == null ) ? True : False,
             'parent' => $parent,
-            'settings' => ( $parent == null ) ? array() : $this -> sections[$parent]['settings']
+            'settings' => array()
         );
+
+        array_push( $this -> page['sections'], $id );
+
+        $this -> syncStore();
 
         return $id;
     }
@@ -110,12 +109,18 @@ class Manager {
             'fields' => array()
         );
 
+        if( $this -> sections[$group]['parent'] != null ) {
+
+            $parent = $this -> sections[$group]['parent'];
+            array_push( $this -> sections[$parent]['settings'], $name );
+
+        }
+
         array_push( $this -> sections[$group]['settings'], $name );
 
-        print_r($this -> sections[$group]['settings']);
-        print('<hr>');
+        $this -> syncStore();
 
-        return $this;
+        return $this -> syncStore();
     }
 
     public function setField($title, $setting, $section, $callback, $args=null) {
@@ -147,11 +152,7 @@ class Manager {
 
         array_push( $this -> settings[$setting]['fields'], $id );
 
-        print($title);
-        print_r($this -> settings[$setting]['fields']);
-        print('<hr>');
-
-        return $this;
+        return $this -> syncStore();
     } 
 
     public function register() {
@@ -168,12 +169,82 @@ class Manager {
 
         $api -> addSubPages($page) -> addSettings($settings) -> addSections($sections) -> addFields($fields) -> register();
 
+        return $this -> render();
+    }
+
+    public function syncStore() {
+
+        $this -> store -> get( $this -> class )['page'] = $this -> page;
+
+        $this -> store -> get( $this -> class )['settings'] = $this -> settings;
+        $this -> store -> get( $this -> class )['sections'] = $this -> sections;
+        $this -> store -> get( $this -> class )['fields'] = $this -> fields;
+
+        return $this;
+
+    }
+
+    public function render() {
+
+        $page = $this -> getPage();
+
+        $tabs = array();
+
+        foreach($page['sections'] as $s) {
+
+            $section = $this -> getSection($s);
+
+            if( $section['issection'] != True ) continue;
+
+            $fields = array();
+
+            foreach($section['settings'] as $se) {
+
+                $setting = $this -> getSetting($se);
+
+                $_fields = array();
+
+                foreach($setting['fields'] as $f) {
+
+                    $field = $this -> getField($f);
+
+                    $_field = array(
+                        'id' => $field['id'],
+                        'title' => $field['title'],
+                        'page' => $field['page']
+                    );
+
+                    array_push($_fields, $_field);
+                }
+
+                array_push($fields, $_fields);
+
+            }
+
+            $tab = array(
+                'id' => $section['id'],
+                'title' => $section['title'],
+                'issection' => $section['issection'],
+                'parent' => $section['parent'],
+                'fields' => $fields
+            );
+
+            array_push($tabs, $tab);
+            
+        }
+
+        $this -> data['page'] = array(
+            'menu_title' => $page['menu_title']
+        );
+
+        $this -> data['tabs'] = $tabs;
+
         return $this;
     }
 
     public function renderPage() {
         
-        echo "<h1>" . $this -> page['menu_title'] . "</h1>";
+        echo '<h1 class="wp-heading-inline">' . $this -> page['menu_title'] . '</h1>';
         
         return $this;
     }
@@ -203,109 +274,24 @@ class Manager {
         $name   = $id . '[' . $type . ']';
         $desc   = $this->get_shortcode_help( $type );
     
-        print "<input type='$type' value='$value' name='$name' id='$id'
-            class='regular-text code' /> <span class='description'>$desc</span>";
+        echo "<input type='$type' value='$value' name='$name' id='$id' class='regular-text code' /> <span class='description'>$desc</span>";
             
     }
 
-    public function getTabs() {
-        
-        $tabs = array();
-
-        foreach ( $this -> sections as $name => $section ) {
-
-            $tab = array();
-            $tab['name'] = $section['title'];
-            $tab['id'] = $name;
-
-            if( $section['issection'] == True )
-                array_push($tabs, $tab);
-        }
-
-        $this -> tabs = array_merge($tabs, array());
-
-        return $tabs;
-
+    public function getPage(){
+        return $this -> page;
     }
 
-    public function getFields($_fields) {
-
-        $fields = array();
-
-        foreach ( $_fields as $_field ) {
-
-            $f = $this -> fields[$_field];
-
-            $field = array();
-            $field['name'] = $f['title'];
-
-            array_push($fields, $field);
-
-        }
-
-        return $fields;
+    public function getSection($id) {
+        return $this->sections[$id];
     }
 
-    public function generateTabs($tabs = null) {
-        $html = '';
-
-        if( $tabs == null ) $tabs = $this -> getTabs();
-
-        $i = 0;
-        foreach($tabs as $tab) {
-            if($i != 0) $html .= '<li>';
-            else $html .= '<li class="active">';
-
-            $html .= '<a href="#tab-'. ($i + 1) .'">';
-            $html .= $tab['name'];
-            $html .= '</a>';
-
-            $html .= '</li>';
-
-            $i += 1;
-        }
-
-        return $html;
+    public function getSetting($name) {
+        return $this -> settings[$name];
     }
 
-    public function generateFields($tabs = null) {
-        $html = '';
-
-        if( $tabs == null ) $tabs = $this -> getTabs();
-
-        $i = 0;
-        foreach($tabs as $tab) {
-
-            if($i != 0) $html .= '<div id="tab-'. ($i + 1) .'" class="tab-pane">';
-            else $html .= '<div id="tab-'. ($i + 1) .'" class="tab-pane active">';
-
-            $html .= '<h3>' . $tab['name'] . '</h3>';
-
-            $settings = $this -> sections[$tab['id']]['settings'];
-
-            print_r($settings);
-            print('<br>');
-
-            foreach($settings as $setting) {
-                
-                $fields = $this -> getFields($this -> settings[$setting]['fields']);
-
-                print_r($fields);
-                print('<hr>');
-
-                foreach($fields as $field) {
-
-                    $html .= $field['name'] . '<br/>';
-
-                }
-            }
-
-            $html .= '</div>';
-
-            $i += 1;
-        }
-
-        return $html;
+    public function getField($id) {
+        return $this -> fields[$id];
     }
 
 }
