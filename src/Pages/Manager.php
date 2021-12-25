@@ -1,21 +1,72 @@
 <div class="warp">
-
-    <ul class="nav nav-tabs">
+    <h1 class="wp-heading-inline">
         <?php 
-            
-            if( isset( $tabs ) ) echo $tabs;
-            
+            if( isset( $_metadata ) ) echo $_metadata['page']['menu_title'];
+        ?>
+    </h1>
+    <ul class="nav nav-tabs">
+        <?php
+            if( isset( $_metadata ) ) {
+                
+                $i = 0;
+                foreach( $_metadata['tabs'] as $tab ) {
+
+                    if($i != 0) echo '<li>';
+                    else echo '<li class="active">';
+
+                    echo '<a href="#tab-'. ($i + 1) .'">';
+                    echo $tab['title'];
+                    echo '</a>';
+
+                    echo '</li>';
+
+                    $i += 1;
+                }
+                
+            }
         ?>
     </ul>
 
     <div class="tab-content">
-
         <?php 
 
-            if( isset( $fields ) ) echo $fields;
+            if( isset( $_metadata ) ) {
+
+                $i = 0;
+
+                foreach( $_metadata['tabs'] as $tab ) {
+
+                    if($i != 0) echo '<div id="tab-'. ($i + 1) .'" class="tab-pane">';
+                    else echo '<div id="tab-'. ($i + 1) .'" class="tab-pane active">';
+
+                    echo '<form method="post" action="options.php">';
+
+                    do_settings_sections( $tab['page'] );
+                    // do_settings_fields( $tab['page'],  $tab['id']);
+
+                    foreach($tab['fields'] as $setting) {
+                
+                        foreach($setting as $field) {
+
+                            settings_fields( $field['group'] );
+
+                            // settings_fields( $field['id'] );
+                    
+                        }
+                    }
+
+                    submit_button();
+
+                    echo '</form>';
+
+                    echo '</div>';
+
+                    $i += 1;
+                }
+                
+            }
         
         ?>
     </div>
 
 </div>
-

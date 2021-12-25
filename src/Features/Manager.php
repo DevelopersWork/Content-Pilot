@@ -80,7 +80,7 @@ class Manager {
         $this -> sections[$id] = array(
             'id' => $id,
             'title' => $title,
-            'page' => $slug,
+            'page' => $slug . '#' . ( $parent == null ) ? $id : $parent,
             'callback' => $callback,
             'issection' => ( $parent == null ) ? True : False,
             'parent' => $parent,
@@ -94,7 +94,7 @@ class Manager {
         return $id;
     }
 
-    public function setSetting($group, $name, $callback) {
+    public function setSetting($group, $name, $callback = null) {
 
         $slug = $this -> page['menu_slug'];
         $menu = $this -> page['menu_title'];
@@ -125,11 +125,12 @@ class Manager {
 
     public function setField($title, $setting, $section, $callback, $args=null) {
 
-        $slug = $this -> page['menu_slug'];
         $menu = $this -> page['menu_title'];
 
         if ( ! array_key_exists($section, $this -> sections) ) return $this;
         $_section = $this -> sections[$section];
+
+        $slug = $_section['page'];
 
         if ( ! in_array($setting, $_section['settings']) ) return $this;
         if ( $this -> settings[$setting]['option_group'] != $section ) return $this;
@@ -143,8 +144,11 @@ class Manager {
             'page' => $slug,
             'section' => $_section['id'],
             'args' => array(
+                'group' => $_setting['option_group'],
                 'label_for' => $_setting['option_name'],
-                'class' => ( isset($args) &&  array_key_exists('class', $args) ) ? $args['class'] : ''
+                'type' => ( isset($args) &&  array_key_exists('type', $args) ) ? $args['type'] : 'text',
+                'class' => ( isset($args) &&  array_key_exists('class', $args) ) ? $args['class'] : 'regular-text',
+                'placeholder' => ( isset($args) &&  array_key_exists('placeholder', $args) ) ? $args['placeholder'] : 'Type here...'
             ),
             'callback' => $callback,
             'key' => $id
@@ -163,9 +167,9 @@ class Manager {
         $api = new $API();
 
         $page = array($this -> page);
-        $settings = array( array_values( $this -> settings ) );
-        $sections = array( array_values( $this -> sections ) );
-        $fields = array( array_values( $this -> fields ) );
+        $settings = array_values( $this -> settings );
+        $sections = array_values( $this -> sections );
+        $fields = array_values( $this -> fields );
 
         $api -> addSubPages($page) -> addSettings($settings) -> addSections($sections) -> addFields($fields) -> register();
 
@@ -211,7 +215,8 @@ class Manager {
                     $_field = array(
                         'id' => $field['id'],
                         'title' => $field['title'],
-                        'page' => $field['page']
+                        'page' => $field['page'],
+                        'group' => $setting['option_group']
                     );
 
                     array_push($_fields, $_field);
@@ -226,7 +231,8 @@ class Manager {
                 'title' => $section['title'],
                 'issection' => $section['issection'],
                 'parent' => $section['parent'],
-                'fields' => $fields
+                'fields' => $fields,
+                'page' => $section['page']
             );
 
             array_push($tabs, $tab);
@@ -234,7 +240,8 @@ class Manager {
         }
 
         $this -> data['page'] = array(
-            'menu_title' => $page['menu_title']
+            'menu_title' => $page['menu_title'],
+            'menu_slug' => $page['menu_slug']
         );
 
         $this -> data['tabs'] = $tabs;
@@ -244,21 +251,18 @@ class Manager {
 
     public function renderPage() {
         
-        echo '<h1 class="wp-heading-inline">' . $this -> page['menu_title'] . '</h1>';
-        
-        return $this;
+        $_metadata = $this -> data;
+
+        return include_once PLUGIN_PATH . "/src/Pages/Manager.php";
     }
 
     public function renderSetting( $input ) {
         return $input;
     }
 
-    public function renderSection( $arg ) {
+    public function renderSection( array $args ) {
 
-        echo "<br/><hr/><br/>";
-        echo '<h3>id: ' . $arg['id'] . '</h3>';
-        echo '<h3>title: ' . $arg['title'] . '</h3>';
-        echo "<br/><hr/><br/>";
+        echo '<h3>id: ' . $args['id'] . '</h3>';
 
         return $this;
     }
@@ -267,14 +271,17 @@ class Manager {
 
         $type   = $args['type'];
         $id     = $args['label_for'];
-        $data   = get_option( $id, array() );
-        $value  = $data[ $type ];
-    
-        $value  = esc_attr( $value );
-        $name   = $id . '[' . $type . ']';
-        $desc   = $this->get_shortcode_help( $type );
-    
-        echo "<input type='$type' value='$value' name='$name' id='$id' class='regular-text code' /> <span class='description'>$desc</span>";
+        $class = $args['class'];
+        $placeholder = $args['placeholder'];
+
+        $value = esc_attr( get_option( $id ) );
+        $name  = $id . '[' . $type . ']';
+        $desc  = 'Heyyy boi';//get_shortcode_help( $type );
+
+        print "<input type='$type' value='$value' name='$name' id='$id' class='$class' placeholder='$placeholder' /> 
+            <span class='description'>$desc</span>";
+
+        return;
             
     }
 

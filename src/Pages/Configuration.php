@@ -33,25 +33,21 @@
             if( isset( $_metadata ) ) {
 
                 $i = 0;
+
                 foreach( $_metadata['tabs'] as $tab ) {
 
                     if($i != 0) echo '<div id="tab-'. ($i + 1) .'" class="tab-pane">';
                     else echo '<div id="tab-'. ($i + 1) .'" class="tab-pane active">';
 
-                    echo '<h3>' . $tab['title'] . '</h3>';
+                    do_settings_sections( $tab['page'] );
 
                     echo '<form method="post" action="options.php">';
 
                     foreach($tab['fields'] as $setting) {
                 
                         foreach($setting as $field) {
-                
-                            echo $field['title'] . '<br/>';
 
-                            get_option( $field['id'] ) ? print('wow its there') : print('oops');
-
-                            // settings_fields( $field['id'] );
-					        // do_settings_sections( $field['page'] );
+                            settings_fields( $field['id'] );
                     
                         }
                     }
