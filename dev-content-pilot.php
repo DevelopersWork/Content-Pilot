@@ -63,10 +63,16 @@ function onDeactivate() {
  */
 if ( class_exists('DevWPContentAutopilot')) {
 
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+    // wordpress database object
+    global $wpdb;
+
     define('PLUGIN_NAME', 'Content Pilot');
     define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
     define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
     define( 'PLUGIN_SLUG', 'dev-content-pilot' );
+    define( 'PLUGIN_PREFIX', $wpdb->prefix . str_replace('-', '', PLUGIN_SLUG) );
     
     file_put_contents('php://stderr', print_r(PLUGIN_NAME . ": {STARTED}\n", TRUE));
 
@@ -78,4 +84,5 @@ if ( class_exists('DevWPContentAutopilot')) {
 
     $devWPContentAutopilot -> init();
     
+    Dev\WpContentAutopilot\Core\Activate:: activate();
 }
