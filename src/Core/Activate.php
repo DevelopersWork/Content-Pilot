@@ -98,7 +98,7 @@ class Activate {
 
             if ( ! wp_next_scheduled( $name ) ) {
 
-                wp_schedule_event( time(), $row['type'], $name );
+                wp_schedule_event( time() + 3, $row['type'], $name );
 
             }
         }

@@ -43,10 +43,8 @@ class Dashboard {
         // require_once PLUGIN_PATH . "/src/Pages/Dashboard.php";
 
         $yt = new YouTube($this -> store);
-        $response = $yt -> createClient() -> createService() -> search();
+        $yt -> createService() -> makePost(0);
 
-
-        print_r($response);
     }
 
 }

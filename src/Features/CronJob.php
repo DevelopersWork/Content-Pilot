@@ -4,6 +4,8 @@
  */
 namespace Dev\WpContentAutopilot\Features;
 
+use Dev\WpContentAutopilot\Core\YouTube;
+
 class CronJob {
 
     private $store;
@@ -54,7 +56,11 @@ class CronJob {
     }
 
     public function youtube() {
-        print("Hello World YouTube");
+
+        $yt = new YouTube($this -> store);
+
+        $yt -> createService() -> makePost(0);
+        
     }
 
 }
