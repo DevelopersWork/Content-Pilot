@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS %table_prefix%triggers (
+CREATE TABLE IF NOT EXISTS %table_prefix%_triggers (
 
     id                  bigint(20)  NOT NULL    AUTO_INCREMENT PRIMARY KEY  COMMENT '',
     name                text        NOT NULL                                COMMENT 'Name of the Trigger',
@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS %table_prefix%triggers (
     hours               bigint(20)  NOT NULL    DEFAULT 24                  COMMENT 'hours between each run',
     days                bigint(20)  NOT NULL    DEFAULT 1                   COMMENT 'days between each run',
     insert_timestamp    timestamp   NOT NULL    DEFAULT current_timestamp() COMMENT '',
-    disabled            tinyint(1)  NOT NULL    DEFAULT 0                   COMMENT '',
-    hash                text        NOT NULL    UNIQUE KEY                  COMMENT 'md5(*columns*)'
-
+    disabled            tinyint(1)  NOT NULL    DEFAULT 0                   COMMENT ''
+    
 ) %charset_collate% ;
