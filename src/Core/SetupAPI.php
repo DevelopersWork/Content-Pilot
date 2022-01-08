@@ -33,6 +33,7 @@ class SetupAPI {
     }
 
     public function registerCustomFields() {
+
 		// register setting
 		foreach ( $this->settings as $setting ) {
 			register_setting( $setting["option_group"], $setting["option_name"], ( isset( $setting["callback"] ) ? $setting["callback"] : '' ) );
@@ -144,11 +145,11 @@ class SetupAPI {
 
     }
 
-    private function isKeyExists($key, $array) {
+    public static function isKeyExists($key, $array) {
         return array_key_exists($key, $array);
     }
 
-    private function createPage($_page) {
+    public function createPage($_page) {
         $page = array();
 
         if ( ! $this->isKeyExists('page_title', $_page) ) 
@@ -181,23 +182,24 @@ class SetupAPI {
         return $page;
     }
 
-    private function createSetting($_setting) {
+    public function createSetting($_setting) {
         $setting = array();
 
         if ( ! $this->isKeyExists('option_group', $_setting) )
             return array();
         $setting['option_group'] = $_setting['option_group'];
+        
         if ( ! $this->isKeyExists('option_name', $_setting) )
             return array();
         $setting['option_name'] = $_setting['option_name'];
-        if ( ! $this->isKeyExists('callback', $_setting) ) 
-            return array();
-        $setting['callback'] = $_setting['callback'];
+        
+        if ( $this->isKeyExists('callback', $_setting) && $_setting['callback'] != null ) 
+            $setting['callback'] = $_setting['callback'];
         
         return $setting;
     }
 
-    private function createSection($_section) {
+    public function createSection($_section) {
         $section = array();
 
         if ( ! $this->isKeyExists('id', $_section) ) 
@@ -216,29 +218,51 @@ class SetupAPI {
         return $section;
     }
 
-    private function createField($_field) {
+    public function createField($_field) {
         $field = array();
 
         if ( ! $this->isKeyExists('id', $_field) ) 
             return array();
         $field['id'] = $_field['id'];
+        
         if ( ! $this->isKeyExists('title', $_field) ) 
             return array();
         $field['title'] = $_field['title'];
-        if ( ! $this->isKeyExists('callback', $_field) ) 
-            return array();
-        $field['callback'] = $_field['callback'];
+        
         if ( ! $this->isKeyExists('page', $_field) ) 
             return array();
         $field['page'] = $_field['page'];
+
+        if ( ! $this->isKeyExists('callback', $_field) ) 
+            return array();
+        $field['callback'] = $_field['callback'];
+
         if ( ! $this->isKeyExists('section', $_field) ) 
-            return array();
-        $field['section'] = $_field['section'];
+            $field['section'] = '';
+        else
+            $field['section'] = $_field['section'];
+        
         if ( ! $this->isKeyExists('args', $_field) ) 
-            return array();
-        $field['args'] = $_field['args'];
+            $field['args'] = '';
+        else
+            $field['args'] = $_field['args'];
 
         return $field;
+    }
+
+    public function get($key) {
+
+        if($key == 'pages') return $this -> pages;
+        
+        if($key == 'sub_pages') return $this -> sub_pages;
+        
+        if($key == 'settings') return $this -> settings;
+        
+        if($key == 'sections') return $this -> sections;
+        
+        if($key == 'fields') return $this -> fields;
+
+        return;
     }
 
 }
