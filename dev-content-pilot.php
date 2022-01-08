@@ -37,7 +37,7 @@ class DevWPContentAutopilot {
         $store->set('Google_Client', Google_Client:: class);
         $store->set('Google_Service_YouTube', Google_Service_YouTube:: class);
         
-        $this->process = new Main($store);
+        $this->process = new Main($store, '0.0.1');
     }
 
     public function init() { $this->process->init(); }

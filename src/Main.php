@@ -10,9 +10,11 @@ class Main {
 
     private $store;
 
-    function __construct($store) {
+    function __construct($store, $version = '0.0.1') {
 
         $this->store = $store;
+
+        $this -> version = $version;
     
     }
 
@@ -35,8 +37,8 @@ class Main {
 
     public function enqueue() {
 
-        wp_enqueue_script(PLUGIN_NAME . ' Script', PLUGIN_URL . 'assets/js/script.js');
-        wp_enqueue_style(PLUGIN_NAME . ' Style', PLUGIN_URL . 'assets/css/style.css');
+        wp_enqueue_script(PLUGIN_NAME . ' Script', PLUGIN_URL . 'assets/js/script.js', array(), $this->version, 'all' );
+        wp_enqueue_style(PLUGIN_NAME . ' Style', PLUGIN_URL . 'assets/css/style.css', array(), $this->version, 'all' );
 
     }
 
@@ -46,7 +48,6 @@ class Main {
         // wordpress database object
         global $wpdb;
         
-        $table_prefix = $wpdb->dbname . '.' . $wpdb->prefix . 'ContentPilot_';
         $charset_collate = $wpdb->get_charset_collate();
         
         $query = "SELECT * FROM " . PLUGIN_PREFIX . "_triggers WHERE disabled = 0";

@@ -15,7 +15,105 @@ class YouTube {
 
     }
 
-    public function createClient( string $key = null ) {
+    public function fetchVideoIds(string $query = null, array $queryParams = array()) {
+
+        $this -> createClient() -> createService();
+
+        $queryParams['maxResults'] = 25;
+        $queryParams['order'] = 'date';
+        $queryParams['type'] = 'video';
+        $queryParams['q'] = $query ? $query : 'DevelopersWork';
+
+        return $this -> service -> search -> listSearch('id', $queryParams);
+    }
+
+    public function getVideoById(string $id = '', array $queryParams = array()) {
+
+        $this -> createClient() -> createService();
+
+        $queryParams['id'] = $id;
+
+        return $this -> service -> videos -> listVideos('snippet, contentDetails, statistics', $queryParams);
+    }
+
+    public function search($search_string = null) {
+        
+        $queryParams = [
+            'maxResults' => 5,
+            'type' => 'video',
+            'eventType' => 'live',
+            'order' => 'date',
+            'q' => $search_string ? $search_string : 'DevelopersWork'
+        ];
+
+        $this -> lastResponse = $this -> service -> search -> listSearch('snippet', $queryParams);
+        $this -> lastResponse = $this -> service -> videos -> listVideos('snippet,contentDetails,statistics', $queryParams);
+        
+        return $this -> lastResponse;
+
+    }
+
+    public function makePost() {
+
+        $search = 'gaming valorant';
+
+        $response = $this -> fetchVideoIds($search, array('eventType' => 'live'))['items'];
+        $videoID = $response[rand(0, count($response) - 1)]['id']['videoId'];
+
+        $response = $this -> getVideoById($videoID)['items'][0];
+
+        print_r($response);
+
+        $path = PLUGIN_PATH . 'assets/html/';
+        $post_content = file_get_contents( $path . 'youtube_live_post.html' );
+
+        $post_content = str_replace( "%video_id%", $videoID, $post_content );
+
+        $desc = str_replace('\n', '<br/>', $response['snippet']['description']);
+        $desc = str_replace(' ', '&nbsp;', $desc);
+        $post_content = str_replace( "%description%", $desc, $post_content );
+        
+        $post_content = str_replace( "%channel_id%", $response['snippet']['channelId'], $post_content );
+        $post_content = str_replace( "%channel_name%", $response['snippet']['channelTitle'], $post_content );
+
+        $post_content = str_replace( "%viewCount%", $response['statistics']['viewCount'], $post_content );
+        $post_content = str_replace( "%likeCount%", $response['statistics']['likeCount'], $post_content );
+        $post_content = str_replace( "%commentCount%", $response['statistics']['commentCount'], $post_content );
+
+        $data = array(
+			'post_title' => $response['snippet']['title'],
+			'post_content' => $post_content,
+			'post_category' => array($search),
+			'tags_input' => $response['snippet']['tags'],
+			'post_status' => 'publish',
+			'post_type' => 'post'
+		);
+
+        $result = wp_insert_post( $data );
+
+        if ( $result && ! is_wp_error( $result ) ) {
+			$thenewpostID = $result;
+
+			//add the youtube meta data
+			add_post_meta( $thenewpostID, 'videoID', $videoID);
+			add_post_meta( $thenewpostID, 'publishedAt',  $response['snippet']['publishedAt']);
+			add_post_meta( $thenewpostID, 'channelId', $response['snippet']['channelId']);
+            add_post_meta( $thenewpostID, 'channelTitle', $response['snippet']['channelTitle']);
+			add_post_meta( $thenewpostID, 'ytitle', $response['snippet']['title']);
+			add_post_meta( $thenewpostID, 'ydescription', $response['snippet']['description']);
+			add_post_meta( $thenewpostID, 'imageresmed', $response['snippet']['thumbnails']['medium']['url']);
+			add_post_meta( $thenewpostID, 'imagereshigh', $response['snippet']['thumbnails']['high']['url']);
+
+            set_post_thumbnail( $thenewpostID, $response['snippet']['thumbnails']['high']['url']);
+	
+		}
+
+        print_r($result);
+
+        return $this;
+    }
+
+    private function createClient( string $key = null ) {
 
         if ( ! $key ) {
             // Fetch API key from the database
@@ -29,7 +127,7 @@ class YouTube {
             global $wpdb;
             $_result = $wpdb->get_results( $query, 'ARRAY_A' );
 
-            $key = $_result[0]['_key'];
+            $key = $_result[rand(0, count($_result) - 1)]['_key'];
         }
 
         $Google_Client = $this -> store -> get('Google_Client');
@@ -46,7 +144,7 @@ class YouTube {
         return $this;
     }
 
-    public function createService() {
+    private function createService() {
 
         if ( ! $this -> client )
             $this -> createClient();
@@ -54,52 +152,6 @@ class YouTube {
         $Google_Service_YouTube = $this -> store -> get('Google_Service_YouTube');
 
         $this -> service = new $Google_Service_YouTube($this -> client);
-
-        return $this;
-    }
-
-    public function search($search_string = null) {
-        
-        $queryParams = [
-            'maxResults' => 25,
-            'q' => $search_string ? $search_string : 'DevelopersWork'
-        ];
-
-        $this -> lastResponse = $this -> service -> search -> listSearch('snippet', $queryParams);
-        
-        return $this -> lastResponse;
-
-    }
-
-    public function makePost(int $index) {
-
-        if ( ! $this -> lastResponse )
-            $this -> search();
-
-        $data = array(
-			'post_title' => '$item->snippet->title',
-			'post_content' => '$item->snippet->description',
-			'post_category' => array('$_POST[\'uncategorized\']'),
-			'tags_input' => array('$tags'),
-			'post_status' => 'publish',
-			'post_type' => 'wp10yvids'
-		);
-
-        $result = wp_insert_post( $data );
-
-        if ( $result && ! is_wp_error( $result ) ) {
-			$thenewpostID = $result;
-
-			//add the youtube meta data
-			add_post_meta( $thenewpostID, 'videoID', '$item->id');
-			add_post_meta( $thenewpostID, 'publishedAt', '$item->snippet->publishedAt');
-			add_post_meta( $thenewpostID, 'channelId', '$item->snippet->channelId');
-			add_post_meta( $thenewpostID, 'ytitle', '$item->snippet->title');
-			add_post_meta( $thenewpostID, 'ydescription', '$item->snippet->description');
-			add_post_meta( $thenewpostID, 'imageresmed', '$item->snippet->thumbnails->medium->url');
-			add_post_meta( $thenewpostID, 'imagereshigh', '$item->snippet->thumbnails->high->url');
-	
-		}
 
         return $this;
     }
