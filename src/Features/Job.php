@@ -37,32 +37,58 @@ class Job extends Manager {
     }
 
     public function submit() {
+        global $alert_show;
+        
         if(isset($_POST['form_name'])) {
             if($_POST['form_name'] == 'job_create') {
-                $names = array('service_id', 'trigger_id', 'job_name');
-                $flag = 1;
-                foreach($names as $name){
-                    if(!isset($_POST[$name])){
-                        $flag = 0;
-                    }
+                
+                $response = $this -> createJob ($_POST);
+
+                if( ! $response ) {
+                    $alert_show = $this -> renderAlert( array(
+                        'type' => 'alert-danger',
+                        'description' => 'JOB CREATION FAILED'
+                    ) );
                 }
-    
-                if($flag == 1) {
-                    global $wpdb;
-                    $table = PLUGIN_PREFIX . '_jobs';
-                    $data = array('name' => $_POST['job_name'], 'service_id' => $_POST['service_id'], 'trigger_id' => $_POST['trigger_id'], 'key_required' => 1);
-                    $st = "";
-                    foreach($data as $key => $value) {
-                        $st .= md5($key . $value). '_';
-                    }
-                    $data['hash'] = password_hash($st, PASSWORD_DEFAULT);
-                    $format = array('%s','%s', '%s', '%d', '%s');
-                    // $wpdb->insert($table, $data, $format);
-                    // $my_id = $wpdb->insert_id;
-                    print_r($data);
-                }
+                
             }
             else if($_POST['form_name'] == 'job_run') {}
+        }
+    }
+
+    private function createJob( array $args ) {
+        global $wpdb;
+        
+        $names = array('service_id', 'trigger_id', 'job_name');
+        $flag = 1;
+        foreach($names as $name){
+            if( ! isset($args[$name]) ){
+                $flag = 0;
+                break;
+            }
+        }
+
+        if($flag == 1) {
+            
+            $table = PLUGIN_PREFIX . '_jobs';
+
+            $data = array(
+                'name' => $_POST['job_name'], 
+                'service_id' => $_POST['service_id'], 
+                'trigger_id' => $_POST['trigger_id'], 
+                'key_required' => 1 
+            );
+            
+            $st = '';
+            foreach($data as $key => $value) $st .= md5($key . $value). '_';
+            $data['hash'] = md5($st);
+            
+            $format = array('%s','%s', '%s', '%d', '%s');
+            
+            $wpdb->insert($table, $data, $format);
+            $response = $wpdb->insert_id;
+            
+            return $response;
         }
     }
 

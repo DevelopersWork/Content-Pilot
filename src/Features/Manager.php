@@ -8,7 +8,7 @@ use Dev\WpContentAutopilot\Features\Tag;
 
 class Manager {
 
-    protected $store, $title;
+    protected $store, $title, $alert_show;
     private $class;
 
     private $page, $settings, $sections, $fields;
@@ -253,6 +253,15 @@ class Manager {
         return $this;
     }
 
+    public function renderAlert( array $args = array() ) {
+        $html = '';
+        $html .= '<div class="alert '.(isset($args['type']) ? $args['type'] : 'alert-warning').'" role="alert">';
+            $html .= isset($args['description']) ? $args['description'] : 'Oops, something was broken...';
+        $html .= '</div>';
+
+        return $html;
+    }
+
     public function renderPage() {
         
         $page_title = $this -> page['menu_title'];
@@ -262,6 +271,11 @@ class Manager {
         $section_content = $this -> data['sections_content'];
 
         $submit = array( $this, 'submit');
+
+        $alert = array( $this, 'renderAlert');
+
+        global $alert_show;
+        $alert_show = $this -> alert_show;
 
         return include_once PLUGIN_PATH . "/src/Pages/Manager.php";
     }

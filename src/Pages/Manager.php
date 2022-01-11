@@ -1,22 +1,20 @@
 <div class="container mt-3">
     <?php 
         if(isset($_POST['form_name'])) {
-            if(isset($submit)){
+            if(isset($submit))
                 call_user_func($submit);
-            } else{
-                echo '<div class="alert alert-warning" role="alert">';
-                    echo 'Oops, something was broken...';
-                echo '</div>';
-            }
+            else
+                if(isset($alert)) call_user_func($alert);   
         }
-
+        global $alert_show;
+        if( isset($alert_show) ) echo $alert_show;
     ?>
 
     <h1>
         <?php echo isset($page_title) ? $page_title : "Title"; ?>
     </h1>
 
-    <ul class="nav nav-tabs bg-faded" id="<?php echo md5(isset($page_title) ? $page_title : "Title"); ?>" role="tablist">
+    <ul class="nav nav-tabs" id="<?php echo md5(isset($page_title) ? $page_title : "Title"); ?>" role="tablist">
         <?php 
             if( isset($section_header) ) echo $section_header;
             else { 
