@@ -296,9 +296,9 @@ class Manager {
 
         $content = '';
 
-        $content .= '<div class="tab-pane fade show'.($args['order'] == 0 ? ' active' : '').'" id="'.$args['id'].'" role="tabpanel" aria-labelledby="'.$args['id'].'-tab">';
+        $content .= '<div class="row tab-pane fade show'.($args['order'] == 0 ? ' active' : '').'" id="'.$args['id'].'" role="tabpanel" aria-labelledby="'.$args['id'].'-tab">';
         
-            $content .= '<div class="row mt-3"><div class="col-1"></div><div class="card '.($args['is_form'] ? '' : 'text-center').' col-10">';
+            $content .= '<div class="card '.($args['is_form'] ? '' : 'text-center').' col-12">';
                 $content .= '<div class="card-body">';
                     $get = "";
                     if(isset($_GET))
@@ -312,7 +312,7 @@ class Manager {
                             $content .= '<div class="row mt-3"><div class="col-1"><button type="submit" class="btn btn-primary">_'.strtoupper($args['title']).'_</button></div></div>';
                     if($args['is_form']) $content .= '</form>';
                 $content .= '</div>';
-            $content .= '</div><div class="col-1"></div></div>';
+            $content .= '</div>';
         
         $content .= '</div>';
 

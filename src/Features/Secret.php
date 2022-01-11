@@ -7,11 +7,11 @@ namespace Dev\WpContentAutopilot\Features;
 use Dev\WpContentAutopilot\Features\{Manager, Tag};
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-class Job extends Manager {
+class Secret extends Manager {
 
     function __construct( $store ) {
 
-		parent::__construct( $store, 'Job Management' );
+		parent::__construct( $store, 'Key Management' );
 
 		$this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, PLUGIN_SLUG );
 
@@ -19,20 +19,9 @@ class Job extends Manager {
         $overview_setting_table = $this -> setSetting ( $overview_section, 'table');
         $this -> setField ( '', $overview_setting_table, $overview_section, array( $this, 'renderOverViewTable' ) );
 
-		$create_section = $this -> createSection ( 'Create', array( $this, 'renderSection' ), null, TRUE );
-        $this -> setField ( 'Job Name', $this -> setSetting ( $create_section, 'job_name'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-8 ') );
+		$create_section = $this -> createSection ( 'Add', array( $this, 'renderSection' ), null, TRUE );
+        $this -> setField ( 'Key', $this -> setSetting ( $create_section, 'secret_value'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-8 ') );
         $this -> setField ( 'Service', $this -> setSetting ( $create_section, 'service_id'), $create_section, array( $this, 'renderServiceIdField' ) );
-        $this -> setField ( 'Trigger', $this -> setSetting ( $create_section, 'trigger_id'), $create_section, array( $this, 'renderTriggerIdField' ) );
-
-
-        $modify_section = $this -> createSection ( 'Modify', array( $this, 'renderSection' ), null, TRUE );
-        $this -> setField ( 'Job Name', $this -> setSetting ( $modify_section, 'job_name'), $modify_section, array( $this, 'renderJobNameField' ), array('placeholder' => 'Type here...', 'col' => ' col-8 ') );
-        $this -> setField ( 'Disabled', $this -> setSetting ( $modify_section, 'disabled'), $modify_section, array( $this, 'renderField' ), array('type' => 'checkbox', 'col' => ' col-2 ') );
-        $this -> setField ( 'Key', $this -> setSetting ( $modify_section, 'key_required'), $modify_section, array( $this, 'renderField' ), array('type' => 'checkbox', 'col' => ' col-2 ') );
-        $this -> setField ( 'Service', $this -> setSetting ( $modify_section, 'service_id'), $modify_section, array( $this, 'renderServiceIdField' ) );
-        $this -> setField ( 'Trigger', $this -> setSetting ( $modify_section, 'trigger_id'), $modify_section, array( $this, 'renderTriggerIdField' ) );
-
-        $section_id_4 = $this -> createSection ( 'Delete', array( $this, 'renderSection' ) );
 
     }
 
@@ -182,7 +171,7 @@ class Job extends Manager {
         $html = '
             <table class="table table-striped border">
                 <thead><tr>
-                    <th scope="col">Job</th><th scope="col">Service</th><th scope="col">Trigger</th><th scope="col"></th>
+                    <th scope="col">Service</th><th scope="col">Key</th>
                 </tr></thead>
                 <tbody>
         ';
@@ -192,43 +181,27 @@ class Job extends Manager {
       
         $query = "
             SELECT 
-                jobs.name AS job_name, jobs.hash as job_hash,
-                services.name AS service_name,
-                triggers.type
+                services.name AS service_name, 
+                secrets.value AS _key
             FROM 
-                " . PLUGIN_PREFIX . "_jobs_services_secrets_map AS ref
+                " . PLUGIN_PREFIX . "_secrets AS secrets
             JOIN 
-                " . PLUGIN_PREFIX . "_jobs AS jobs ON jobs.id = ref.job_id
-            JOIN 
-                " . PLUGIN_PREFIX . "_services AS services ON services.id = ref.service_id
-            JOIN 
-                " . PLUGIN_PREFIX . "_triggers AS triggers ON triggers.id = ref.trigger_id
+                " . PLUGIN_PREFIX . "_services AS services ON services.id = secrets.service_id
+            WHERE services.disabled = 0 AND secrets.disabled = 0
         ";
 
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
 
         foreach($_result as $_ => $row) {
             $html .= "<tr>";
-            $html .= "<td>".$row['job_name']."</td>";
-            $html .= "<td>".$row['service_name']."</td>";
-            $html .= "<td>".str_replace("_", ' ', $row['type'])."</td>";
-            $html .= "<td>";
-                $html .= "<form method='POST'>";
-                    $html .= "<input type='hidden' name='form_name' value='job_run'/>";
-                    $html .= "<input type='hidden' name='job_hash' value='".$row['job_hash']."'/>";
-                    $html .= "<button type='submit' class='btn btn-primary'>RUN NOW</button>";
-                $html .= "</form>";
-            $html .= "</td>";
+                $html .= "<td>".$row['service_name']."</td>";
+                $html .= "<td>".$row['_key']."</td>";
             $html .= "</tr>";
         }
           
         $html .= '</tbody></table>';
         return $html;
     }
-
-	// public function renderPage(){
-    //     require_once PLUGIN_PATH . "/src/Pages/Job.php";
-    // }
 
 }
 

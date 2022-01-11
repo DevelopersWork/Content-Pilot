@@ -25,6 +25,7 @@ class Main {
         $services = array(
             Features\Dashboard:: class,
             Features\Job:: class,
+            Features\Secret:: class,
             Features\CronJob:: class
         );
 
