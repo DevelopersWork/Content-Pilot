@@ -4,6 +4,8 @@
  */
 namespace Dev\WpContentAutopilot\Features;
 
+use Dev\WpContentAutopilot\Features\Tag;
+
 class Manager {
 
     protected $store, $title;
@@ -45,13 +47,13 @@ class Manager {
     
     }
 
-    public function setPage($capability, $callback, $slug, $parent = null, $icon = null, $position = null) {
+    public function setPage($capability, $callback, $slug, $parent = null, $icon = null, $position = null, $asSubPage = null, $title = null) {
 
         $this -> page = array(
-            'page_title' => $this -> title . ' ‹ ' . PLUGIN_NAME,
-            'menu_title' => $this -> title, 
+            'page_title' => ( $title == null ? $this -> title : $title ) . ' ‹ ' . PLUGIN_NAME,
+            'menu_title' => ( $title == null ? $this -> title : $title ), 
             'capability' => $capability, 
-            'menu_slug' => $slug . '-' . strtolower($this -> title), 
+            'menu_slug' => $slug . ($parent == null ? '' : '-' . strtolower(( $title == null ? $this -> title : $title ))), 
             'callback' => $callback,
 
             'sections' => array(),
@@ -67,10 +69,14 @@ class Manager {
                 $this -> page['position'] = $position;
         }
 
+        if ( $asSubPage != null ) 
+            $this -> page['asSubPage'] = $asSubPage;
+
+
         return $this -> syncStore();
     }
 
-    public function createSection($title, $callback, $parent = null) {
+    public function createSection($title, $callback, $parent = null, $is_form = null) {
 
         $slug = $this -> page['menu_slug'];
         $menu = $this -> page['menu_title'];
@@ -78,13 +84,14 @@ class Manager {
         $id = md5($slug . '_' . $menu . '_' . $title . '_' . $this -> class);
         
         $this -> sections[$id] = array(
-            'id' => $id,
+            'id' => 'section' . '-' . $id,
             'title' => $title,
             'page' => $slug . '#' . ( $parent == null ) ? $id : $parent,
             'callback' => $callback,
             'issection' => ( $parent == null ) ? True : False,
             'parent' => $parent,
-            'settings' => array()
+            'settings' => array(),
+            'is_form' => $is_form == null ? False : $is_form
         );
 
         array_push( $this -> page['sections'], $id );
@@ -101,26 +108,29 @@ class Manager {
 
         if ( ! array_key_exists( $group, $this -> sections ) ) 
             return $this;
+
+        $id = md5($slug . '_' . $menu . '_' . $group . '_' . $this -> class . '_' . $name);
         
-        $this -> settings[$name] = array(
+        $this -> settings[$id] = array(
             'option_group' => $group,
             'option_name' => $name,
             'callback' => $callback,
-            'fields' => array()
+            'fields' => array(),
+            'id' => $id
         );
 
         if( $this -> sections[$group]['parent'] != null ) {
 
             $parent = $this -> sections[$group]['parent'];
-            array_push( $this -> sections[$parent]['settings'], $name );
+            array_push( $this -> sections[$parent]['settings'], $id );
 
         }
 
-        array_push( $this -> sections[$group]['settings'], $name );
+        array_push( $this -> sections[$group]['settings'], $id );
 
         $this -> syncStore();
 
-        return $this -> syncStore();
+        return $id;
     }
 
     public function setField($title, $setting, $section, $callback, $args=null) {
@@ -148,7 +158,8 @@ class Manager {
                 'label_for' => $_setting['option_name'],
                 'type' => ( isset($args) &&  array_key_exists('type', $args) ) ? $args['type'] : 'text',
                 'class' => ( isset($args) &&  array_key_exists('class', $args) ) ? $args['class'] : 'regular-text',
-                'placeholder' => ( isset($args) &&  array_key_exists('placeholder', $args) ) ? $args['placeholder'] : 'Type here...'
+                'placeholder' => ( isset($args) &&  array_key_exists('placeholder', $args) ) ? $args['placeholder'] : 'Type here...',
+                'col' => ( isset($args) &&  array_key_exists('col', $args) ) ? $args['col'] : ' col-6 ',
             ),
             'callback' => $callback,
             'key' => $id
@@ -171,7 +182,12 @@ class Manager {
         $sections = array_values( $this -> sections );
         $fields = array_values( $this -> fields );
 
-        $api -> addSubPages($page) -> addSettings($settings) -> addSections($sections) -> addFields($fields) -> register();
+        if (array_key_exists('asSubPage', $this -> page))
+            $api -> addPages($page) -> asSubPage($this -> title);
+        else 
+            $api -> addSubPages($page); 
+        
+        $api ->addSettings($settings) -> addSections($sections) -> addFields($fields) -> register();
 
         return $this -> render();
     }
@@ -192,7 +208,9 @@ class Manager {
 
         $page = $this -> getPage();
 
-        $tabs = array();
+        $sections_header = '';
+        $sections_content = '';
+        $section_count = 0;
 
         foreach($page['sections'] as $s) {
 
@@ -200,58 +218,50 @@ class Manager {
 
             if( $section['issection'] != True ) continue;
 
-            $fields = array();
+            $section['order'] = isset($_GET['tab']) ? 1 : $section_count;
+            if(isset($_GET['tab']) && $_GET['tab'] == strtolower($section['title'])) $section['order'] = 0;
+            $section_count += 1;
 
-            foreach($section['settings'] as $se) {
+            $_section = $section['callback']($section);
 
-                $setting = $this -> getSetting($se);
+            $sections_header .= $_section['head'];
+            $sections_content .= $_section['content'];
 
-                $_fields = array();
+            $fields = '';
 
-                foreach($setting['fields'] as $f) {
+            foreach($section['settings'] as $s) { 
+
+                $setting = $this -> getSetting($s);
+
+                foreach($setting['fields'] as $f) { 
 
                     $field = $this -> getField($f);
-
-                    $_field = array(
-                        'id' => $field['id'],
-                        'title' => $field['title'],
-                        'page' => $field['page'],
-                        'group' => $setting['option_group']
-                    );
-
-                    array_push($_fields, $_field);
+    
+                    $fields .= $field['callback']($field);
+    
                 }
-
-                array_push($fields, $_fields);
-
             }
 
-            $tab = array(
-                'id' => $section['id'],
-                'title' => $section['title'],
-                'issection' => $section['issection'],
-                'parent' => $section['parent'],
-                'fields' => $fields,
-                'page' => $section['page']
-            );
-
-            array_push($tabs, $tab);
+            if($fields != '')
+                $sections_content = str_replace('<h1>%'.$section['title'].'%</h1>', $fields, $sections_content);
             
         }
 
-        $this -> data['page'] = array(
-            'menu_title' => $page['menu_title'],
-            'menu_slug' => $page['menu_slug']
-        );
-
-        $this -> data['tabs'] = $tabs;
+        $this -> data['sections_header'] = $sections_header;
+        $this -> data['sections_content'] = $sections_content;
 
         return $this;
     }
 
     public function renderPage() {
         
-        $_metadata = $this -> data;
+        $page_title = $this -> page['menu_title'];
+
+        $section_header = $this -> data['sections_header'];
+
+        $section_content = $this -> data['sections_content'];
+
+        $submit = array( $this, 'submit');
 
         return include_once PLUGIN_PATH . "/src/Pages/Manager.php";
     }
@@ -262,27 +272,51 @@ class Manager {
 
     public function renderSection( array $args ) {
 
-        echo '<h3>id: ' . $args['id'] . '</h3>';
+        $head = '';
 
-        return $this;
+        $head .= '<li class="nav-item" role="presentation">';
+            $head .= '<button class="nav-link'.($args['order'] == 0 ? ' active' : '').'" id="'.$args['id'].'-tab" data-bs-toggle="tab" data-bs-target="#'.$args['id'].'" type="button" role="tab" aria-controls="'.$args['id'].'" aria-selected="'.($args['order'] == 0 ? 'true' : 'false').'">';
+                $head .= $args['title'];
+            $head .= '</button>';
+        $head .= '</li>';
+
+        $content = '';
+
+        $content .= '<div class="tab-pane fade show'.($args['order'] == 0 ? ' active' : '').'" id="'.$args['id'].'" role="tabpanel" aria-labelledby="'.$args['id'].'-tab">';
+        
+            $content .= '<div class="row mt-3"><div class="col-1"></div><div class="card '.($args['is_form'] ? '' : 'text-center').' col-10">';
+                $content .= '<div class="card-body">';
+                    $get = "";
+                    if(isset($_GET))
+                        foreach ($_GET as $key => $value)
+                            if($key != 'tab')
+                                $get .= $key.'='.$value.'&';
+                    if($args['is_form']) $content .= '<form method="POST" action="?'.$get.'tab='.strtolower($args['title']).'">';
+                        $content .= '<input type="hidden" name="form_name" value="'.strtolower($this -> page['menu_title']) .'_'. strtolower($args['title']).'"/>';
+                        $content .= '<div class="row"><h1>%'.$args['title'].'%</h1></div>';
+                        if($args['is_form'])
+                            $content .= '<div class="row mt-3"><div class="col-1"><button type="submit" class="btn btn-primary">_'.strtoupper($args['title']).'_</button></div></div>';
+                    if($args['is_form']) $content .= '</form>';
+                $content .= '</div>';
+            $content .= '</div><div class="col-1"></div></div>';
+        
+        $content .= '</div>';
+
+        $html = array('head' => $head, 'content' => $content);
+
+        return $html;
     }
 
     public function renderField( array $args ) {
 
-        $type   = $args['type'];
-        $id     = $args['label_for'];
-        $class = $args['class'];
-        $placeholder = $args['placeholder'];
+        if ( $args['args']['type'] == 'checkbox' ) $field = Tag:: inputCheckboxTag( $args );
+        else $field = Tag:: inputTag( $args );
 
-        $value = esc_attr( get_option( $id ) );
-        $name  = $id . '[' . $type . ']';
-        $desc  = 'Heyyy boi';//get_shortcode_help( $type );
+        return $field;
+    }
 
-        print "<input type='$type' value='$value' name='$name' id='$id' class='$class' placeholder='$placeholder' /> 
-            <span class='description'>$desc</span>";
-
-        return;
-            
+    public function submit() {
+        return $this;
     }
 
     public function getPage(){

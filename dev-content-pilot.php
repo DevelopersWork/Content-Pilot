@@ -14,12 +14,18 @@
 */
 
 // If Absolute Path is not defined no point in starting this script.
-if( ! defined('ABSPATH') ) exit();
+defined('ABSPATH') or die("This is gonna be a highlight real for sure...");
 
-// If Composer isn't loaded something is fishy
-if( ! file_exists ( dirname(__FILE__) . '/vendor/autoload.php' ) ) exit();
-    
-require_once dirname(__FILE__) . '/vendor/autoload.php';
+// Require once the Composer Autoload
+if(file_exists(dirname(__FILE__).'/vendor/autoload.php')){
+    require_once dirname(__FILE__).'/vendor/autoload.php';
+}
+
+define('PLUGIN_NAME', 'Content Pilot');
+define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'PLUGIN_SLUG', 'dev-content-pilot' );
+
 
 use Dev\WpContentAutopilot\Main;
 use Dev\WpContentAutopilot\Core\{Store};
@@ -33,11 +39,8 @@ class DevWPContentAutopilot {
         $store = new Store();
 
         $store->set('name', plugin_basename(__FILE__));
-
-        $store->set('Google_Client', Google_Client:: class);
-        $store->set('Google_Service_YouTube', Google_Service_YouTube:: class);
         
-        $this->process = new Main($store, '0.0.1');
+        $this->process = new Main($store);
     }
 
     public function init() { $this->process->init(); }
@@ -50,6 +53,7 @@ class DevWPContentAutopilot {
 function onActivate() {
 	Dev\WpContentAutopilot\Core\Activate:: activate();
 }
+register_activation_hook( __FILE__, 'onActivate' );
 
 /**
  * The code that runs during plugin deactivation
@@ -57,22 +61,12 @@ function onActivate() {
 function onDeactivate() {
 	Dev\WpContentAutopilot\Core\Deactivate:: deactivate();
 }
+register_deactivation_hook( __FILE__, 'onDeactivate' );
 
 /**
  * Initialize all the core classes of the plugin
  */
 if ( class_exists('DevWPContentAutopilot')) {
-
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-    // wordpress database object
-    global $wpdb;
-
-    define('PLUGIN_NAME', 'Content Pilot');
-    define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
-    define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-    define( 'PLUGIN_SLUG', 'dev-content-pilot' );
-    define( 'PLUGIN_PREFIX', $wpdb->prefix . str_replace('-', '', PLUGIN_SLUG) );
     
     file_put_contents('php://stderr', print_r(PLUGIN_NAME . ": {STARTED}\n", TRUE));
 
@@ -82,6 +76,6 @@ if ( class_exists('DevWPContentAutopilot')) {
 
     register_deactivation_hook( __FILE__, 'onDeactivate' );
 
-    $devWPContentAutopilot -> init();
+    add_action( 'init', array($devWPContentAutopilot, 'init') );
 
 }

@@ -4,47 +4,20 @@
  */
 namespace Dev\WpContentAutopilot\Features;
 
-use Dev\WpContentAutopilot\Core\YouTube;
+use Dev\WpContentAutopilot\Features\Manager;
 
-class Dashboard {
-
-    private $store;
+class Dashboard extends Manager {
 
     function __construct( $store ) {
 
-        $this -> store = $store;
+        parent::__construct( $store, 'Dashboard' );
+
+        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, null, 'dashicons-hammer', 110, TRUE, PLUGIN_NAME);
     
     }
 
-    public function register() {
-
-        if (! $this -> store) return $this;
-
-        $page = array(
-			array(
-				'page_title' => PLUGIN_NAME, 
-				'menu_title' => PLUGIN_NAME, 
-				'capability' => 'manage_options', 
-				'menu_slug' => PLUGIN_SLUG, 
-				'callback' => array( $this, 'render' ), 
-				'icon' => 'dashicons-hammer', 
-				'position' => 110
-			)
-		);
-
-        $API = $this -> store -> get('SetupAPI');
-        $api = new $API();
-        $api -> addPages($page) -> asSubPage('Dashboard') -> register();
-
-       
-    }
-
-    public function render(){
-        // require_once PLUGIN_PATH . "/src/Pages/Dashboard.php";
-
-        $yt = new YouTube($this -> store);
-        $yt -> makePost();
-
+    public function renderPage(){
+        require_once PLUGIN_PATH . "/src/Pages/Dashboard.php";
     }
 
 }
