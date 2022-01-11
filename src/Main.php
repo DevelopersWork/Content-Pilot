@@ -8,12 +8,12 @@ use Dev\WpContentAutopilot\Core\Services;
 
 class Main {
 
-    private $store;
+    private $store, $version;
 
-    function __construct($store) {
+    function __construct($store, $version = '1.0') {
 
         $this->store = $store;
-    
+        $this -> version = $version;
     }
 
     public function init() {

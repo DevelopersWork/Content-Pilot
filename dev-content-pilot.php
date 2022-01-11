@@ -26,7 +26,6 @@ define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'PLUGIN_SLUG', 'dev-content-pilot' );
 
-
 use Dev\WpContentAutopilot\Main;
 use Dev\WpContentAutopilot\Core\{Store};
 
@@ -40,7 +39,7 @@ class DevWPContentAutopilot {
 
         $store->set('name', plugin_basename(__FILE__));
         
-        $this->process = new Main($store);
+        $this->process = new Main($store, '0.0.1');
     }
 
     public function init() { $this->process->init(); }
@@ -75,6 +74,8 @@ if ( class_exists('DevWPContentAutopilot')) {
     register_activation_hook( __FILE__, 'onActivate' );
 
     register_deactivation_hook( __FILE__, 'onDeactivate' );
+
+    define( 'PLUGIN_PREFIX', $wpdb -> prefix . str_replace('-', '', 'dev-content-pilot') );
 
     add_action( 'init', array($devWPContentAutopilot, 'init') );
 
