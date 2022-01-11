@@ -26,6 +26,9 @@ define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'PLUGIN_SLUG', 'dev-content-pilot' );
 
+require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+define( 'PLUGIN_PREFIX', $wpdb -> base_prefix . str_replace('-', '', PLUGIN_SLUG) );
+
 use Dev\WpContentAutopilot\Main;
 use Dev\WpContentAutopilot\Core\{Store};
 
@@ -50,9 +53,10 @@ class DevWPContentAutopilot {
  * The code that runs during plugin activation
  */
 function onActivate() {
+
 	Dev\WpContentAutopilot\Core\Activate:: activate();
+
 }
-register_activation_hook( __FILE__, 'onActivate' );
 
 /**
  * The code that runs during plugin deactivation
@@ -60,7 +64,6 @@ register_activation_hook( __FILE__, 'onActivate' );
 function onDeactivate() {
 	Dev\WpContentAutopilot\Core\Deactivate:: deactivate();
 }
-register_deactivation_hook( __FILE__, 'onDeactivate' );
 
 /**
  * Initialize all the core classes of the plugin
@@ -74,8 +77,6 @@ if ( class_exists('DevWPContentAutopilot')) {
     register_activation_hook( __FILE__, 'onActivate' );
 
     register_deactivation_hook( __FILE__, 'onDeactivate' );
-
-    define( 'PLUGIN_PREFIX', $wpdb -> prefix . str_replace('-', '', 'dev-content-pilot') );
 
     add_action( 'init', array($devWPContentAutopilot, 'init') );
 

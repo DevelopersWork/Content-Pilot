@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS %table_prefix%_jobs (
     update_timestamp    timestamp   NOT NULL    DEFAULT current_timestamp() COMMENT '',
     disabled            tinyint(1)  NOT NULL    DEFAULT 0                   COMMENT '',
     deleted             tinyint(1)  NOT NULL    DEFAULT 0                   COMMENT '',
-    hash                text        NOT NULL                                COMMENT 'md5(*columns*)'
+    hash                text        NOT NULL                                COMMENT 'md5(name, service_id, trigger_id, key_required)',
+    CONSTRAINT %table_prefix%_unique UNIQUE (disabled, deleted, hash)
 
 ) %charset_collate% ;

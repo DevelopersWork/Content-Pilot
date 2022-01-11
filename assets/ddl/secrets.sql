@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS %table_prefix%_secrets (
     service_id          bigint(20)  NOT NULL                                COMMENT '',
     insert_timestamp    timestamp   NOT NULL    DEFAULT current_timestamp() COMMENT '',
     disabled            tinyint(1)  NOT NULL    DEFAULT 0                   COMMENT '',
-    hash                text        NOT NULL                                COMMENT 'md5(*columns*)'
+    hash                text        NOT NULL                                COMMENT 'md5(value, service_id)',
+    CONSTRAINT %table_prefix%_unique UNIQUE (disabled, hash)
 
 ) %charset_collate% ;
