@@ -21,33 +21,38 @@ class Job extends Manager {
 
 		$create_section = $this -> createSection ( 'Create', array( $this, 'renderSection' ), null, TRUE );
         $this -> setField ( 'Job Name', $this -> setSetting ( $create_section, 'job_name'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-8 ') );
-        $this -> setField ( 'Service', $this -> setSetting ( $create_section, 'service_id'), $create_section, array( $this, 'renderServiceIdField' ) );
+        $this -> setField ( 'Meta', $this -> setSetting ( $create_section, 'meta_id'), $create_section, array( $this, 'renderMetaIdField' ) );
         $this -> setField ( 'Trigger', $this -> setSetting ( $create_section, 'trigger_id'), $create_section, array( $this, 'renderTriggerIdField' ) );
 
 
-        $modify_section = $this -> createSection ( 'Modify', array( $this, 'renderSection' ), null, TRUE );
-        $this -> setField ( 'Job Name', $this -> setSetting ( $modify_section, 'job_name'), $modify_section, array( $this, 'renderJobNameField' ), array('placeholder' => 'Type here...', 'col' => ' col-8 ') );
-        $this -> setField ( 'Disabled', $this -> setSetting ( $modify_section, 'disabled'), $modify_section, array( $this, 'renderField' ), array('type' => 'checkbox', 'col' => ' col-2 ') );
-        $this -> setField ( 'Key', $this -> setSetting ( $modify_section, 'key_required'), $modify_section, array( $this, 'renderField' ), array('type' => 'checkbox', 'col' => ' col-2 ') );
-        $this -> setField ( 'Service', $this -> setSetting ( $modify_section, 'service_id'), $modify_section, array( $this, 'renderServiceIdField' ) );
-        $this -> setField ( 'Trigger', $this -> setSetting ( $modify_section, 'trigger_id'), $modify_section, array( $this, 'renderTriggerIdField' ) );
+        // $modify_section = $this -> createSection ( 'Modify', array( $this, 'renderSection' ), null, TRUE );
+        // $this -> setField ( 'Job Name', $this -> setSetting ( $modify_section, 'job_name'), $modify_section, array( $this, 'renderJobNameField' ), array('placeholder' => 'Type here...', 'col' => ' col-8 ') );
+        // $this -> setField ( 'Disabled', $this -> setSetting ( $modify_section, 'disabled'), $modify_section, array( $this, 'renderField' ), array('type' => 'checkbox', 'col' => ' col-2 ') );
+        // $this -> setField ( 'Key', $this -> setSetting ( $modify_section, 'key_required'), $modify_section, array( $this, 'renderField' ), array('type' => 'checkbox', 'col' => ' col-2 ') );
+        // $this -> setField ( 'Service', $this -> setSetting ( $modify_section, 'service_id'), $modify_section, array( $this, 'renderServiceIdField' ) );
+        // $this -> setField ( 'Trigger', $this -> setSetting ( $modify_section, 'trigger_id'), $modify_section, array( $this, 'renderTriggerIdField' ) );
 
-        $section_id_4 = $this -> createSection ( 'Delete', array( $this, 'renderSection' ) );
+        // $section_id_4 = $this -> createSection ( 'Delete', array( $this, 'renderSection' ) );
 
     }
 
     public function submit() {
-        global $alert_show;
+        global $alert_show, $wpdb;
         
         if(isset($_POST['form_name'])) {
-            if($_POST['form_name'] == 'job_create') {
+            if($_POST['form_name'] == strtolower($this -> getPage()['menu_title']) .'_'. strtolower('Create')) {
                 
                 $response = $this -> createJob ($_POST);
 
                 if( ! $response ) {
                     $alert_show = $this -> renderAlert( array(
                         'type' => 'alert-danger',
-                        'description' => 'JOB CREATION FAILED'
+                        'description' => 'JOB CREATION FAILED:: ' . $wpdb -> last_error
+                    ) );
+                } else {
+                    $alert_show = $this -> renderAlert( array(
+                        'type' => 'alert-success',
+                        'description' => '<strong>JOB CREATED</strong>'
                     ) );
                 }
                 
@@ -59,10 +64,10 @@ class Job extends Manager {
     private function createJob( array $args ) {
         global $wpdb;
         
-        $names = array('service_id', 'trigger_id', 'job_name');
+        $names = array('meta_id', 'trigger_id', 'job_name');
         $flag = 1;
         foreach($names as $name){
-            if( ! isset($args[$name]) ){
+            if( ! isset($args[$name]) || ! $args[$name] ){
                 $flag = 0;
                 break;
             }
@@ -74,18 +79,17 @@ class Job extends Manager {
 
             $data = array(
                 'name' => $_POST['job_name'], 
-                'service_id' => $_POST['service_id'], 
-                'trigger_id' => $_POST['trigger_id'], 
-                'key_required' => 1 
+                'meta_id' => $_POST['meta_id'], 
+                'trigger_id' => $_POST['trigger_id']
             );
             
             $st = '';
             foreach($data as $key => $value) $st .= md5($key . $value). '_';
             $data['hash'] = md5($st);
             
-            $format = array('%s','%s', '%s', '%d', '%s');
+            $format = array('%s','%s', '%s', '%s');
             
-            $wpdb->insert($table, $data, $format);
+            $wpdb -> insert($table, $data, $format);
             $response = $wpdb->insert_id;
             
             return $response;
@@ -157,14 +161,15 @@ class Job extends Manager {
         return $field;
     }
 
-    public function renderServiceIdField( array $args ){
+    public function renderMetaIdField( array $args ){
         global $wpdb;
     
         $query = "
             SELECT 
                 id, name 
             FROM 
-                " . PLUGIN_PREFIX . "_services AS services 
+                " . PLUGIN_PREFIX . "_meta AS meta
+            WHERE disabled = 0 AND deleted = 0 
         ";
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
 
@@ -182,27 +187,25 @@ class Job extends Manager {
         $html = '
             <table class="table table-striped border">
                 <thead><tr>
-                    <th scope="col">Job</th><th scope="col">Service</th><th scope="col">Trigger</th><th scope="col"></th>
+                    <th scope="col">Job</th><th scope="col">Metadata</th><th scope="col">Trigger</th><th scope="col"></th>
                 </tr></thead>
                 <tbody>
         ';
-      
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
         global $wpdb;
       
         $query = "
             SELECT 
                 jobs.name AS job_name, jobs.hash as job_hash,
-                services.name AS service_name,
+                meta.name AS meta_name,
                 triggers.type
             FROM 
-                " . PLUGIN_PREFIX . "_jobs_services_secrets_map AS ref
+                " . PLUGIN_PREFIX . "_jobs AS jobs
             JOIN 
-                " . PLUGIN_PREFIX . "_jobs AS jobs ON jobs.id = ref.job_id
+                " . PLUGIN_PREFIX . "_meta AS meta ON jobs.meta_id = meta.id
             JOIN 
-                " . PLUGIN_PREFIX . "_services AS services ON services.id = ref.service_id
-            JOIN 
-                " . PLUGIN_PREFIX . "_triggers AS triggers ON triggers.id = ref.trigger_id
+                " . PLUGIN_PREFIX . "_triggers AS triggers ON triggers.id = jobs.trigger_id
+            WHERE jobs.disabled = 0 AND jobs.deleted = 0
         ";
 
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
@@ -210,7 +213,7 @@ class Job extends Manager {
         foreach($_result as $_ => $row) {
             $html .= "<tr>";
             $html .= "<td>".$row['job_name']."</td>";
-            $html .= "<td>".$row['service_name']."</td>";
+            $html .= "<td>".$row['meta_name']."</td>";
             $html .= "<td>".str_replace("_", ' ', $row['type'])."</td>";
             $html .= "<td>";
                 $html .= "<form method='POST'>";

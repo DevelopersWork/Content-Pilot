@@ -5,6 +5,7 @@
 namespace Dev\WpContentAutopilot\Features;
 
 use Dev\WpContentAutopilot\Features\{Manager, Tag};
+
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
 class Secret extends Manager {
@@ -20,38 +21,44 @@ class Secret extends Manager {
         $this -> setField ( '', $overview_setting_table, $overview_section, array( $this, 'renderOverViewTable' ) );
 
 		$create_section = $this -> createSection ( 'Add', array( $this, 'renderSection' ), null, TRUE );
-        $this -> setField ( 'Key', $this -> setSetting ( $create_section, 'secret_value'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-8 ') );
+        $this -> setField ( 'Name', $this -> setSetting ( $create_section, 'secret_name'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-8 ') );
+        $this -> setField ( 'API Key', $this -> setSetting ( $create_section, 'secret_value'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'type' => 'password', 'col' => ' col-8 ') );
         $this -> setField ( 'Service', $this -> setSetting ( $create_section, 'service_id'), $create_section, array( $this, 'renderServiceIdField' ) );
 
     }
 
     public function submit() {
-        global $alert_show;
+        global $alert_show, $wpdb;
         
         if(isset($_POST['form_name'])) {
-            if($_POST['form_name'] == 'job_create') {
+            if($_POST['form_name'] == strtolower($this -> getPage()['menu_title']) .'_'. strtolower('Add')) {
                 
-                $response = $this -> createJob ($_POST);
+                $response = $this -> addAPIKey ($_POST);
 
                 if( ! $response ) {
                     $alert_show = $this -> renderAlert( array(
                         'type' => 'alert-danger',
-                        'description' => 'JOB CREATION FAILED'
+                        'description' => 'API KEY ADDING FAILED:: ' . $wpdb -> last_error
+                    ) );
+                } else {
+                    $alert_show = $this -> renderAlert( array(
+                        'type' => 'alert-success',
+                        'description' => '<strong>API KEY ADDED</strong>'
                     ) );
                 }
                 
             }
-            else if($_POST['form_name'] == 'job_run') {}
+            
         }
     }
 
-    private function createJob( array $args ) {
+    private function addAPIKey( array $args ) {
         global $wpdb;
         
-        $names = array('service_id', 'trigger_id', 'job_name');
+        $names = array('secret_name', 'service_id', 'secret_value');
         $flag = 1;
         foreach($names as $name){
-            if( ! isset($args[$name]) ){
+            if( ! isset($args[$name]) || ! $args[$name] ){
                 $flag = 0;
                 break;
             }
@@ -59,91 +66,25 @@ class Secret extends Manager {
 
         if($flag == 1) {
             
-            $table = PLUGIN_PREFIX . '_jobs';
+            $table = PLUGIN_PREFIX . '_secrets';
 
             $data = array(
-                'name' => $_POST['job_name'], 
-                'service_id' => $_POST['service_id'], 
-                'trigger_id' => $_POST['trigger_id'], 
-                'key_required' => 1 
+                'name' => $_POST['secret_name'], 
+                'value' => $_POST['secret_value'], 
+                'service_id' => $_POST['service_id']
             );
             
             $st = '';
             foreach($data as $key => $value) $st .= md5($key . $value). '_';
             $data['hash'] = md5($st);
             
-            $format = array('%s','%s', '%s', '%d', '%s');
+            $format = array('%s','%s', '%s', '%s');
             
-            $wpdb->insert($table, $data, $format);
+            $wpdb -> insert($table, $data, $format);
             $response = $wpdb->insert_id;
             
             return $response;
         }
-    }
-
-    public function renderJobNameField( array $args ) {
-            
-        global $wpdb;
-    
-        $query = "
-            SELECT 
-                id, name, service_id, trigger_id, key_required, disabled 
-            FROM 
-                " . PLUGIN_PREFIX . "_jobs AS triggers
-            WHERE deleted = 0
-        ";
-        $_result = $wpdb->get_results( $query, 'ARRAY_A' );
-
-        $options = array();
-        foreach($_result as $_ => $row) $options[$row['id']] = $row['name'];
-        $args['options'] = $options;
-            
-        $field = Tag:: selectTag( $args );
-
-        return $field;
-    }
-
-    public function renderDisabledField( array $args ) {
-            
-        global $wpdb;
-    
-        $query = "
-            SELECT 
-                id, name, service_id, trigger_id, key_required, disabled 
-            FROM 
-                " . PLUGIN_PREFIX . "_jobs AS triggers
-            WHERE deleted = 0
-        ";
-        $_result = $wpdb->get_results( $query, 'ARRAY_A' );
-
-        $options = array();
-        foreach($_result as $_ => $row) $options[$row['id']] = $row['name'];
-        $args['options'] = $options;
-            
-        $field = Tag:: selectTag( $args );
-
-        return $field;
-    }
-
-    public function renderTriggerIdField( array $args ){
-        global $wpdb;
-            
-        $query = "
-            SELECT 
-                id, type 
-            FROM 
-                " . PLUGIN_PREFIX . "_triggers AS triggers
-            WHERE disabled = 0 
-        ";
-        $_result = $wpdb->get_results( $query, 'ARRAY_A' );        
-        
-        $options = array();
-        foreach($_result as $_ => $row) $options[$row['id']] = str_replace("_", ' ', $row['type']);
-        $args['options'] = $options;
-    
-        $field = Tag:: selectTag( $args );
-
-        return $field;
     }
 
     public function renderServiceIdField( array $args ){
@@ -154,6 +95,7 @@ class Secret extends Manager {
                 id, name 
             FROM 
                 " . PLUGIN_PREFIX . "_services AS services 
+            WHERE disabled = 0
         ";
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
 
@@ -171,7 +113,7 @@ class Secret extends Manager {
         $html = '
             <table class="table table-striped border">
                 <thead><tr>
-                    <th scope="col">Service</th><th scope="col">Key</th>
+                <th scope="col">Name</th><th scope="col">Service</th><th scope="col">Key</th><th scope="col"></th>
                 </tr></thead>
                 <tbody>
         ';
@@ -181,21 +123,25 @@ class Secret extends Manager {
       
         $query = "
             SELECT 
+                secrets.name AS secret_name, 
                 services.name AS service_name, 
-                secrets.value AS _key
+                secrets.value AS _key,
+                secrets.disabled
             FROM 
                 " . PLUGIN_PREFIX . "_secrets AS secrets
             JOIN 
                 " . PLUGIN_PREFIX . "_services AS services ON services.id = secrets.service_id
-            WHERE services.disabled = 0 AND secrets.disabled = 0
+            WHERE services.disabled = 0 AND secrets.deleted = 0
         ";
 
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
 
         foreach($_result as $_ => $row) {
             $html .= "<tr>";
+                $html .= "<td>".$row['secret_name']."</td>";    
                 $html .= "<td>".$row['service_name']."</td>";
                 $html .= "<td>".$row['_key']."</td>";
+                $html .= "<td>".($row['disabled'] == '1' ? "<b>DISABLED</b>" : "")."</td>";
             $html .= "</tr>";
         }
           

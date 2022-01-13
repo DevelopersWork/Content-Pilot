@@ -1,4 +1,4 @@
-INSERT INTO %table_prefix%_services(id, name) VALUES ('1', 'YouTube') ON DUPLICATE KEY UPDATE id = '1';
-INSERT INTO %table_prefix%_services(id, name) VALUES ('2','Twitch') ON DUPLICATE KEY UPDATE id = '2';
-INSERT INTO %table_prefix%_services(id, name) VALUES ('3','Instagram') ON DUPLICATE KEY UPDATE id = '3';
-INSERT INTO %table_prefix%_services(id, name) VALUES ('4','RSS') ON DUPLICATE KEY UPDATE id = '4';
+INSERT INTO %table_prefix%_services(id, name) VALUES ('1', 'YouTube') ON DUPLICATE KEY UPDATE name = VALUES(name);
+INSERT INTO %table_prefix%_services(id, name, disabled) VALUES ('2', 'Twitch', 1) ON DUPLICATE KEY UPDATE name = VALUES(name), disabled = VALUES(disabled);
+INSERT INTO %table_prefix%_services(id, name, disabled) VALUES ('3', 'Instagram', 1) ON DUPLICATE KEY UPDATE name = VALUES(name), disabled = VALUES(disabled);
+INSERT INTO %table_prefix%_services(id, name, disabled) VALUES ('4', 'RSS', 1) ON DUPLICATE KEY UPDATE name = VALUES(name), disabled = VALUES(disabled);
