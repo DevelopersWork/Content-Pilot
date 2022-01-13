@@ -6,6 +6,8 @@ namespace Dev\WpContentAutopilot\Features;
 
 use Dev\WpContentAutopilot\Core\YouTube;
 
+require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
 class CronJob {
 
     private $store;
@@ -17,7 +19,6 @@ class CronJob {
     }
 
     public function register() {
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
         // wordpress database object
         global $wpdb;
