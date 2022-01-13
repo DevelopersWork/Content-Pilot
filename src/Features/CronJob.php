@@ -15,6 +15,8 @@ class CronJob {
     function __construct( $store ) {
 
         $this -> store = $store;
+
+        $this -> store -> set('CronJob', $this);
     
     }
 
@@ -56,11 +58,49 @@ class CronJob {
 
     }
 
-    public function youtube() {
+    public function run( string $job_hash = "" ) {
+        global $wpdb;
+
+        if( $job_hash == "" ) {
+            return FALSE;
+        }
+
+        $query = "
+            SELECT 
+               meta.data, meta.key_required, secrets.value AS _key, services.name as service_name
+            FROM 
+                ".PLUGIN_PREFIX."_jobs_services_secrets_map AS ref
+            JOIN 
+                ".PLUGIN_PREFIX."_jobs AS jobs ON jobs.id = ref.job_id AND jobs.hash = '".$job_hash."'
+            JOIN 
+                ".PLUGIN_PREFIX."_meta AS meta ON meta.id = ref.meta_id
+            JOIN 
+                ".PLUGIN_PREFIX."_services AS services ON services.id = ref.service_id
+            JOIN 
+                ".PLUGIN_PREFIX."_triggers AS triggers ON triggers.id = ref.trigger_id
+            LEFT JOIN 
+                ".PLUGIN_PREFIX."_secrets AS secrets ON secrets.id = ref.secret_id
+        ";
+
+        $_result = $wpdb->get_results( $query, 'ARRAY_A' );
+        $index = rand(0, count($_result) - 1);
+
+        $request = $_result[$index];
+        
+        if( strtolower($request['service_name']) == 'youtube' &&  $request['key_required'] == 1 ) {
+
+            return CronJob:: youtube($request['_key'], $request['data']);
+        }
+
+        return FALSE;
+
+    }
+
+    public function youtube($key, $q = "") {
 
         $yt = new YouTube($this -> store);
 
-        $yt -> createService() -> makePost(0);
+        return $yt -> makePost($key, $q);
         
     }
 

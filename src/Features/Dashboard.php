@@ -63,13 +63,13 @@ class Dashboard extends Manager {
             $html .= "<td>".str_replace("_", ' ', $row['trigger_name'])."</td>";
             $html .= "<td>".$row['meta_data']."</td>";
             $html .= "<td>".$row['secret_name']."</td>";
-            $html .= "<td>";
-                $html .= "<form method='POST'>";
-                    $html .= "<input type='hidden' name='form_name' value='job_run'/>";
-                    $html .= "<input type='hidden' name='job_hash' value='".$row['job_hash']."'/>";
-                    $html .= "<button type='submit' class='btn btn-primary'>RUN NOW</button>";
-                $html .= "</form>";
-            $html .= "</td>";
+            // $html .= "<td>";
+            //     $html .= "<form method='POST'>";
+            //         $html .= "<input type='hidden' name='form_name' value='job_run'/>";
+            //         $html .= "<input type='hidden' name='job_hash' value='".$row['job_hash']."'/>";
+            //         $html .= "<button type='submit' class='btn btn-primary'>RUN NOW</button>";
+            //     $html .= "</form>";
+            // $html .= "</td>";
             $html .= "</tr>";
         }
           
