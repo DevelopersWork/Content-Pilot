@@ -83,7 +83,6 @@ if ( class_exists('DevWPContentAutopilot')) {
 
     register_deactivation_hook( __FILE__, 'onDeactivate' );
 
-    $devWPContentAutopilot -> init();
-
+    add_action( 'init', array($devWPContentAutopilot, 'init') );
 
 }
