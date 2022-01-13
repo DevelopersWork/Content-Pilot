@@ -264,7 +264,7 @@ class Manager {
 
     public function renderPage() {
         
-        $page_title = $this -> page['menu_title'];
+        $page_title = $this -> title;
 
         $section_header = $this -> data['sections_header'];
 
@@ -324,6 +324,7 @@ class Manager {
     public function renderField( array $args ) {
 
         if ( $args['args']['type'] == 'checkbox' ) $field = Tag:: inputCheckboxTag( $args );
+        else if ( $args['args']['type'] == 'textarea' ) $field = Tag:: textAreaTag( $args );
         else $field = Tag:: inputTag( $args );
 
         return $field;
