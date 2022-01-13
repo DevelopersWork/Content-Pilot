@@ -4,7 +4,7 @@
  */
 namespace Dev\WpContentAutopilot\Features;
 
-use Dev\WpContentAutopilot\Features\{Manager, Tag};
+use Dev\WpContentAutopilot\Features\{Manager, Tag, CronJob};
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
 class Job extends Manager {
@@ -17,7 +17,7 @@ class Job extends Manager {
 
         $overview_section = $this -> createSection ( 'Overview', array( $this, 'renderSection' ), null, FALSE );
         $overview_setting_table = $this -> setSetting ( $overview_section, 'table');
-        $this -> setField ( '', $overview_setting_table, $overview_section, array( $this, 'renderOverViewTable' ) );
+        $this -> setField ( 'Overview', $overview_setting_table, $overview_section, array( $this, 'renderOverViewTable' ) );
 
 		$create_section = $this -> createSection ( 'Create', array( $this, 'renderSection' ), null, TRUE );
         $this -> setField ( 'Job Name', $this -> setSetting ( $create_section, 'job_name'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-8 ') );
@@ -57,7 +57,41 @@ class Job extends Manager {
                 }
                 
             }
-            else if($_POST['form_name'] == 'job_run') {}
+            else if($_POST['form_name'] == strtolower($this -> getPage()['menu_title']) .'_'. strtolower('Run')) {
+
+                $response = $this -> runJob ($_POST);
+
+                if( ! $response ) {
+                    $alert_show = $this -> renderAlert( array(
+                        'type' => 'alert-danger',
+                        'description' => 'JOB RUNNING FAILED:: '
+                    ) );
+                } else {
+                    $alert_show = $this -> renderAlert( array(
+                        'type' => 'alert-info',
+                        'description' => '<strong>'.(isset($_POST['job_name']) ? $_POST['job_name'] : 'Job').'</strong> Triggered'
+                    ) );
+                }
+            }
+        }
+    }
+
+    private function runJob ( array $args ) {
+        global $wpdb;
+        
+        $names = array('job_hash');
+        $flag = 1;
+        foreach($names as $name){
+            if( ! isset($args[$name]) || ! $args[$name] ){
+                $flag = 0;
+                break;
+            }
+        }
+
+        if($flag == 1) {
+            
+            return $this -> store -> get('CronJob') -> run( $args['job_hash'] );
+            
         }
     }
 
@@ -216,9 +250,15 @@ class Job extends Manager {
             $html .= "<td>".$row['meta_name']."</td>";
             $html .= "<td>".str_replace("_", ' ', $row['type'])."</td>";
             $html .= "<td>";
-                $html .= "<form method='POST'>";
-                    $html .= "<input type='hidden' name='form_name' value='job_run'/>";
+                $get = "";
+                if(isset($_GET))
+                    foreach ($_GET as $key => $value)
+                        if($key != 'tab')
+                            $get .= $key.'='.$value.'&';
+                $html .= '<form method="POST" action="?'.$get.'tab='.strtolower($args['title']).'">';
+                    $html .= "<input type='hidden' name='form_name' value='".strtolower($this -> getPage()['menu_title']) .'_'. strtolower('Run')."'/>";
                     $html .= "<input type='hidden' name='job_hash' value='".$row['job_hash']."'/>";
+                    $html .= "<input type='hidden' name='job_name' value='".$row['job_name']."'/>";
                     $html .= "<button type='submit' class='btn btn-primary'>RUN NOW</button>";
                 $html .= "</form>";
             $html .= "</td>";

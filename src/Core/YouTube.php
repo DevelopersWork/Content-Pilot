@@ -8,6 +8,7 @@ class YouTube {
 
     private $store;
     private $client, $service, $lastResponse;
+    private $key;
 
     public function __construct($store) {
 
@@ -53,16 +54,20 @@ class YouTube {
 
     }
 
-    public function makePost() {
+    public function makePost($key = "", $search = "") {
 
-        $search = 'valorant';
+        if( $key == "" ) {
+            return FALSE;
+        }
+
+        $this -> key = $key;
+
+        $search = $search == "" ? 'valorant' : $search;
 
         $response = $this -> fetchVideoIds($search, array('eventType' => 'live'))['items'];
         $videoID = $response[rand(0, count($response) - 1)]['id']['videoId'];
 
         $response = $this -> getVideoById($videoID)['items'][0];
-
-        print_r($response);
 
         $path = PLUGIN_PATH . 'assets/html/';
         $post_content = file_get_contents( $path . 'youtube_live_post.html' );
@@ -114,12 +119,12 @@ class YouTube {
                 $this -> generateFeaturedImage($response['snippet']['thumbnails']['high']['url'], $thenewpostID, $videoID);
             
             }
+
+            return TRUE;
 	
 		}
 
-        print_r($result);
-
-        return $this;
+        return FALSE;
     }
 
     private function generateFeaturedImage( $image_url, $post_id, $custom_filename = ''  ){
@@ -147,7 +152,9 @@ class YouTube {
 
     }
 
-    private function createClient( string $key = null ) {
+    private function createClient() {
+
+        $key = $this -> key;
 
         if ( ! $key ) {
             // Fetch API key from the database

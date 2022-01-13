@@ -21,14 +21,6 @@ if(file_exists(dirname(__FILE__).'/vendor/autoload.php')){
     require_once dirname(__FILE__).'/vendor/autoload.php';
 }
 
-define('PLUGIN_NAME', 'Content Pilot');
-define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
-define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'PLUGIN_SLUG', 'dev-content-pilot' );
-
-require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-define( 'PLUGIN_PREFIX', $wpdb -> base_prefix . str_replace('-', '', PLUGIN_SLUG) );
-
 use Dev\WpContentAutopilot\Main;
 use Dev\WpContentAutopilot\Core\{Store};
 
@@ -41,6 +33,9 @@ class DevWPContentAutopilot {
         $store = new Store();
 
         $store->set('name', plugin_basename(__FILE__));
+
+        $store->set('Google_Client', Google_Client:: class);
+        $store->set('Google_Service_YouTube', Google_Service_YouTube:: class);
         
         $this->process = new Main($store, '0.0.1');
     }
@@ -69,6 +64,16 @@ function onDeactivate() {
  * Initialize all the core classes of the plugin
  */
 if ( class_exists('DevWPContentAutopilot')) {
+    
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+    global $wpdb;
+
+    define('PLUGIN_NAME', 'Content Pilot');
+    define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+    define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+    define( 'PLUGIN_SLUG', 'dev-content-pilot' );
+    define( 'PLUGIN_PREFIX', $wpdb -> base_prefix . str_replace('-', '', PLUGIN_SLUG) );
     
     file_put_contents('php://stderr', print_r(PLUGIN_NAME . ": {STARTED}\n", TRUE));
 
