@@ -8,6 +8,7 @@ class YouTube {
 
     private $store;
     private $client, $service, $lastResponse;
+    private $key;
 
     public function __construct($store) {
 
@@ -19,7 +20,7 @@ class YouTube {
 
         $this -> createClient() -> createService();
 
-        $queryParams['maxResults'] = 25;
+        $queryParams['maxResults'] = 1000;
         $queryParams['order'] = 'date';
         $queryParams['type'] = 'video';
         $queryParams['q'] = $query ? $query : 'DevelopersWork';
@@ -53,16 +54,20 @@ class YouTube {
 
     }
 
-    public function makePost() {
+    public function makePost($key = "", $search = "") {
 
-        $search = 'gaming valorant';
+        if( $key == "" ) {
+            return FALSE;
+        }
+
+        $this -> key = $key;
+
+        $search = $search == "" ? 'valorant' : $search;
 
         $response = $this -> fetchVideoIds($search, array('eventType' => 'live'))['items'];
         $videoID = $response[rand(0, count($response) - 1)]['id']['videoId'];
 
         $response = $this -> getVideoById($videoID)['items'][0];
-
-        print_r($response);
 
         $path = PLUGIN_PATH . 'assets/html/';
         $post_content = file_get_contents( $path . 'youtube_live_post.html' );
@@ -101,19 +106,56 @@ class YouTube {
             add_post_meta( $thenewpostID, 'channelTitle', $response['snippet']['channelTitle']);
 			add_post_meta( $thenewpostID, 'ytitle', $response['snippet']['title']);
 			add_post_meta( $thenewpostID, 'ydescription', $response['snippet']['description']);
-			add_post_meta( $thenewpostID, 'imageresmed', $response['snippet']['thumbnails']['medium']['url']);
-			add_post_meta( $thenewpostID, 'imagereshigh', $response['snippet']['thumbnails']['high']['url']);
+            if ($response['snippet']['thumbnails']['maxres']){
+                add_post_meta( $thenewpostID, 'imageresmed', $response['snippet']['thumbnails']['high']['url']);
+			    add_post_meta( $thenewpostID, 'imagereshigh', $response['snippet']['thumbnails']['maxres']['url']);
 
-            set_post_thumbnail( $thenewpostID, $response['snippet']['thumbnails']['high']['url']);
+                $this -> generateFeaturedImage($response['snippet']['thumbnails']['maxres']['url'], $thenewpostID, $videoID);
+            }else {
+
+                add_post_meta( $thenewpostID, 'imageresmed', $response['snippet']['thumbnails']['medium']['url']);
+			    add_post_meta( $thenewpostID, 'imagereshigh', $response['snippet']['thumbnails']['high']['url']);
+
+                $this -> generateFeaturedImage($response['snippet']['thumbnails']['high']['url'], $thenewpostID, $videoID);
+            
+            }
+
+            return $thenewpostID;
 	
 		}
 
-        print_r($result);
-
-        return $this;
+        return FALSE;
     }
 
-    private function createClient( string $key = null ) {
+    private function generateFeaturedImage( $image_url, $post_id, $custom_filename = ''  ){
+        $upload_dir = wp_upload_dir();
+        $image_data = file_get_contents($image_url);
+        $filename = $custom_filename . '_' . basename($image_url);
+        if(wp_mkdir_p($upload_dir['path']))
+          $file = $upload_dir['path'] . '/' . $filename;
+        else
+          $file = $upload_dir['basedir'] . '/' . $filename;
+        file_put_contents($file, $image_data);
+    
+        $wp_filetype = wp_check_filetype($filename, null );
+        $attachment = array(
+            'post_mime_type' => $wp_filetype['type'],
+            'post_title' => sanitize_file_name($filename),
+            'post_content' => '',
+            'post_status' => 'inherit'
+        );
+        $attach_id = wp_insert_attachment( $attachment, $file, $post_id );
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        $attach_data = wp_generate_attachment_metadata( $attach_id, $file );
+        $res1= wp_update_attachment_metadata( $attach_id, $attach_data );
+        $res2= set_post_thumbnail( $post_id, $attach_id );
+
+    }
+
+    private function createClient() {
+        global $wpdb;
+
+        $key = $this -> key;
 
         if ( ! $key ) {
             // Fetch API key from the database
@@ -122,9 +164,12 @@ class YouTube {
             FROM " . PLUGIN_PREFIX . "_services AS services 
             JOIN " . PLUGIN_PREFIX . "_secrets AS secrets 
                 ON services.id = secrets.service_id 
-            WHERE lower(services.name) = 'youtube' AND secrets.disabled = 0";
+            WHERE 
+                lower(services.name) = 'youtube' AND 
+                secrets.disabled = 0 AND secrets.deleted = 0 AND 
+                services.disabled = 0
+            ";
 
-            global $wpdb;
             $_result = $wpdb->get_results( $query, 'ARRAY_A' );
 
             $key = $_result[rand(0, count($_result) - 1)]['_key'];

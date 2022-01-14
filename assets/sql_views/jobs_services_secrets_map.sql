@@ -1,22 +1,25 @@
 CREATE OR REPLACE VIEW 
     %table_prefix%_jobs_services_secrets_map 
 AS
-    SELECT 
-        DISTINCT jobs.id as job_id, jobs.service_id, trigger_id, secrets.id secret_id
-    FROM  
-    (
-        SELECT 
-            id, service_id, trigger_id 
-        FROM 
-            %table_prefix%_jobs 
-        WHERE disabled = 0 AND deleted = 0
-    ) AS jobs
-    LEFT JOIN 
-    (
-        SELECT 
-            service_id, id 
-        FROM 
-            %table_prefix%_secrets 
-        WHERE disabled = 0
-    ) AS secrets
-    ON secrets.service_id = jobs.service_id;
+
+SELECT
+    jobs.id AS job_id, jobs.meta_id, jobs.trigger_id, meta.service_id, secrets.id AS secret_id, audits.is_success 
+FROM 
+    (SELECT id, meta_id, trigger_id FROM %table_prefix%_jobs WHERE disabled = 0 AND deleted = 0) AS jobs
+JOIN
+    (SELECT id, service_id, secret_id, key_required FROM %table_prefix%_meta WHERE disabled = 0 AND deleted = 0) AS meta
+    ON jobs.meta_id = meta.id
+JOIN
+    (SELECT id FROM %table_prefix%_services WHERE disabled = 0) AS services 
+    ON meta.service_id = services.id
+JOIN
+    (SELECT id FROM %table_prefix%_triggers WHERE disabled = 0 AND deleted = 0) AS triggers 
+    ON jobs.trigger_id = triggers.id
+LEFT JOIN
+    (SELECT id, service_id FROM %table_prefix%_secrets WHERE disabled = 0 AND deleted = 0) AS secrets
+    ON 
+        (meta.secret_id = secrets.id AND meta.key_required = 1) OR 
+        (services.id = secrets.service_id AND meta.key_required = 1 AND meta.secret_id IS NULL AND secrets.service_id = meta.service_id)
+LEFT JOIN
+    (SELECT id, job_id, post_id, secret_id, is_success FROM %table_prefix%_audits) AS audits 
+    ON audits.job_id = jobs.id AND secrets.id = audits.secret_id 
