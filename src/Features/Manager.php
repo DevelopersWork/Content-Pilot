@@ -255,8 +255,11 @@ class Manager {
 
     public function renderAlert( array $args = array() ) {
         $html = '';
-        $html .= '<div class="alert '.(isset($args['type']) ? $args['type'] : 'alert-warning').'" role="alert">';
-            $html .= isset($args['description']) ? $args['description'] : 'Oops, something was broken...';
+        $html .= '<div class="alert '.(isset($args['type']) ? $args['type'] : 'alert-warning').' alert-dismissible" role="alert">';
+            $html .= '<div>';
+                $html .= isset($args['description']) ? $args['description'] : 'Oops, something was broken...';
+            $html .= '</div>';
+            $html .= '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
         $html .= '</div>';
 
         return $html;
@@ -285,13 +288,18 @@ class Manager {
     }
 
     public function renderSection( array $args ) {
-
         $head = '';
 
+        $get = "";
+            if(isset($_GET))
+                foreach ($_GET as $key => $value)
+                    if($key != 'tab')
+                        $get .= $key.'='.$value.'&';
+
         $head .= '<li class="nav-item" role="presentation">';
-            $head .= '<button class="nav-link'.($args['order'] == 0 ? ' active' : '').'" id="'.$args['id'].'-tab" data-bs-toggle="tab" data-bs-target="#'.$args['id'].'" type="button" role="tab" aria-controls="'.$args['id'].'" aria-selected="'.($args['order'] == 0 ? 'true' : 'false').'">';
+            $head .= '<a href="?'.$get.'tab='.strtolower($args['title']).'" class="nav-link'.($args['order'] == 0 ? ' active' : '').'" id="'.$args['id'].'-tab" data-bs-toggle="tab" data-bs-target="#'.$args['id'].'" type="button" role="tab" aria-controls="'.$args['id'].'" aria-selected="'.($args['order'] == 0 ? 'true' : 'false').'">';
                 $head .= $args['title'];
-            $head .= '</button>';
+            $head .= '</a>';
         $head .= '</li>';
 
         $content = '';
@@ -300,11 +308,7 @@ class Manager {
         
             $content .= '<div class="card '.($args['is_form'] ? '' : 'text-center').' col-12">';
                 $content .= '<div class="card-body">';
-                    $get = "";
-                    if(isset($_GET))
-                        foreach ($_GET as $key => $value)
-                            if($key != 'tab')
-                                $get .= $key.'='.$value.'&';
+                    
                     if($args['is_form']) $content .= '<form method="POST" action="?'.$get.'tab='.strtolower($args['title']).'">';
                         $content .= '<input type="hidden" name="form_name" value="'.strtolower($this -> page['menu_title']) .'_'. strtolower($args['title']).'"/>';
                         $content .= '<div class="row"><h1>%'.$args['title'].'%</h1></div>';

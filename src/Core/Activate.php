@@ -4,6 +4,8 @@
  */
 namespace Dev\WpContentAutopilot\Core;
 
+require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
 class Activate {
 
     public static function activate() {
@@ -12,13 +14,9 @@ class Activate {
         Activate:: createTables();
         Activate:: createViews();
         Activate:: loadReferenceData();
-        Activate:: createCronJobs();
     }
 
     public static function createTables() {
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-        // wordpress database object
         global $wpdb;
         
         $charset_collate = $wpdb->get_charset_collate();
@@ -28,7 +26,7 @@ class Activate {
 
         $regex = "/^.*\.(sql)$/i";
 
-        $tables = array('services', 'triggers', 'secrets', 'meta', 'jobs');
+        $tables = array('services', 'triggers', 'secrets', 'meta', 'jobs', 'audits');
 
         foreach($tables as $table) {
 
@@ -46,9 +44,6 @@ class Activate {
     }
 
     public static function createViews() {
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-        // wordpress database object
         global $wpdb;
 
         $path = PLUGIN_PATH . 'assets/sql_views/';
@@ -69,9 +64,6 @@ class Activate {
     }
 
     public static function loadReferenceData() {
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-        // wordpress database object
         global $wpdb;
 
         $path = PLUGIN_PATH . 'assets/dml/';
@@ -92,31 +84,6 @@ class Activate {
 
             }
 
-        }
-
-    }
-
-    public static function createCronJobs() {
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-        // wordpress database object
-        global $wpdb;
-        
-        $charset_collate = $wpdb->get_charset_collate();
-        
-        $query = "SELECT * FROM " . PLUGIN_PREFIX . "_triggers WHERE disabled = 0";
-
-        $_result = $wpdb->get_results( $query, 'ARRAY_A' );
-
-        foreach($_result as $_ => $row) {
-
-            $name = PLUGIN_SLUG . '_' . $row['name'];
-
-            if ( ! wp_next_scheduled( $name ) ) {
-
-                wp_schedule_event( time() + 3, $row['type'], $name );
-
-            }
         }
 
     }

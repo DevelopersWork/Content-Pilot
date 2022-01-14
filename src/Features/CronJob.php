@@ -21,53 +21,72 @@ class CronJob {
     }
 
     public function register() {
-
-        // wordpress database object
         global $wpdb;
-        
-        $charset_collate = $wpdb->get_charset_collate();
         
         $query = "
             SELECT 
-                ref.*,
-                jobs.name AS job_name,
-                secrets.value AS secret,
-                services.name AS service_name,
-                triggers.name AS trigger_name, triggers.type AS trigger_type, triggers.seconds, 
-                triggers.minutes, triggers.hours, triggers.days
+                DISTINCT jobs.id AS job_id,
+                triggers.name AS trigger_name, 
+                triggers.type AS trigger_type, 
+                jobs.hash AS job_hash
             FROM 
                 ".PLUGIN_PREFIX."_jobs_services_secrets_map AS ref
             JOIN 
                 ".PLUGIN_PREFIX."_jobs AS jobs ON jobs.id = ref.job_id
             JOIN 
-                ".PLUGIN_PREFIX."_secrets AS secrets ON secrets.id = ref.secret_id
-            JOIN 
-                ".PLUGIN_PREFIX."_services AS services ON services.id = ref.service_id
-            JOIN 
-                ".PLUGIN_PREFIX."_triggers AS triggers ON triggers.id = ref.trigger_id AND triggers.disabled = 0
+                ".PLUGIN_PREFIX."_triggers AS triggers ON triggers.id = ref.trigger_id
         ";
 
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
 
         foreach($_result as $_ => $row) {
 
-            $name = PLUGIN_SLUG . '_' . $row['trigger_name'];
+            $name = PLUGIN_SLUG . '_' . $row['trigger_name'] . '#' . $row['job_id'];
 
-            add_action( $name, array($this, strtolower($row['service_name'])) );
+            $args = array ( $row['job_hash'] );
+
+            add_action( $name, array($this, 'run') );
+            
+            if ( ! wp_next_scheduled( $name, $args ) ) {
+
+                wp_schedule_event( time() + 3, $row['trigger_type'], $name, $args );
+
+            } 
+
         }
 
     }
 
-    public function run( string $job_hash = "" ) {
+    public function run( string $job_hash ) {
         global $wpdb;
 
         if( $job_hash == "" ) {
-            return FALSE;
+
+            $table = PLUGIN_PREFIX . '_audits';
+
+            $data = array(
+                'job_id' => $request['job_id'], 
+                'post_id' => isset($response) ? $response : NULL,
+                'is_success' => 0
+            );
+            
+            $st = '';
+            foreach($data as $key => $value) $st .= md5($key . $value). '_';
+            $st .= md5('insert_timestamp' . microtime(true)). '_';
+            $data['hash'] = md5($st);
+            
+            $format = array('%s', '%d', '%d', '%s');
+            
+            return $wpdb -> insert($table, $data, $format);
         }
 
         $query = "
             SELECT 
-               meta.data, meta.key_required, secrets.value AS _key, services.name as service_name
+                jobs.id as job_id,
+                meta.data, meta.key_required, 
+                secrets.value AS _key, secrets.id AS secret_id, 
+                services.name as service_name, 
+                seconds, minutes, hours, days, triggers.type AS trigger_type, triggers.name AS trigger_name 
             FROM 
                 ".PLUGIN_PREFIX."_jobs_services_secrets_map AS ref
             JOIN 
@@ -89,8 +108,27 @@ class CronJob {
         
         if( strtolower($request['service_name']) == 'youtube' &&  $request['key_required'] == 1 ) {
 
-            return CronJob:: youtube($request['_key'], $request['data']);
+            $response = CronJob:: youtube($request['_key'], $request['data']);
+
         }
+
+        $table = PLUGIN_PREFIX . '_audits';
+
+        $data = array(
+            'job_id' => $request['job_id'], 
+            'post_id' => isset($response) ? $response : NULL,
+            'is_success' => isset($response) ? 1 : 0,
+            'secret_id' => $request['secret_id']
+        );
+        
+        $st = '';
+        foreach($data as $key => $value) $st .= md5($key . $value). '_';
+        $st .= md5('insert_timestamp' . microtime(true)). '_';
+        $data['hash'] = md5($st);
+        
+        $format = array('%s', '%d', '%d', '%s', '%s');
+        
+        return $wpdb -> insert($table, $data, $format);
 
         return FALSE;
 

@@ -25,7 +25,8 @@ class Dashboard extends Manager {
         $html = '
             <table class="table table-striped border">
                 <thead><tr>
-                    <th scope="col">Job</th><th scope="col">Server</th><th scope="col">Trigger</th><th scope="col">Meta</th><th scope="col">API</th>
+                    <th scope="col">Job</th><th scope="col">Service</th><th scope="col">Trigger</th><th scope="col">Meta</th><th scope="col">API</th>
+                    <th scope="col">Status</th><th scope="col">Runs</th>
                 </tr></thead>
                 <tbody>
         ';
@@ -38,7 +39,8 @@ class Dashboard extends Manager {
                 services.name AS service_name,
                 triggers.type AS trigger_name,
                 meta.name AS meta_name, meta.data AS meta_data,
-                GROUP_CONCAT('\"', secrets.name, '\"') AS secret_name
+                secrets.name AS secret_name,
+                case when ref.is_success is null then 3 else ref.is_success end as is_success, count(*) as count_is_success
             FROM 
                 " . PLUGIN_PREFIX . "_jobs_services_secrets_map AS ref
             LEFT JOIN 
@@ -51,7 +53,7 @@ class Dashboard extends Manager {
                 " . PLUGIN_PREFIX . "_meta AS meta ON meta.id = ref.meta_id
             LEFT JOIN 
                 " . PLUGIN_PREFIX . "_secrets AS secrets ON secrets.id = ref.secret_id
-            GROUP BY jobs.name, jobs.hash, services.name, triggers.type, meta.name, meta.data
+            GROUP BY jobs.name, jobs.hash, services.name, triggers.type, meta.name, meta.data, ref.is_success, secrets.name
         ";
 
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
@@ -63,6 +65,8 @@ class Dashboard extends Manager {
             $html .= "<td>".str_replace("_", ' ', $row['trigger_name'])."</td>";
             $html .= "<td>".$row['meta_data']."</td>";
             $html .= "<td>".$row['secret_name']."</td>";
+            $html .= "<td>".($row['is_success'] == 1 ? 'SUCCESS' : ($row['is_success'] == 0 ? 'FAILED' : 'NA'))."</td>";
+            $html .= "<td>".(($row['is_success'] == 1 || $row['is_success'] == 0) ? $row['count_is_success'] : '0')."</td>";
             // $html .= "<td>";
             //     $html .= "<form method='POST'>";
             //         $html .= "<input type='hidden' name='form_name' value='job_run'/>";

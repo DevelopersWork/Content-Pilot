@@ -6,6 +6,8 @@ namespace Dev\WpContentAutopilot;
 
 use Dev\WpContentAutopilot\Core\Services;
 
+require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
 class Main {
 
     private $store, $version;
@@ -18,7 +20,7 @@ class Main {
 
     public function init() {
 
-        add_action('admin_enqueue_scripts', array($this, 'enqueue'));
+        add_action( 'admin_enqueue_scripts', array($this, 'enqueue') );
 
         add_filter( 'cron_schedules', array( $this, 'content_pilot_add_cron_interval') );
 
@@ -54,14 +56,9 @@ class Main {
 
 
     public function content_pilot_add_cron_interval( $schedules ) { 
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-    
-        // wordpress database object
         global $wpdb;
         
-        $charset_collate = $wpdb->get_charset_collate();
-        
-        $query = "SELECT * FROM " . PLUGIN_PREFIX . "_triggers WHERE disabled = 0";
+        $query = "SELECT * FROM " . PLUGIN_PREFIX . "_triggers WHERE disabled = 0 AND deleted = 0";
     
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
     

@@ -120,7 +120,7 @@ class YouTube {
             
             }
 
-            return TRUE;
+            return $thenewpostID;
 	
 		}
 
@@ -153,6 +153,7 @@ class YouTube {
     }
 
     private function createClient() {
+        global $wpdb;
 
         $key = $this -> key;
 
@@ -163,9 +164,12 @@ class YouTube {
             FROM " . PLUGIN_PREFIX . "_services AS services 
             JOIN " . PLUGIN_PREFIX . "_secrets AS secrets 
                 ON services.id = secrets.service_id 
-            WHERE lower(services.name) = 'youtube' AND secrets.disabled = 0";
+            WHERE 
+                lower(services.name) = 'youtube' AND 
+                secrets.disabled = 0 AND secrets.deleted = 0 AND 
+                services.disabled = 0
+            ";
 
-            global $wpdb;
             $_result = $wpdb->get_results( $query, 'ARRAY_A' );
 
             $key = $_result[rand(0, count($_result) - 1)]['_key'];
