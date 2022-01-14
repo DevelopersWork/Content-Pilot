@@ -18,3 +18,10 @@ jobs:
         username: ${{ secrets.DEVELOPMENT_FTP_USERNAME }}
         password: ${{ secrets.DEVELOPMENT_FTP_PASSWORD }}
         server-dir: wp-content/plugins/dev-content-pilot/
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          vendor/**
+          **/.vscode*/**
+          **/.github*/**
