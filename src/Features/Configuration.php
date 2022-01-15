@@ -29,40 +29,31 @@ class Configuration {
 			)
 		);
 
-        $settings = array(
-			array(
-				'option_group' => PLUGIN_SLUG . 'option_group_configuration_text_field',
-				'option_name' => 'simple_text_field',
-				'callback' => array( $this, 'textFieldProcessing' )
-			)
-		);
+        // $section_id = $this -> createSection ( 'Settings', array( $this, 'renderSection' ) );
+		// $section_id2 = $this -> createSection ( 'ABC', array( $this, 'renderSection' ), $section_id );
+		
+        // $this -> setSetting ( $section_id, 'Setting Name');
+		// $this -> setSetting ( $section_id, 'Setting Name2');
+		// $this -> setSetting ( $section_id, 'Setting Name5');
+        // $this -> setField ( 'Field Title', 'Setting Name', $section_id, array( $this, 'renderField' ) );
+		// $this -> setField ( 'Field Title5', 'Setting Name5', $section_id, array( $this, 'renderField' ) );
+		// $this -> setField ( 'Field Title2', 'Setting Name2', $section_id, array( $this, 'renderField' ) );
 
-        $sections = array(
-			array(
-				'id' => PLUGIN_SLUG . 'option_group_configuration_id1',
-				'title' => 'Configuration',
-				'callback' => array( $this, 'adminSectionManager' ),
-				'page' => $page[0]['menu_slug']
-			)
-		);
+		
+		// $this -> setSetting ( $section_id2, 'Setting Name4');
+		// $this -> setField ( 'Field Title4', 'Setting Name4', $section_id2, array( $this, 'renderField' ) );
 
-        $fields = array(
-            array(
-				'id' => $settings[0]['option_name'],
-				'title' => "Simple Text Field",
-				'callback' => array( $this, 'textField' ),
-				'page' => $page[0]['menu_slug'],
-				'section' => $sections[0]['id'],
-				'args' => array(
-					'label_for' => $settings[0]['option_name'],
-					'class' => 'example-class'
-				)
-			)
-        );
+		// $section_id3 = $this -> createSection ( 'About', array( $this, 'renderSection' ) );
+		// $this -> setSetting ( $section_id3, 'Setting Name3');
+		// $this -> setField ( 'Field Title3', 'Setting Name3', $section_id3, array( $this, 'renderField' ) );
+    }
 
-        $API = $this -> store -> get('SetupAPI');
-        $api = new $API();
-        $api -> addSubPages($page) -> addSettings($settings) -> addSections($sections) -> addFields($fields) -> register();
+	public function renderPage(){
+        require_once PLUGIN_PATH . "/src/Pages/Configuration.php";
+
+        // $yt = new YouTube($this -> store);
+        // $yt -> makePost();
+
     }
 
     public function render() {
