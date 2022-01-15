@@ -1,31 +1,36 @@
 on: 
   push:
     branches:
-      - v1.0
+      - 'snapshot/**'
 name: 🚀 Deploy Plugin Version on Push
 jobs:
   plugin-version-deploy:
-    name: 🎉 Deploy
+    name: 🎉 Deploy Wordpress to Development
     runs-on: ubuntu-latest
+    environment: development
+    env:
+      DEVELOPMENT_FTP_SERVER: ${{ secrets.FTP_SERVER }}
+      DEVELOPMENT_FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+      DEVELOPMENT_FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
     steps:
     - name: 🚚 Get latest code
       uses: actions/checkout@v2
 
-    - name: Cache Composer dependencies
+    - name: 😇 Cache composer dependencies
       uses: actions/cache@v2
       with:
         path: /tmp/composer-cache
         key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
 
-    - name: Install dependencies
+    - name: 🤬 Install dependencies
       uses: php-actions/composer@v6
     
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@4.2.0
       with:
-        server: ${{ secrets.DEVELOPMENT_FTP_SERVER }}
-        username: ${{ secrets.DEVELOPMENT_FTP_USERNAME }}
-        password: ${{ secrets.DEVELOPMENT_FTP_PASSWORD }}
+        server: ${{ env.DEVELOPMENT_FTP_SERVER }}
+        username: ${{ env.DEVELOPMENT_FTP_USERNAME }}
+        password: ${{ env.DEVELOPMENT_FTP_PASSWORD }}
         server-dir: wp-content/plugins/dev-content-pilot/
         exclude: |
           **/.git*
