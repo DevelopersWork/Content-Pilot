@@ -39,7 +39,7 @@ composer install
 
 ## Reporting bugs
 
-If you find an issue, [let us know here](https://github.com//DevelopersWork/Content-Pilot/issues/new)! Please follow [these guidelines](.github/ISSUE_TEMPLATE) on how to write a good bug report.
+If you find an issue, [let us know here](https://github.com//DevelopersWork/Content-Pilot/issues/new)! Please follow [these guidelines](.github/ISSUE_TEMPLATE.md) on how to write a good bug report.
 
 It may help us a lot if you can provide a backtrace of the error encountered. 
 
