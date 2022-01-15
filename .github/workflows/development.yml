@@ -1,7 +1,7 @@
 on: 
   push:
     branches:
-      - 'snapshot/**'
+      - 'release/development'
 name: 🚀 Deploy Plugin Version on Push
 jobs:
   plugin-deploy:
