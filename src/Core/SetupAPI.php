@@ -72,8 +72,6 @@ class SetupAPI {
 			return $this;
 		}
 
-        file_put_contents('php://stderr', print_r("".$title, TRUE));
-
         $admin_page = array();
         foreach ($this->pages[0] as $key => $value) {
             $admin_page[$key] = $value;

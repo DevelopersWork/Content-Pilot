@@ -1,0 +1,28 @@
+name: ✨ Build
+on: [pull_request]
+jobs:
+  code-checks:
+    name: 🧪 Code Analysis
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v2
+
+    - name: 😇 Cache composer dependencies
+      uses: actions/cache@v2
+      with:
+        path: /tmp/composer-cache
+        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+    - name: 🤬 Install dependencies
+      uses: php-actions/composer@v6
+
+    - name: 🛡️ Security Checker
+      uses: symfonycorp/security-checker-action@v2
+
+    - name: 🔐 Psalm
+      uses: docker://vimeo/psalm-github-actions
+      with:
+        security_analysis: true
+
+    
