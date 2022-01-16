@@ -1,5 +1,5 @@
 on: 
-  pull_request:
+  push:
     branches:
       - 'snapshot/**'
 name: Pre-release
@@ -8,7 +8,7 @@ jobs:
     name: Beta release
     runs-on: ubuntu-latest
     steps:
-    
+
     - name: 🚚 Get latest code
       uses: actions/checkout@v2
       
