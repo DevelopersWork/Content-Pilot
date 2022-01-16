@@ -75,15 +75,14 @@ class YouTube {
         $post_content = str_replace( "%video_id%", $videoID, $post_content );
 
         $desc = str_replace('\n', '<br/>', $response['snippet']['description']);
-        $desc = str_replace(' ', '&nbsp;', $desc);
         $post_content = str_replace( "%description%", $desc, $post_content );
         
         $post_content = str_replace( "%channel_id%", $response['snippet']['channelId'], $post_content );
         $post_content = str_replace( "%channel_name%", $response['snippet']['channelTitle'], $post_content );
 
-        $post_content = str_replace( "%viewCount%", $response['statistics']['viewCount'], $post_content );
-        $post_content = str_replace( "%likeCount%", $response['statistics']['likeCount'], $post_content );
-        $post_content = str_replace( "%commentCount%", $response['statistics']['commentCount'], $post_content );
+        $post_content = str_replace( "%viewCount%", $response['statistics']['viewCount'] || 0, $post_content );
+        $post_content = str_replace( "%likeCount%", $response['statistics']['likeCount'] || 0, $post_content );
+        $post_content = str_replace( "%commentCount%", $response['statistics']['commentCount'] || 0, $post_content );
 
         $data = array(
 			'post_title' => $response['snippet']['title'],
