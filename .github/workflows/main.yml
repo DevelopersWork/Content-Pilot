@@ -1,7 +1,5 @@
 name: ✨ Build
-on: 
-  pull_request:
-    types: [closed]
+on: [pull_request]
 jobs:
   code-checks:
     name: 🧪 Code Analysis
