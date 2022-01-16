@@ -1,5 +1,6 @@
 on: 
   pull_request:
+    types: [closed]
     branches:
       - 'release/development'
 name: 🚀 Deploy plugin on Pull Request

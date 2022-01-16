@@ -1,20 +1,21 @@
 on: 
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - 'snapshot/**'
-name: Pre-release
+name: 🐙 Release
 jobs:
-  build:
-    name: Beta release
+  draft:
+    name: 🐂 Draft Release
     runs-on: ubuntu-latest
+
     steps:
 
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v2
-      
-    - name: Beta release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      uses: ridedott/release-me-action@master
-      with:
-        release-branches: '[{"name":"beta","prerelease":"beta"}]'
+      # Drafts your next Release notes as Pull Requests are merged into "master"
+      - uses: release-drafter/release-drafter@v5
+        # (Optional) specify config name to use, relative to .github/. Default: release-drafter.yml
+        with:
+          config-name: release-drafter.config.yml
+          disable-autolabeler: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
