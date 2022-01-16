@@ -25,6 +25,4 @@ jobs:
       with:
         security_analysis: true
 
-    - uses: michaelw90/PHP-Lint@master
-    
     
