@@ -1,8 +1,8 @@
-name: Build
+name: ✨ Build
 on: [pull_request]
 jobs:
   code-checks:
-    name: Code Analysis
+    name: 🧪 Code Analysis
     runs-on: ubuntu-latest
     steps:
     - name: 🚚 Get latest code
@@ -17,10 +17,10 @@ jobs:
     - name: 🤬 Install dependencies
       uses: php-actions/composer@v6
 
-    - name: Security Checker
+    - name: 🛡️ Security Checker
       uses: symfonycorp/security-checker-action@v2
 
-    - name: Psalm
+    - name: 🔐 Psalm
       uses: docker://vimeo/psalm-github-actions
       with:
         security_analysis: true
