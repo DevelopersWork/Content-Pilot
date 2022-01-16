@@ -1,4 +1,12 @@
 on: 
-  push:
+  pull_request:
     branches:
       - 'snapshot/**'
+name: Build Version Branch
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v2
