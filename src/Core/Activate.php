@@ -9,6 +9,12 @@ require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 class Activate {
 
     public static function activate() {
+
+        if ( version_compare( PHP_VERSION, '5.4', '<=' ) ) {
+            deactivate_plugins( plugin_basename( __FILE__ ) );
+            wp_die( __( 'This plugin requires PHP Version 5.4 or greater.  Sorry about that.', 'textdomain' ) );
+        }
+
         flush_rewrite_rules();
 
         Activate:: createTables();
@@ -53,7 +59,7 @@ class Activate {
 
         foreach($ddls as $ddl) {
 
-            if ( $regex != "" && ! preg_match($regex, $ddl) ) continue;
+            if ( ! preg_match($regex, $ddl) ) continue;
 
             $sql = file_get_contents( $path . $ddl );
             $sql = str_replace( "%table_prefix%", PLUGIN_PREFIX, $sql );
@@ -73,7 +79,7 @@ class Activate {
 
         foreach ( $dmls as $dml ) {
 
-            if ( $regex != "" && ! preg_match($regex, $dml) ) continue;
+            if ( ! preg_match($regex, $dml) ) continue;
 
             $queries = file_get_contents( $path . $dml );
             $queries = str_replace( "%table_prefix%", PLUGIN_PREFIX, $queries );

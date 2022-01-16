@@ -12,14 +12,17 @@
     License: GPLv2 or later
     Text Domain: dev-content-pilot
 */
+define('PLUGIN_NAME', 'Content Pilot');
+
+$CORRUPTED = FALSE;
 
 // If Absolute Path is not defined no point in starting this script.
-defined('ABSPATH') or die("This is gonna be a highlight real for sure...");
+if( ! defined('ABSPATH') ) $CORRUPTED = TRUE;
 
 // Require once the Composer Autoload
-if(file_exists(dirname(__FILE__).'/vendor/autoload.php')){
+if ( file_exists(dirname(__FILE__).'/vendor/autoload.php' ) ){
     require_once dirname(__FILE__).'/vendor/autoload.php';
-}
+} else $CORRUPTED = TRUE;
 
 use Dev\WpContentAutopilot\Main;
 use Dev\WpContentAutopilot\Core\{Store};
@@ -38,6 +41,8 @@ class DevWPContentAutopilot {
         $store->set('Google_Service_YouTube', Google_Service_YouTube:: class);
         
         $this->process = new Main($store, '0.0.1');
+
+        add_action( 'admin_enqueue_scripts', array($this->process, 'admin_enqueue') );
     }
 
     public function init() { $this->process->init(); }
@@ -63,27 +68,24 @@ function onDeactivate() {
 /**
  * Initialize all the core classes of the plugin
  */
-if ( class_exists('DevWPContentAutopilot')) {
+if ( class_exists('DevWPContentAutopilot') && $CORRUPTED == FALSE ) {
     
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
     global $wpdb;
 
-    define('PLUGIN_NAME', 'Content Pilot');
     define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
     define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
     define( 'PLUGIN_SLUG', 'dev-content-pilot' );
     define( 'PLUGIN_PREFIX', $wpdb -> base_prefix . str_replace('-', '', PLUGIN_SLUG) );
     
-    file_put_contents('php://stderr', print_r(PLUGIN_NAME . ": {STARTED}\n", TRUE));
+    // file_put_contents('php://stderr', print_r(PLUGIN_NAME . ": {STARTED}\n", TRUE));
 
     $devWPContentAutopilot = new DevWPContentAutopilot();
 
     register_activation_hook( __FILE__, 'onActivate' );
 
     register_deactivation_hook( __FILE__, 'onDeactivate' );
-
-    Dev\WpContentAutopilot\Core\Activate:: activate();
 
     add_action( 'init', array($devWPContentAutopilot, 'init') );
 
