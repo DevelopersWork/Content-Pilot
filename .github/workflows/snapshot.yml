@@ -3,6 +3,7 @@ on:
     types: [closed]
     branches:
       - 'snapshot/**'
+      - 'release/production'
 name: 🐙 Release
 jobs:
   draft:
