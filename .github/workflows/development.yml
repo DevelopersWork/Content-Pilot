@@ -3,10 +3,10 @@ on:
     types: [closed]
     branches:
       - 'release/development'
-name: 🚀 Deploy plugin on Pull Request
+name: 🚀 Deploy on Development Environment
 jobs:
   plugin-deploy:
-    name: 🎉 Deploy Plugin to Development
+    name: 🎉 Deploying source code
     runs-on: ubuntu-latest
     environment: development
     env:
@@ -33,7 +33,7 @@ jobs:
           **/vendor/**
 
   dependencies-deploy:
-    name: 🎉 Deploy dependencies to Development
+    name: 🎉 Deploying dependencies
     runs-on: ubuntu-latest
     environment: development
     env:
