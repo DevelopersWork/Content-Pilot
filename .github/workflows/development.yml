@@ -1,0 +1,69 @@
+on: 
+  pull_request:
+    types: [closed]
+    branches:
+      - 'release/development'
+name: 🚀 Deploy on Development Environment
+jobs:
+  plugin-deploy:
+    name: 🎉 Deploying source code
+    runs-on: ubuntu-latest
+    environment: development
+    env:
+      DEVELOPMENT_FTP_SERVER: ${{ secrets.FTP_SERVER }}
+      DEVELOPMENT_FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+      DEVELOPMENT_FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v2
+    
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@4.2.0
+      with:
+        server: ${{ env.DEVELOPMENT_FTP_SERVER }}
+        username: ${{ env.DEVELOPMENT_FTP_USERNAME }}
+        password: ${{ env.DEVELOPMENT_FTP_PASSWORD }}
+        server-dir: wp-content/plugins/dev-content-pilot/
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.vscode*/**
+          **/.github*/**
+          **/vendor/**
+
+  dependencies-deploy:
+    name: 🎉 Deploying dependencies
+    runs-on: ubuntu-latest
+    environment: development
+    env:
+      DEVELOPMENT_FTP_SERVER: ${{ secrets.FTP_SERVER }}
+      DEVELOPMENT_FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+      DEVELOPMENT_FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v2
+
+    - name: 😇 Cache composer dependencies
+      uses: actions/cache@v2
+      with:
+        path: /tmp/composer-cache
+        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+    - name: 🤬 Install dependencies
+      uses: php-actions/composer@v6
+    
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@4.2.0
+      with:
+        server: ${{ env.DEVELOPMENT_FTP_SERVER }}
+        username: ${{ env.DEVELOPMENT_FTP_USERNAME }}
+        password: ${{ env.DEVELOPMENT_FTP_PASSWORD }}
+        local-dir: ./vendor/
+        server-dir: wp-content/plugins/dev-content-pilot/vendor/
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.vscode*/**
+          **/.github*/**

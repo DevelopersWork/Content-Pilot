@@ -1,44 +1,9 @@
-on: 
-  push:
-    branches:
-      - 'snapshot/**'
-name: 🚀 Deploy Plugin Version on Push
+name: ✨ Build
+on: [pull_request]
 jobs:
-  plugin-deploy:
-    name: 🎉 Deploy Plugin to Development
+  code-checks:
+    name: 🧪 Code Analysis
     runs-on: ubuntu-latest
-    environment: development
-    env:
-      DEVELOPMENT_FTP_SERVER: ${{ secrets.FTP_SERVER }}
-      DEVELOPMENT_FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-      DEVELOPMENT_FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-    steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v2
-    
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@4.2.0
-      with:
-        server: ${{ env.DEVELOPMENT_FTP_SERVER }}
-        username: ${{ env.DEVELOPMENT_FTP_USERNAME }}
-        password: ${{ env.DEVELOPMENT_FTP_PASSWORD }}
-        server-dir: wp-content/plugins/dev-content-pilot/
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/node_modules/**
-          **/.vscode*/**
-          **/.github*/**
-          **/vendor/**
-
-  dependencies-deploy:
-    name: 🎉 Deploy dependencies to Development
-    runs-on: ubuntu-latest
-    environment: development
-    env:
-      DEVELOPMENT_FTP_SERVER: ${{ secrets.FTP_SERVER }}
-      DEVELOPMENT_FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-      DEVELOPMENT_FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
     steps:
     - name: 🚚 Get latest code
       uses: actions/checkout@v2
@@ -51,18 +16,13 @@ jobs:
 
     - name: 🤬 Install dependencies
       uses: php-actions/composer@v6
-    
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@4.2.0
+
+    - name: 🛡️ Security Checker
+      uses: symfonycorp/security-checker-action@v2
+
+    - name: 🔐 Psalm
+      uses: docker://vimeo/psalm-github-actions
       with:
-        server: ${{ env.DEVELOPMENT_FTP_SERVER }}
-        username: ${{ env.DEVELOPMENT_FTP_USERNAME }}
-        password: ${{ env.DEVELOPMENT_FTP_PASSWORD }}
-        local-dir: ./vendor/
-        server-dir: wp-content/plugins/dev-content-pilot/vendor/
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/node_modules/**
-          **/.vscode*/**
-          **/.github*/**
+        security_analysis: true
+
+    

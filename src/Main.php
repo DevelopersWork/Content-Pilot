@@ -20,8 +20,6 @@ class Main {
 
     public function init() {
 
-        add_action( 'admin_enqueue_scripts', array($this, 'enqueue') );
-
         add_filter( 'cron_schedules', array( $this, 'content_pilot_add_cron_interval') );
 
         $services = array(
@@ -37,20 +35,30 @@ class Main {
 
     }
 
-    public function enqueue() {
+    public function admin_enqueue() {
 
-        wp_register_script('jquery3', 'https://code.jquery.com/jquery-3.3.1.min.js', array(), '3.3.1', true); // jQuery v3
-        wp_enqueue_script('jquery3');
-        wp_script_add_data('jquery3', array( 'integrity', 'crossorigin' ) , array( 'sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=', 'anonymous' ));
+        $regex = "/^".PLUGIN_SLUG.".*$/i";
+        if ( ! isset( $_GET['page'] ) ) return;
+        if ( ! preg_match($regex, $_GET['page']) ) return;
 
-        wp_register_script('bootstrap.bundle.min.js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', array(), '5.1.3', true);
-        wp_enqueue_script('bootstrap.bundle.min.js');
-        wp_script_add_data('bootstrap.bundle.min.js', array( 'integrity', 'crossorigin' ) , array( ));
+        wp_register_script(PLUGIN_SLUG . '-jquery3', 'https://code.jquery.com/jquery-3.3.1.min.js', array(), '3.3.1', true); // jQuery v3
+        wp_enqueue_script(PLUGIN_SLUG . '-jquery3');
+        wp_script_add_data(PLUGIN_SLUG . '-jquery3', array( 'integrity', 'crossorigin' ) , array( 'sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=', 'anonymous' ));
 
-        wp_enqueue_style('bootstrap.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', array(), '5.1.3', 'all');
+        wp_register_script(PLUGIN_SLUG . '-bootstrap.bundle.min', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', array(), '5.1.3', true);
+        wp_enqueue_script(PLUGIN_SLUG . '-bootstrap.bundle.min');
+        wp_script_add_data(PLUGIN_SLUG . '-bootstrap.bundle.min', array( 'integrity', 'crossorigin' ) , array( ));
 
-        wp_enqueue_script(PLUGIN_NAME . '_script.js', PLUGIN_URL . 'assets/js/script.js', array(), $this->version, 'all' );
-        wp_enqueue_style(PLUGIN_NAME . '_style.css', PLUGIN_URL . 'assets/css/style.css', array(), $this->version, 'all' );
+        wp_enqueue_style( 
+            PLUGIN_SLUG . '-bootstrap.min', 
+            'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', 
+            array(), 
+            '5.1.3', 
+            'all'
+        );
+
+        wp_enqueue_script(PLUGIN_NAME . '-script.admin', PLUGIN_URL . 'assets/js/script.admin.js', array(), $this->version, true );
+        wp_enqueue_style(PLUGIN_NAME . '-style.admin', PLUGIN_URL . 'assets/css/style.admin.css', array(), $this->version, 'all' );
 
     }
 

@@ -9,11 +9,12 @@
         global $alert_show;
         if( isset($alert_show) ) echo $alert_show;
     ?>
-
+    <div class="row">
     <h1>
         <?php echo isset($page_title) ? $page_title : "Title"; ?>
     </h1>
-
+    </div>
+    <div class="row">
     <ul class="nav nav-tabs" id="<?php echo md5(isset($page_title) ? $page_title : "Title"); ?>" role="tablist">
         <?php 
             if( isset($section_header) ) echo $section_header;
@@ -32,6 +33,8 @@
             } 
         ?>
     </ul>
+    </div>
+    <div class="row">
     <div class="tab-content" id="<?php echo md5(isset($page_title) ? $page_title : "Title"); ?>_Content">
         <?php 
             if( isset($section_content) ) echo $section_content;
@@ -49,6 +52,7 @@
         <?php
             } 
         ?>
+    </div>
     </div>
 
 </div>

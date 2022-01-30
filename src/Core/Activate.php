@@ -9,6 +9,12 @@ require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 class Activate {
 
     public static function activate() {
+
+        if ( version_compare( PHP_VERSION, '5.4', '<=' ) ) {
+            deactivate_plugins( plugin_basename( __FILE__ ) );
+            wp_die( __( 'This plugin requires PHP Version 5.4 or greater.  Sorry about that.', 'textdomain' ) );
+        }
+
         flush_rewrite_rules();
 
         Activate:: createTables();
@@ -28,17 +34,24 @@ class Activate {
 
         $tables = array('services', 'triggers', 'secrets', 'meta', 'jobs', 'audits');
 
-        foreach($tables as $table) {
+        try {
 
-            $ddl = $table . '.sql';
+            for($i = 0; $i < count($tables); $i++) {
+                $table = $tables[$i];
+                $ddl = $table . '.sql';
 
-            if ( ! in_array($ddl, $ddls, TRUE) ) continue;
+                if ( ! in_array($ddl, $ddls, TRUE) ) continue;
 
-            $sql = file_get_contents( $path . $ddl );
-            $sql = str_replace( "%table_prefix%", PLUGIN_PREFIX, $sql );
-            $sql = str_replace( "%charset_collate%", $charset_collate, $sql );
+                $sql = file_get_contents( $path . $ddl );
+                $sql = str_replace( "%table_prefix%", PLUGIN_PREFIX, $sql );
+                $sql = str_replace( "%charset_collate%", $charset_collate, $sql );
 
-            dbDelta( $sql );
+                dbDelta( $sql );
+
+            }
+
+        } catch(Exception $e) {
+            file_put_contents('php://stderr', print($e->getMessage()));
         }
 
     }
@@ -51,14 +64,20 @@ class Activate {
 
         $regex = "/^.*\.(sql)$/i";
 
-        foreach($ddls as $ddl) {
+        try {
 
-            if ( $regex != "" && ! preg_match($regex, $ddl) ) continue;
+            foreach($ddls as $ddl) {
 
-            $sql = file_get_contents( $path . $ddl );
-            $sql = str_replace( "%table_prefix%", PLUGIN_PREFIX, $sql );
+                if ( ! preg_match($regex, $ddl) ) continue;
 
-            $wpdb -> query( $sql );
+                $sql = file_get_contents( $path . $ddl );
+                $sql = str_replace( "%table_prefix%", PLUGIN_PREFIX, $sql );
+
+                $wpdb -> query( $sql );
+            }
+
+        } catch(Exception $e) {
+            file_put_contents('php://stderr', print($e->getMessage()));
         }
 
     }
@@ -70,20 +89,26 @@ class Activate {
         $dmls = array_diff(scandir($path), array('.', '..'));
 
         $regex = "/^.*\.(sql)$/i";
+        
+        try {
 
-        foreach ( $dmls as $dml ) {
+            foreach ( $dmls as $dml ) {
 
-            if ( $regex != "" && ! preg_match($regex, $dml) ) continue;
+                if ( ! preg_match($regex, $dml) ) continue;
 
-            $queries = file_get_contents( $path . $dml );
-            $queries = str_replace( "%table_prefix%", PLUGIN_PREFIX, $queries );
-            
-            foreach ( explode( '\n', $queries ) as $query ) {
+                $queries = file_get_contents( $path . $dml );
+                $queries = str_replace( "%table_prefix%", PLUGIN_PREFIX, $queries );
+                
+                foreach ( explode( '\n', $queries ) as $query ) {
 
-                dbDelta( $query );
+                    dbDelta( $query );
+
+                }
 
             }
 
+        } catch(Exception $e) {
+            file_put_contents('php://stderr', print($e->getMessage()));
         }
 
     }

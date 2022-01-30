@@ -29,7 +29,11 @@ class Deactivate {
                 ".PLUGIN_PREFIX."_triggers AS triggers ON triggers.id = jobs.trigger_id
         ";
 
-        $_result = $wpdb->get_results( $query, 'ARRAY_A' );
+        try{
+            $_result = $wpdb->get_results( $query, 'ARRAY_A' );
+        }catch(PDOException $e) {
+            $_result = array();
+        }
 
         foreach($_result as $_ => $row) {
 
