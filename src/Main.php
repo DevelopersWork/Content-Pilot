@@ -38,7 +38,8 @@ class Main {
     public function admin_enqueue() {
 
         $regex = "/^".PLUGIN_SLUG.".*$/i";
-        if ( ! preg_match($regex, $_GET['page']) ) return ;
+        if ( ! isset( $_GET['page'] ) ) return;
+        if ( ! preg_match($regex, $_GET['page']) ) return;
 
         wp_register_script(PLUGIN_SLUG . '-jquery3', 'https://code.jquery.com/jquery-3.3.1.min.js', array(), '3.3.1', true); // jQuery v3
         wp_enqueue_script(PLUGIN_SLUG . '-jquery3');

@@ -1,0 +1,35 @@
+version: "3.9"
+
+# This is only for development purposes.
+services:
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - ./tmp/mysql:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: $WORDPRESS_DB_PASSWORD
+      MYSQL_DATABASE: $WORDPRESS_DB_NAME
+      MYSQL_USER: $WORDPRESS_DB_USER
+      MYSQL_PASSWORD: $WORDPRESS_DB_PASSWORD
+
+  wordpress:
+    links:
+      - mysql:mysql
+    image: wordpress_workspace
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/var/www/html/wp-content/plugins/content-pilot_developerswork
+      - /var/www/html/wp-content/plugins/content-pilot_developerswork/vendor/
+    ports:
+      - "$WORDPRESS_PORT:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: $WORDPRESS_DB_HOST
+      WORDPRESS_DB_USER: $WORDPRESS_DB_USER
+      WORDPRESS_DB_PASSWORD: $WORDPRESS_DB_PASSWORD
+      WORDPRESS_DB_NAME: $WORDPRESS_DB_NAME
+      WORDPRESS_TABLE_PREFIX: $WORDPRESS_TABLE_PREFIX
+      WORDPRESS_DEBUG: $WORDPRESS_DEBUG
