@@ -32,18 +32,35 @@ class Manager {
         $this -> page = array();
 
         $this -> syncStore();
+
+        $this -> __init__();
     
+    }
+
+    public function loadScript() {
+        wp_enqueue_script($this -> class, PLUGIN_URL . 'assets/js/' . str_replace(' ', '', $this -> title) . '.js', array(), PLUGIN_VERSION, true );
+    }
+
+    public function loadStyle() {
+        wp_enqueue_style($this -> class, PLUGIN_URL . 'assets/css/' . str_replace(' ', '', $this -> title) . '.css', array(), PLUGIN_VERSION, 'all' );
     }
 
     public function __init__() {
 
+        // creating menu
+        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, null, 'dashicons-hammer', 110, TRUE, PLUGIN_NAME);
+        
+        // creating submenu
         $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, PLUGIN_SLUG );
 
-        $section_id = $this -> createSection ( 'Section Title', array( $this, 'renderSection' ) );
+        // creating section
+        $section_id = $this -> createSection ( 'Section Title', array( $this, 'renderSection' ), null, TRUE );
 
+        // creating setting
         $setting_id = $this -> setSetting ( $section_id, 'Setting Name', array( $this, 'renderSetting' ) );
 
-        $this -> setField ( 'Field Title', 'Setting Group', 'Section Title', array( $this, 'renderField' ) );
+        // creating field
+        $this -> setField ( 'Field Title', $setting_id, $section_id, array( $this, 'renderField' ) );
     
     }
 
@@ -212,6 +229,7 @@ class Manager {
         $sections_content = '';
         $section_count = 0;
 
+        if ( $page )
         foreach($page['sections'] as $s) {
 
             $section = $this -> getSection($s);

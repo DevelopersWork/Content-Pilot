@@ -14,7 +14,10 @@ class Meta extends Manager {
 
 		parent::__construct( $store, 'Meta Management' );
 
-		$this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, PLUGIN_SLUG );
+    }
+
+    public function __init__() {
+        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, PLUGIN_SLUG );
 
         $overview_section = $this -> createSection ( 'Overview', array( $this, 'renderSection' ), null, FALSE );
         $overview_setting_table = $this -> setSetting ( $overview_section, 'table');
@@ -22,12 +25,14 @@ class Meta extends Manager {
 
 		$create_section = $this -> createSection ( 'Create', array( $this, 'renderSection' ), null, TRUE );
         $this -> setField ( 'Name', $this -> setSetting ( $create_section, 'meta_name'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-12 ') );
-        $this -> setField ( 'Service', $this -> setSetting ( $create_section, 'service_id'), $create_section, array( $this, 'renderServiceIdField' ), array('col' => ' col-6 ') );
-        $this -> setField ( 'Data', $this -> setSetting ( $create_section, 'data'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-12 ', 'type' => 'textarea') );
-        $this -> setField ( 'API Key', $this -> setSetting ( $create_section, 'secret_id'), $create_section, array( $this, 'renderSecretIdField' ), array('col' => ' col-6 ') );
+        $this -> setField ( 'Service', $this -> setSetting ( $create_section, 'service_id'), $create_section, array( $this, 'renderServiceIdField' ), array('col' => ' col-4 ') );
+        $this -> setField ( 'API Key', $this -> setSetting ( $create_section, 'secret_id'), $create_section, array( $this, 'renderSecretIdField' ), array('col' => ' col-4 ') );
         $this -> setField ( 'Key Required', $this -> setSetting ( $create_section, 'key_required'), $create_section, array( $this, 'renderField' ), array('type' => 'checkbox', 'col' => ' col-2 ')  );
-        
+        $this -> setField ( 'Data', $this -> setSetting ( $create_section, 'data'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-12 ', 'type' => 'textarea') );
 
+
+        $this -> loadScript();
+        // $this -> loadStyle();
     }
 
     public function submit() {
@@ -69,7 +74,7 @@ class Meta extends Manager {
 
         if($flag == 1) {
             
-            $table = PLUGIN_PREFIX . '_meta';
+            $table = PLUGIN_PREFIX . '_metas';
 
             $data = array(
                 'name' => $_POST['meta_name'], 
@@ -149,21 +154,21 @@ class Meta extends Manager {
       
         $query = "
             SELECT 
-                meta.name AS meta_name, 
-                meta.data,
+                metas.name AS meta_name, 
+                metas.data,
                 services.name AS service_name, 
                 CASE 
-                    WHEN secrets.name IS NOT NULL AND meta.key_required = 1 THEN secrets.name
-                    WHEN meta.key_required = 1 THEN '*ANY*'
+                    WHEN secrets.name IS NOT NULL AND metas.key_required = 1 THEN secrets.name
+                    WHEN metas.key_required = 1 THEN '*ANY*'
                     ELSE ''
                 END AS _key
             FROM 
-                " . PLUGIN_PREFIX . "_meta AS meta
+                " . PLUGIN_PREFIX . "_metas AS metas
             JOIN 
-                " . PLUGIN_PREFIX . "_services AS services ON meta.service_id = services.id
+                " . PLUGIN_PREFIX . "_services AS services ON metas.service_id = services.id
             LEFT JOIN 
-                " . PLUGIN_PREFIX . "_secrets AS secrets ON meta.secret_id = secrets.id
-            WHERE services.disabled = 0 AND meta.deleted = 0
+                " . PLUGIN_PREFIX . "_secrets AS secrets ON metas.secret_id = secrets.id
+            WHERE services.disabled = 0 AND metas.deleted = 0
         ";
 
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );

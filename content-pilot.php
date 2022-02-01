@@ -13,6 +13,7 @@
     Text Domain: dev-content-pilot
 */
 define('PLUGIN_NAME', 'Content Pilot');
+define('PLUGIN_VERSION', '0.0.1');
 
 $CORRUPTED = FALSE;
 
@@ -40,7 +41,7 @@ class DevWPContentAutopilot {
         $store->set('Google_Client', Google_Client:: class);
         $store->set('Google_Service_YouTube', Google_Service_YouTube:: class);
         
-        $this->process = new Main($store, '0.0.1');
+        $this->process = new Main($store, PLUGIN_VERSION);
 
         add_action( 'admin_enqueue_scripts', array($this->process, 'admin_enqueue') );
     }
