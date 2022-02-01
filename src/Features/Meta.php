@@ -14,7 +14,10 @@ class Meta extends Manager {
 
 		parent::__construct( $store, 'Meta Management' );
 
-		$this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, PLUGIN_SLUG );
+    }
+
+    public function __init__() {
+        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, PLUGIN_SLUG );
 
         $overview_section = $this -> createSection ( 'Overview', array( $this, 'renderSection' ), null, FALSE );
         $overview_setting_table = $this -> setSetting ( $overview_section, 'table');
@@ -22,12 +25,14 @@ class Meta extends Manager {
 
 		$create_section = $this -> createSection ( 'Create', array( $this, 'renderSection' ), null, TRUE );
         $this -> setField ( 'Name', $this -> setSetting ( $create_section, 'meta_name'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-12 ') );
-        $this -> setField ( 'Service', $this -> setSetting ( $create_section, 'service_id'), $create_section, array( $this, 'renderServiceIdField' ), array('col' => ' col-6 ') );
-        $this -> setField ( 'Data', $this -> setSetting ( $create_section, 'data'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-12 ', 'type' => 'textarea') );
-        $this -> setField ( 'API Key', $this -> setSetting ( $create_section, 'secret_id'), $create_section, array( $this, 'renderSecretIdField' ), array('col' => ' col-6 ') );
+        $this -> setField ( 'Service', $this -> setSetting ( $create_section, 'service_id'), $create_section, array( $this, 'renderServiceIdField' ), array('col' => ' col-4 ') );
+        $this -> setField ( 'API Key', $this -> setSetting ( $create_section, 'secret_id'), $create_section, array( $this, 'renderSecretIdField' ), array('col' => ' col-4 ') );
         $this -> setField ( 'Key Required', $this -> setSetting ( $create_section, 'key_required'), $create_section, array( $this, 'renderField' ), array('type' => 'checkbox', 'col' => ' col-2 ')  );
-        
+        $this -> setField ( 'Data', $this -> setSetting ( $create_section, 'data'), $create_section, array( $this, 'renderField' ), array('placeholder' => 'Type here...', 'col' => ' col-12 ', 'type' => 'textarea') );
 
+
+        $this -> loadScript();
+        // $this -> loadStyle();
     }
 
     public function submit() {
