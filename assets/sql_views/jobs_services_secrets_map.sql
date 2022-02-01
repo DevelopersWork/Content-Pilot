@@ -7,7 +7,7 @@ SELECT
 FROM 
     (SELECT id, meta_id, trigger_id FROM %table_prefix%_jobs WHERE disabled = 0 AND deleted = 0) AS jobs
 JOIN
-    (SELECT id, service_id, secret_id, key_required FROM %table_prefix%_meta WHERE disabled = 0 AND deleted = 0) AS meta
+    (SELECT id, service_id, secret_id, key_required FROM %table_prefix%_metas WHERE disabled = 0 AND deleted = 0) AS meta
     ON jobs.meta_id = meta.id
 JOIN
     (SELECT id FROM %table_prefix%_services WHERE disabled = 0) AS services 

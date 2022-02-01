@@ -69,7 +69,7 @@ class Meta extends Manager {
 
         if($flag == 1) {
             
-            $table = PLUGIN_PREFIX . '_meta';
+            $table = PLUGIN_PREFIX . '_metas';
 
             $data = array(
                 'name' => $_POST['meta_name'], 
@@ -149,21 +149,21 @@ class Meta extends Manager {
       
         $query = "
             SELECT 
-                meta.name AS meta_name, 
-                meta.data,
+                metas.name AS meta_name, 
+                metas.data,
                 services.name AS service_name, 
                 CASE 
-                    WHEN secrets.name IS NOT NULL AND meta.key_required = 1 THEN secrets.name
-                    WHEN meta.key_required = 1 THEN '*ANY*'
+                    WHEN secrets.name IS NOT NULL AND metas.key_required = 1 THEN secrets.name
+                    WHEN metas.key_required = 1 THEN '*ANY*'
                     ELSE ''
                 END AS _key
             FROM 
-                " . PLUGIN_PREFIX . "_meta AS meta
+                " . PLUGIN_PREFIX . "_metas AS metas
             JOIN 
-                " . PLUGIN_PREFIX . "_services AS services ON meta.service_id = services.id
+                " . PLUGIN_PREFIX . "_services AS services ON metas.service_id = services.id
             LEFT JOIN 
-                " . PLUGIN_PREFIX . "_secrets AS secrets ON meta.secret_id = secrets.id
-            WHERE services.disabled = 0 AND meta.deleted = 0
+                " . PLUGIN_PREFIX . "_secrets AS secrets ON metas.secret_id = secrets.id
+            WHERE services.disabled = 0 AND metas.deleted = 0
         ";
 
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );

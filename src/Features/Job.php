@@ -202,7 +202,7 @@ class Job extends Manager {
             SELECT 
                 id, name 
             FROM 
-                " . PLUGIN_PREFIX . "_meta AS meta
+                " . PLUGIN_PREFIX . "_metas AS metas
             WHERE disabled = 0 AND deleted = 0 
         ";
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
@@ -231,12 +231,12 @@ class Job extends Manager {
         $query = "
             SELECT 
                 jobs.name AS job_name, jobs.hash as job_hash,
-                meta.name AS meta_name,
+                metas.name AS meta_name,
                 triggers.type
             FROM 
                 " . PLUGIN_PREFIX . "_jobs AS jobs
             JOIN 
-                " . PLUGIN_PREFIX . "_meta AS meta ON jobs.meta_id = meta.id
+                " . PLUGIN_PREFIX . "_metas AS metas ON jobs.meta_id = metas.id
             JOIN 
                 " . PLUGIN_PREFIX . "_triggers AS triggers ON triggers.id = jobs.trigger_id
             WHERE jobs.disabled = 0 AND jobs.deleted = 0
