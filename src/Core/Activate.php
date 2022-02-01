@@ -32,7 +32,7 @@ class Activate {
 
         $regex = "/^.*\.(sql)$/i";
 
-        $tables = array('services', 'triggers', 'secrets', 'meta', 'jobs', 'audits');
+        $tables = array('services', 'triggers', 'secrets', 'metas', 'jobs', 'audits');
 
         try {
 

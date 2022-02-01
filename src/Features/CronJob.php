@@ -83,7 +83,7 @@ class CronJob {
         $query = "
             SELECT 
                 jobs.id as job_id,
-                meta.data, meta.key_required, 
+                metas.data, metas.key_required, 
                 secrets.value AS _key, secrets.id AS secret_id, 
                 services.name as service_name, 
                 seconds, minutes, hours, days, triggers.type AS trigger_type, triggers.name AS trigger_name 
@@ -92,7 +92,7 @@ class CronJob {
             JOIN 
                 ".PLUGIN_PREFIX."_jobs AS jobs ON jobs.id = ref.job_id AND jobs.hash = '".$job_hash."'
             JOIN 
-                ".PLUGIN_PREFIX."_meta AS meta ON meta.id = ref.meta_id
+                ".PLUGIN_PREFIX."_metas AS metas ON metas.id = ref.meta_id
             JOIN 
                 ".PLUGIN_PREFIX."_services AS services ON services.id = ref.service_id
             JOIN 

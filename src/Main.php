@@ -19,6 +19,20 @@ class Main {
     }
 
     public function init() {
+        global $wpdb;
+
+        $tables = array('_audits', '_jobs', '_metas', '_secrets', '_services', '_triggers');
+
+        foreach($tables as $table) {
+            
+            $query = "SHOW TABLES LIKE '".PLUGIN_PREFIX.$table."'";
+
+            $result = $wpdb->get_results( $query, 'ARRAY_A' );
+
+            if( ! $result ) {
+                return;
+            }
+        }
 
         add_filter( 'cron_schedules', array( $this, 'content_pilot_add_cron_interval') );
 

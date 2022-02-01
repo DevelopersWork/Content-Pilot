@@ -38,7 +38,7 @@ class Dashboard extends Manager {
                 jobs.name AS job_name, jobs.hash as job_hash,
                 services.name AS service_name,
                 triggers.type AS trigger_name,
-                meta.name AS meta_name, meta.data AS meta_data,
+                metas.name AS meta_name, metas.data AS meta_data,
                 secrets.name AS secret_name,
                 case when ref.is_success is null then 3 else ref.is_success end as is_success, count(*) as count_is_success
             FROM 
@@ -50,10 +50,10 @@ class Dashboard extends Manager {
             LEFT JOIN 
                 " . PLUGIN_PREFIX . "_triggers AS triggers ON triggers.id = ref.trigger_id
             LEFT JOIN 
-                " . PLUGIN_PREFIX . "_meta AS meta ON meta.id = ref.meta_id
+                " . PLUGIN_PREFIX . "_metas AS metas ON metas.id = ref.meta_id
             LEFT JOIN 
                 " . PLUGIN_PREFIX . "_secrets AS secrets ON secrets.id = ref.secret_id
-            GROUP BY jobs.name, jobs.hash, services.name, triggers.type, meta.name, meta.data, ref.is_success, secrets.name
+            GROUP BY jobs.name, jobs.hash, services.name, triggers.type, metas.name, metas.data, ref.is_success, secrets.name
         ";
 
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
