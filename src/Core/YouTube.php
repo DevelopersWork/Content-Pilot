@@ -86,7 +86,7 @@ class YouTube {
 
         $data = array(
 			'post_title' => $response['snippet']['title'],
-            'post_name' => urlencode($response['snippet']['title']),
+            'post_name' => str_replace('%', '', urlencode($response['snippet']['title'])),
 			'post_content' => $post_content,
 			'post_category' => array($search),
 			'tags_input' => $response['snippet']['tags'],
