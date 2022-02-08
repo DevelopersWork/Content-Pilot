@@ -1,13 +1,10 @@
 # DevelopersWork's ContentPilot Wordpress Plugin
 
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/developerswork/Content-Pilot/%E2%9C%A8%20Build)
 [![CodeFactor](https://www.codefactor.io/repository/github/developerswork/content-pilot/badge)](https://www.codefactor.io/repository/github/developerswork/content-pilot)
 ![GitHub issues](https://img.shields.io/github/issues-raw/developerswork/Content-Pilot)
 ![GitHub repo size](https://img.shields.io/github/repo-size/DevelopersWork/Content-Pilot)
 [![](https://api.ghprofile.me/view?username=DevelopersWork_Content-Pilot&label=visits&style=flat)](https://ghprofile.me/view?username=DevelopersWork_Content-Pilot)
-[![discord](https://img.shields.io/discord/737430006271311913.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/aGPecJw)
-
-
-[<img alt="Deployed with FTP Deploy Action" src="https://img.shields.io/badge/Deployed With-FTP DEPLOY ACTION-%3CCOLOR%3E?style=for-the-badge&color=0077b6">](https://github.com/SamKirkland/FTP-Deploy-Action)
 
 ## Welcome to the Content Pilot GitHub repository
 While the documentation for the [Content Pilot Plugin](https://github.com/DevelopersWork/Content-Pilot/) can be seen as on [wiki](https://github.com/DevelopersWork/Content-Pilot/wiki), here you can check the source code of the plugin, find and discuss about open issues and even [contribute yourself](.github/CONTRIBUTING.md).
@@ -62,3 +59,8 @@ There are various ways you can contribute:
 * [Raise an issue](https://github.com/DevelopersWork/Content-Pilot/issues) on GitHub.
 * Send us a Pull Request with your bug fixes and/or new features.
 * Provide feedback and [suggestions on enhancements](https://github.com/DevelopersWork/Content-Pilot/issues?direction=desc&labels=Enhancement&page=1&sort=created&state=open).
+
+## Credits
+
+![Discord](https://img.shields.io/discord/346204799756271617?color=7389D8&label=discord&logo=discord&logoColor=ffffff&style=for-the-badge)
+[<img alt="Deployed with FTP Deploy Action" src="https://img.shields.io/badge/Deployed With-FTP DEPLOY ACTION-%3CCOLOR%3E?style=for-the-badge&color=0077b6">](https://github.com/SamKirkland/FTP-Deploy-Action)
