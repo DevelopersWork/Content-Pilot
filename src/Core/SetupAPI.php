@@ -260,7 +260,7 @@ class SetupAPI {
         
         if($key == 'fields') return $this -> fields;
 
-        return;
+        return null;
     }
 
 }

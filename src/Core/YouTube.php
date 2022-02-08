@@ -72,10 +72,7 @@ class YouTube {
         $path = PLUGIN_PATH . 'assets/html/';
         $post_content = file_get_contents( $path . 'youtube_live_post.html' );
 
-        $post_content = str_replace( "%video_id%", $videoID, $post_content );
-
-        $desc = str_replace('\n', '<br/>', $response['snippet']['description']);
-        $post_content = str_replace( "%description%", $desc, $post_content );
+        $post_content = str_replace( "%videoid%", $videoID, $post_content );
         
         $post_content = str_replace( "%channel_id%", $response['snippet']['channelId'], $post_content );
         $post_content = str_replace( "%channel_name%", $response['snippet']['channelTitle'], $post_content );
@@ -83,6 +80,9 @@ class YouTube {
         $post_content = str_replace( "%viewCount%", $response['statistics']['viewCount'] || 0, $post_content );
         $post_content = str_replace( "%likeCount%", $response['statistics']['likeCount'] || 0, $post_content );
         $post_content = str_replace( "%commentCount%", $response['statistics']['commentCount'] || 0, $post_content );
+
+        $desc = str_replace('\n', '<br/>', $response['snippet']['description']);
+        $post_content = str_replace( "%description%", $desc, $post_content );
 
         $data = array(
 			'post_title' => $response['snippet']['title'],

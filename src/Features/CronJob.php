@@ -129,9 +129,6 @@ class CronJob {
         $format = array('%s', '%d', '%d', '%s', '%s');
         
         return $wpdb -> insert($table, $data, $format);
-
-        return FALSE;
-
     }
 
     public function youtube($key, $q = "") {

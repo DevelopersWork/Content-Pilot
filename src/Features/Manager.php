@@ -101,7 +101,7 @@ class Manager {
         $id = md5($slug . '_' . $menu . '_' . $title . '_' . $this -> class);
         
         $this -> sections[$id] = array(
-            'id' => 'section' . '-' . $id,
+            'id' => 'section-' . $id,
             'title' => $title,
             'page' => $slug . '#' . ( $parent == null ) ? $id : $parent,
             'callback' => $callback,
