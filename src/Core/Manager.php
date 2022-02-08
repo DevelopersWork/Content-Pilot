@@ -2,9 +2,9 @@
 /** 
  * @package DevWPContentAutopilot
  */
-namespace Dev\WpContentAutopilot\Features;
+namespace Dev\WpContentAutopilot\Core;
 
-use Dev\WpContentAutopilot\Features\Tag;
+use Dev\WpContentAutopilot\Core\Tag;
 
 class Manager {
 
@@ -31,6 +31,8 @@ class Manager {
 
         $this -> page = array();
 
+        $this -> store -> log('Manager:__construct()', '{STARTED}');
+
         $this -> syncStore();
 
         $this -> __init__();
@@ -38,20 +40,20 @@ class Manager {
     }
 
     public function loadScript() {
-        wp_enqueue_script($this -> class, PLUGIN_URL . 'assets/js/' . str_replace(' ', '', $this -> title) . '.js', array(), PLUGIN_VERSION, true );
+        wp_enqueue_script($this -> class, dw_cp_PLUGIN_URL . 'assets/js/' . str_replace(' ', '', $this -> title) . '.js', array(), dw_cp_PLUGIN_VERSION, true );
     }
 
     public function loadStyle() {
-        wp_enqueue_style($this -> class, PLUGIN_URL . 'assets/css/' . str_replace(' ', '', $this -> title) . '.css', array(), PLUGIN_VERSION, 'all' );
+        wp_enqueue_style($this -> class, dw_cp_PLUGIN_URL . 'assets/css/' . str_replace(' ', '', $this -> title) . '.css', array(), dw_cp_PLUGIN_VERSION, 'all' );
     }
 
     public function __init__() {
 
         // creating menu
-        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, null, 'dashicons-hammer', 110, TRUE, PLUGIN_NAME);
+        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), dw_cp_PLUGIN_SLUG, null, 'dashicons-hammer', 110, TRUE, dw_cp_PLUGIN_NAME);
         
         // creating submenu
-        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, PLUGIN_SLUG );
+        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), dw_cp_PLUGIN_SLUG, dw_cp_PLUGIN_SLUG );
 
         // creating section
         $section_id = $this -> createSection ( 'Section Title', array( $this, 'renderSection' ), null, TRUE );
@@ -67,7 +69,7 @@ class Manager {
     public function setPage($capability, $callback, $slug, $parent = null, $icon = null, $position = null, $asSubPage = null, $title = null) {
 
         $this -> page = array(
-            'page_title' => ( $title == null ? $this -> title : $title ) . ' ‹ ' . PLUGIN_NAME,
+            'page_title' => ( $title == null ? $this -> title : $title ) . ' ‹ ' . dw_cp_PLUGIN_NAME,
             'menu_title' => ( $title == null ? $this -> title : $title ), 
             'capability' => $capability, 
             'menu_slug' => $slug . ($parent == null ? '' : '-' . strtolower(( $title == null ? $this -> title : $title ))), 
@@ -191,6 +193,8 @@ class Manager {
 
         if ( ! $this -> store ) return $this;
 
+        $this -> store -> log('Manager:register()', '{STARTED}');
+
         $API = $this -> store -> get('SetupAPI');
         $api = new $API();
 
@@ -206,7 +210,7 @@ class Manager {
         
         $api ->addSettings($settings) -> addSections($sections) -> addFields($fields) -> register();
 
-        return $this -> render();
+        return add_action( 'wp_loaded', array($this, 'render') );
     }
 
     public function syncStore() {
@@ -298,7 +302,7 @@ class Manager {
         global $alert_show;
         $alert_show = $this -> alert_show;
 
-        return include_once PLUGIN_PATH . "/src/Pages/Manager.php";
+        return include_once dw_cp_PLUGIN_PATH . "/src/Pages/Manager.php";
     }
 
     public function renderSetting( $input ) {

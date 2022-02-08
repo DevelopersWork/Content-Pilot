@@ -4,7 +4,7 @@
  */
 namespace Dev\WpContentAutopilot\Features;
 
-use Dev\WpContentAutopilot\Features\Manager;
+use Dev\WpContentAutopilot\Core\Manager;
 
 class Dashboard extends Manager {
 
@@ -12,7 +12,7 @@ class Dashboard extends Manager {
 
         parent::__construct( $store, 'Dashboard' );
 
-        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, null, 'dashicons-hammer', 110, TRUE, PLUGIN_NAME);
+        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), dw_cp_PLUGIN_SLUG, null, 'dashicons-hammer', 110, TRUE, dw_cp_PLUGIN_NAME);
 
         $overview_section = $this -> createSection ( 'Overview', array( $this, 'renderSection' ), null, FALSE );
         $overview_setting_table = $this -> setSetting ( $overview_section, 'table');
@@ -42,17 +42,17 @@ class Dashboard extends Manager {
                 secrets.name AS secret_name,
                 case when ref.is_success is null then 3 else ref.is_success end as is_success, count(*) as count_is_success
             FROM 
-                " . PLUGIN_PREFIX . "_jobs_services_secrets_map AS ref
+                " . dw_cp_PLUGIN_PREFIX . "_jobs_services_secrets_map AS ref
             LEFT JOIN 
-                " . PLUGIN_PREFIX . "_jobs AS jobs ON jobs.id = ref.job_id
+                " . dw_cp_PLUGIN_PREFIX . "_jobs AS jobs ON jobs.id = ref.job_id
             LEFT JOIN 
-                " . PLUGIN_PREFIX . "_services AS services ON services.id = ref.service_id
+                " . dw_cp_PLUGIN_PREFIX . "_services AS services ON services.id = ref.service_id
             LEFT JOIN 
-                " . PLUGIN_PREFIX . "_triggers AS triggers ON triggers.id = ref.trigger_id
+                " . dw_cp_PLUGIN_PREFIX . "_triggers AS triggers ON triggers.id = ref.trigger_id
             LEFT JOIN 
-                " . PLUGIN_PREFIX . "_metas AS metas ON metas.id = ref.meta_id
+                " . dw_cp_PLUGIN_PREFIX . "_metas AS metas ON metas.id = ref.meta_id
             LEFT JOIN 
-                " . PLUGIN_PREFIX . "_secrets AS secrets ON secrets.id = ref.secret_id
+                " . dw_cp_PLUGIN_PREFIX . "_secrets AS secrets ON secrets.id = ref.secret_id
             GROUP BY jobs.name, jobs.hash, services.name, triggers.type, metas.name, metas.data, ref.is_success, secrets.name
         ";
 

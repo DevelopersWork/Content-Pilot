@@ -20,12 +20,12 @@ class Configuration {
 
         $page = array(
 			array(
-				'page_title' => PLUGIN_NAME, 
+				'page_title' => dw_cp_PLUGIN_NAME, 
 				'menu_title' => 'Settings', 
 				'capability' => 'manage_options', 
-				'menu_slug' => PLUGIN_SLUG . '_configuration', 
+				'menu_slug' => dw_cp_PLUGIN_SLUG . '_configuration', 
 				'callback' => array( $this, 'render' ), 
-                'parent_slug' => PLUGIN_SLUG
+                'parent_slug' => dw_cp_PLUGIN_SLUG
 			)
 		);
 
@@ -49,7 +49,7 @@ class Configuration {
     }
 
 	public function renderPage(){
-        require_once PLUGIN_PATH . "/src/Pages/Configuration.php";
+        require_once dw_cp_PLUGIN_PATH . "/src/Pages/Configuration.php";
 
         // $yt = new YouTube($this -> store);
         // $yt -> makePost();
@@ -57,7 +57,7 @@ class Configuration {
     }
 
     public function render() {
-        require_once PLUGIN_PATH . "/src/Pages/Configuration.php";
+        require_once dw_cp_PLUGIN_PATH . "/src/Pages/Configuration.php";
     }
 
     public function textFieldProcessing( $input ) {

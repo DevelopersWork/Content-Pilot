@@ -24,10 +24,10 @@ class TriggerManager {
 
         $page = array(
 			array(
-				'page_title' => PLUGIN_NAME, 
-				'menu_title' => PLUGIN_NAME, 
+				'page_title' => dw_cp_PLUGIN_NAME, 
+				'menu_title' => dw_cp_PLUGIN_NAME, 
 				'capability' => 'manage_options', 
-				'menu_slug' => PLUGIN_SLUG, 
+				'menu_slug' => dw_cp_PLUGIN_SLUG, 
 				'callback' => array( $this, 'render' ), 
 				'icon' => 'dashicons-hammer', 
 				'position' => 110
@@ -41,7 +41,7 @@ class TriggerManager {
     }
 
     public function render(){
-        // require_once PLUGIN_PATH . "/src/Pages/Dashboard.php";
+        // require_once dw_cp_PLUGIN_PATH . "/src/Pages/Dashboard.php";
 
         $yt = new YouTube($this -> store);
         $response = $yt -> createClient() -> createService() -> search();

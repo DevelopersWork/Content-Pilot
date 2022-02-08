@@ -69,7 +69,7 @@ class YouTube {
 
         $response = $this -> getVideoById($videoID)['items'][0];
 
-        $path = PLUGIN_PATH . 'assets/html/';
+        $path = dw_cp_PLUGIN_PATH . 'assets/html/';
         $post_content = file_get_contents( $path . 'youtube_live_post.html' );
 
         $post_content = str_replace( "%videoid%", $videoID, $post_content );
@@ -161,8 +161,8 @@ class YouTube {
             // Fetch API key from the database
             $query = "SELECT 
                 secrets.value AS _key 
-            FROM " . PLUGIN_PREFIX . "_services AS services 
-            JOIN " . PLUGIN_PREFIX . "_secrets AS secrets 
+            FROM " . dw_cp_PLUGIN_PREFIX . "_services AS services 
+            JOIN " . dw_cp_PLUGIN_PREFIX . "_secrets AS secrets 
                 ON services.id = secrets.service_id 
             WHERE 
                 lower(services.name) = 'youtube' AND 
@@ -178,7 +178,7 @@ class YouTube {
         $Google_Client = $this -> store -> get('Google_Client');
 
         $client = new $Google_Client();
-        $client->setApplicationName(PLUGIN_NAME);
+        $client->setApplicationName(dw_cp_PLUGIN_NAME);
         $client->setDeveloperKey($key);
         $client->setScopes([
             'https://www.googleapis.com/auth/youtube.force-ssl',

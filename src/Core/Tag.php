@@ -2,7 +2,7 @@
 /** 
  * @package DevWPContentAutopilot
  */
-namespace Dev\WpContentAutopilot\Features;
+namespace Dev\WpContentAutopilot\Core;
 
 class Tag {
 

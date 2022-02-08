@@ -24,4 +24,18 @@ class Store {
         return $this->CONSTANTS[$name];
     }
 
+    public function log(string $trace, string $message) {
+
+        $line = time() . ': ' . $trace . ':: ' . $message . PHP_EOL;
+        
+        file_put_contents('php://stdout', print_r($line, TRUE));
+    }
+
+    public function error(string $trace, string $message) {
+
+        $line = time() . ': ' . $trace . '>> ' . $message . PHP_EOL;
+        
+        file_put_contents('php://stderr', print_r($line, TRUE));
+    }
+
 }

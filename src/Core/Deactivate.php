@@ -24,20 +24,20 @@ class Deactivate {
                 triggers.type AS trigger_type, 
                 jobs.hash AS job_hash
             FROM 
-                ".PLUGIN_PREFIX."_jobs AS jobs
+                ".dw_cp_PLUGIN_PREFIX."_jobs AS jobs
             JOIN 
-                ".PLUGIN_PREFIX."_triggers AS triggers ON triggers.id = jobs.trigger_id
+                ".dw_cp_PLUGIN_PREFIX."_triggers AS triggers ON triggers.id = jobs.trigger_id
         ";
 
         try{
             $_result = $wpdb->get_results( $query, 'ARRAY_A' );
-        }catch(PDOException $e) {
+        }catch(Exception $e) {
             $_result = array();
         }
 
         foreach($_result as $_ => $row) {
 
-            $name = PLUGIN_SLUG . '_' . $row['trigger_name'] . '#' . $row['job_id'];
+            $name = dw_cp_PLUGIN_SLUG . '_' . $row['trigger_name'] . '#' . $row['job_id'];
 
             wp_clear_scheduled_hook( $name );
 

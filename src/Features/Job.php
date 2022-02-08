@@ -4,7 +4,7 @@
  */
 namespace Dev\WpContentAutopilot\Features;
 
-use Dev\WpContentAutopilot\Features\{Manager, Tag, CronJob};
+use Dev\WpContentAutopilot\Core\{Manager, Tag, CronJob};
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
 class Job extends Manager {
@@ -13,7 +13,7 @@ class Job extends Manager {
 
 		parent::__construct( $store, 'Job Management' );
 
-		$this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, PLUGIN_SLUG );
+		$this -> setPage ( 'manage_options', array( $this, 'renderPage' ), dw_cp_PLUGIN_SLUG, dw_cp_PLUGIN_SLUG );
 
         $overview_section = $this -> createSection ( 'Overview', array( $this, 'renderSection' ), null, FALSE );
         $overview_setting_table = $this -> setSetting ( $overview_section, 'table');
@@ -109,7 +109,7 @@ class Job extends Manager {
 
         if($flag == 1) {
             
-            $table = PLUGIN_PREFIX . '_jobs';
+            $table = dw_cp_PLUGIN_PREFIX . '_jobs';
 
             $data = array(
                 'name' => $_POST['job_name'], 
@@ -138,7 +138,7 @@ class Job extends Manager {
             SELECT 
                 id, name, service_id, trigger_id, key_required, disabled 
             FROM 
-                " . PLUGIN_PREFIX . "_jobs AS triggers
+                " . dw_cp_PLUGIN_PREFIX . "_jobs AS triggers
             WHERE deleted = 0
         ";
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
@@ -160,7 +160,7 @@ class Job extends Manager {
             SELECT 
                 id, name, service_id, trigger_id, key_required, disabled 
             FROM 
-                " . PLUGIN_PREFIX . "_jobs AS triggers
+                " . dw_cp_PLUGIN_PREFIX . "_jobs AS triggers
             WHERE deleted = 0
         ";
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
@@ -181,7 +181,7 @@ class Job extends Manager {
             SELECT 
                 id, type 
             FROM 
-                " . PLUGIN_PREFIX . "_triggers AS triggers
+                " . dw_cp_PLUGIN_PREFIX . "_triggers AS triggers
             WHERE disabled = 0 
         ";
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );        
@@ -202,7 +202,7 @@ class Job extends Manager {
             SELECT 
                 id, name 
             FROM 
-                " . PLUGIN_PREFIX . "_metas AS metas
+                " . dw_cp_PLUGIN_PREFIX . "_metas AS metas
             WHERE disabled = 0 AND deleted = 0 
         ";
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
@@ -234,11 +234,11 @@ class Job extends Manager {
                 metas.name AS meta_name,
                 triggers.type
             FROM 
-                " . PLUGIN_PREFIX . "_jobs AS jobs
+                " . dw_cp_PLUGIN_PREFIX . "_jobs AS jobs
             JOIN 
-                " . PLUGIN_PREFIX . "_metas AS metas ON jobs.meta_id = metas.id
+                " . dw_cp_PLUGIN_PREFIX . "_metas AS metas ON jobs.meta_id = metas.id
             JOIN 
-                " . PLUGIN_PREFIX . "_triggers AS triggers ON triggers.id = jobs.trigger_id
+                " . dw_cp_PLUGIN_PREFIX . "_triggers AS triggers ON triggers.id = jobs.trigger_id
             WHERE jobs.disabled = 0 AND jobs.deleted = 0
         ";
 
@@ -270,7 +270,7 @@ class Job extends Manager {
     }
 
 	// public function renderPage(){
-    //     require_once PLUGIN_PATH . "/src/Pages/Job.php";
+    //     require_once dw_cp_PLUGIN_PATH . "/src/Pages/Job.php";
     // }
 
 }

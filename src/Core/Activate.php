@@ -11,8 +11,7 @@ class Activate {
     public static function activate() {
 
         if ( version_compare( PHP_VERSION, '5.4', '<=' ) ) {
-            deactivate_plugins( plugin_basename( __FILE__ ) );
-            wp_die( __( 'This plugin requires PHP Version 5.4 or greater.  Sorry about that.', 'textdomain' ) );
+            die( __( 'This plugin requires PHP Version 5.4 or greater.  Sorry about that.', 'plugin-activate' ) );
         }
 
         flush_rewrite_rules();
@@ -27,7 +26,7 @@ class Activate {
         
         $charset_collate = $wpdb->get_charset_collate();
 
-        $path = PLUGIN_PATH . 'assets/ddl/';
+        $path = dw_cp_PLUGIN_PATH . 'assets/ddl/';
         $ddls = array_diff(scandir($path), array('.', '..'));
 
         $regex = "/^.*\.(sql)$/i";
@@ -43,7 +42,7 @@ class Activate {
                 if ( ! in_array($ddl, $ddls, TRUE) ) continue;
 
                 $sql = file_get_contents( $path . $ddl );
-                $sql = str_replace( "%table_prefix%", PLUGIN_PREFIX, $sql );
+                $sql = str_replace( "%table_prefix%", dw_cp_PLUGIN_PREFIX, $sql );
                 $sql = str_replace( "%charset_collate%", $charset_collate, $sql );
 
                 dbDelta( $sql );
@@ -51,7 +50,8 @@ class Activate {
             }
 
         } catch(Exception $e) {
-            file_put_contents('php://stderr', print($e->getMessage()));
+            die( __( $e -> getMessage(), 'plugin-activate' ) );
+            // file_put_contents('php://stderr', print_r($e -> getMessage(), TRUE));
         }
 
     }
@@ -59,7 +59,7 @@ class Activate {
     public static function createViews() {
         global $wpdb;
 
-        $path = PLUGIN_PATH . 'assets/sql_views/';
+        $path = dw_cp_PLUGIN_PATH . 'assets/sql_views/';
         $ddls = array_diff(scandir($path), array('.', '..'));
 
         $regex = "/^.*\.(sql)$/i";
@@ -71,13 +71,14 @@ class Activate {
                 if ( ! preg_match($regex, $ddl) ) continue;
 
                 $sql = file_get_contents( $path . $ddl );
-                $sql = str_replace( "%table_prefix%", PLUGIN_PREFIX, $sql );
+                $sql = str_replace( "%table_prefix%", dw_cp_PLUGIN_PREFIX, $sql );
 
                 $wpdb -> query( $sql );
             }
 
         } catch(Exception $e) {
-            file_put_contents('php://stderr', print($e->getMessage()));
+            die( __( $e -> getMessage(), 'plugin-activate' ) );
+            // file_put_contents('php://stderr', print_r($e -> getMessage(), TRUE));
         }
 
     }
@@ -85,7 +86,7 @@ class Activate {
     public static function loadReferenceData() {
         global $wpdb;
 
-        $path = PLUGIN_PATH . 'assets/dml/';
+        $path = dw_cp_PLUGIN_PATH . 'assets/dml/';
         $dmls = array_diff(scandir($path), array('.', '..'));
 
         $regex = "/^.*\.(sql)$/i";
@@ -97,7 +98,7 @@ class Activate {
                 if ( ! preg_match($regex, $dml) ) continue;
 
                 $queries = file_get_contents( $path . $dml );
-                $queries = str_replace( "%table_prefix%", PLUGIN_PREFIX, $queries );
+                $queries = str_replace( "%table_prefix%", dw_cp_PLUGIN_PREFIX, $queries );
                 
                 foreach ( explode( '\n', $queries ) as $query ) {
 
@@ -108,7 +109,8 @@ class Activate {
             }
 
         } catch(Exception $e) {
-            file_put_contents('php://stderr', print($e->getMessage()));
+            die( __( $e -> getMessage(), 'plugin-activate' ) );
+            // file_put_contents('php://stderr', print_r($e -> getMessage(), TRUE));
         }
 
     }

@@ -4,7 +4,7 @@
  */
 namespace Dev\WpContentAutopilot\Features;
 
-use Dev\WpContentAutopilot\Features\{Manager, Tag};
+use Dev\WpContentAutopilot\Core\{Manager, Tag};
 
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
@@ -17,7 +17,7 @@ class Meta extends Manager {
     }
 
     public function __init__() {
-        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, PLUGIN_SLUG );
+        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), dw_cp_PLUGIN_SLUG, dw_cp_PLUGIN_SLUG );
 
         $overview_section = $this -> createSection ( 'Overview', array( $this, 'renderSection' ), null, FALSE );
         $overview_setting_table = $this -> setSetting ( $overview_section, 'table');
@@ -74,7 +74,7 @@ class Meta extends Manager {
 
         if($flag == 1) {
             
-            $table = PLUGIN_PREFIX . '_metas';
+            $table = dw_cp_PLUGIN_PREFIX . '_metas';
 
             $data = array(
                 'name' => $_POST['meta_name'], 
@@ -104,7 +104,7 @@ class Meta extends Manager {
             SELECT 
                 id, name 
             FROM 
-                " . PLUGIN_PREFIX . "_services AS services 
+                " . dw_cp_PLUGIN_PREFIX . "_services AS services 
             WHERE disabled = 0
         ";
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
@@ -125,7 +125,7 @@ class Meta extends Manager {
             SELECT 
                 id, name 
             FROM 
-                " . PLUGIN_PREFIX . "_secrets AS _secrets 
+                " . dw_cp_PLUGIN_PREFIX . "_secrets AS _secrets 
             WHERE deleted = 0 AND disabled = 0
         ";
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
@@ -163,11 +163,11 @@ class Meta extends Manager {
                     ELSE ''
                 END AS _key
             FROM 
-                " . PLUGIN_PREFIX . "_metas AS metas
+                " . dw_cp_PLUGIN_PREFIX . "_metas AS metas
             JOIN 
-                " . PLUGIN_PREFIX . "_services AS services ON metas.service_id = services.id
+                " . dw_cp_PLUGIN_PREFIX . "_services AS services ON metas.service_id = services.id
             LEFT JOIN 
-                " . PLUGIN_PREFIX . "_secrets AS secrets ON metas.secret_id = secrets.id
+                " . dw_cp_PLUGIN_PREFIX . "_secrets AS secrets ON metas.secret_id = secrets.id
             WHERE services.disabled = 0 AND metas.deleted = 0
         ";
 

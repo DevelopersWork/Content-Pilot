@@ -4,7 +4,7 @@
  */
 namespace Dev\WpContentAutopilot\Features;
 
-use Dev\WpContentAutopilot\Features\{Manager, Tag};
+use Dev\WpContentAutopilot\Core\{Manager, Tag};
 
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
@@ -14,7 +14,7 @@ class Secret extends Manager {
 
 		parent::__construct( $store, 'Key Management' );
 
-		$this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, PLUGIN_SLUG );
+		$this -> setPage ( 'manage_options', array( $this, 'renderPage' ), dw_cp_PLUGIN_SLUG, dw_cp_PLUGIN_SLUG );
 
         $overview_section = $this -> createSection ( 'Overview', array( $this, 'renderSection' ), null, FALSE );
         $overview_setting_table = $this -> setSetting ( $overview_section, 'table');
@@ -66,7 +66,7 @@ class Secret extends Manager {
 
         if($flag == 1) {
             
-            $table = PLUGIN_PREFIX . '_secrets';
+            $table = dw_cp_PLUGIN_PREFIX . '_secrets';
 
             $data = array(
                 'name' => $_POST['secret_name'], 
@@ -94,7 +94,7 @@ class Secret extends Manager {
             SELECT 
                 id, name 
             FROM 
-                " . PLUGIN_PREFIX . "_services AS services 
+                " . dw_cp_PLUGIN_PREFIX . "_services AS services 
             WHERE disabled = 0
         ";
         $_result = $wpdb->get_results( $query, 'ARRAY_A' );
@@ -128,9 +128,9 @@ class Secret extends Manager {
                 secrets.value AS _key,
                 secrets.disabled
             FROM 
-                " . PLUGIN_PREFIX . "_secrets AS secrets
+                " . dw_cp_PLUGIN_PREFIX . "_secrets AS secrets
             JOIN 
-                " . PLUGIN_PREFIX . "_services AS services ON services.id = secrets.service_id
+                " . dw_cp_PLUGIN_PREFIX . "_services AS services ON services.id = secrets.service_id
             WHERE services.disabled = 0 AND secrets.deleted = 0
         ";
 
