@@ -31,7 +31,7 @@ class Manager {
 
         $this -> page = array();
 
-        $this -> store -> log('Manager:__construct()', '{STARTED}');
+        $this -> store -> log($this -> title . ':__construct()', '{STARTED}');
 
         $this -> syncStore();
 
@@ -193,7 +193,7 @@ class Manager {
 
         if ( ! $this -> store ) return $this;
 
-        $this -> store -> log('Manager:register()', '{STARTED}');
+        $this -> store -> log($this -> title . ':register()', '{STARTED}');
 
         $API = $this -> store -> get('SetupAPI');
         $api = new $API();
@@ -226,6 +226,8 @@ class Manager {
     }
 
     public function render() {
+
+        $this -> store -> log($this -> title . ':render()', '{STARTED}');
 
         $page = $this -> getPage();
 

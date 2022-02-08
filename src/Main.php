@@ -39,13 +39,23 @@ class Main {
 
         add_filter( 'cron_schedules', array( $this, 'content_pilot_add_cron_interval') );
 
+        // public Services doesn't required any authentication
         $services = array(
-            Features\Dashboard:: class,
-            Features\Secret:: class,
-            Features\Meta:: class,
-            Features\Job:: class,
             Features\CronJob:: class
         );
+
+        if ( is_user_logged_in() ) {
+            // protected services require authentication
+            $services = array_merge_recursive($services, array(
+                Features\Dashboard:: class,
+                Features\Secret:: class,
+                Features\Meta:: class,
+                Features\Job:: class
+            ));
+
+            // private services require authentication and authorisation
+            $services = array_merge_recursive($services, array());
+        }
 
         $_service = new Services($this -> store, $services);
         return $_service -> register();
