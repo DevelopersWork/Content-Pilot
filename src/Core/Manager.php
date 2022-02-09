@@ -320,29 +320,35 @@ class Manager {
                     if($key != 'tab')
                         $get .= $key.'='.$value.'&';
 
-        $head .= '<li class="nav-item" role="presentation">';
-            $head .= '<a href="?'.$get.'tab='.strtolower($args['title']).'" class="nav-link'.($args['order'] == 0 ? ' active' : '').'" id="'.$args['id'].'-tab" data-bs-toggle="tab" data-bs-target="#'.$args['id'].'" type="button" role="tab" aria-controls="'.$args['id'].'" aria-selected="'.($args['order'] == 0 ? 'true' : 'false').'">';
-                $head .= $args['title'];
+        $head .= '<li class="'.strtolower($args['title']).'">';
+            $head .= '<a href="?'.$get.'tab='.strtolower($args['title']).'" class="'.($args['order'] == 0 ? 'current' : '').'" aria-current="'.($args['order'] == 0 ? 'page' : '').'" aria-selected="'.($args['order'] == 0 ? 'true' : 'false').'">';
+                $head .= $args['title'] . ' ';
+                $head .= '<span class="count">(';
+                $head .= '<span class="'.strtolower($args['title']).'-count">0</span>';
+                $head .= ')</span>';
             $head .= '</a>';
+            $head .= ' |';
         $head .= '</li>';
 
         $content = '';
 
-        $content .= '<div class="row tab-pane fade show'.($args['order'] == 0 ? ' active' : '').'" id="'.$args['id'].'" role="tabpanel" aria-labelledby="'.$args['id'].'-tab">';
+        if($args['is_form']) {
+            $content .= '<form method="POST" action="?'.$get.'tab='.strtolower($args['title']).'">';
+            $content .= '<input type="hidden" name="form_name" value="'.strtolower($this -> page['menu_title']) .'_'. strtolower($args['title']).'"/>';
+        }
+        $content .= '<table class="wp-list-table widefat fixed striped table-view-list comments '.($args['order'] == 0 ? ' active' : '').'" id="'.$args['id'].'" role="tabpanel" aria-labelledby="'.$args['id'].'-tab">';
         
-            $content .= '<div class="card '.($args['is_form'] ? '' : 'text-center').' col-12">';
-                $content .= '<div class="card-body">';
-                    
-                    if($args['is_form']) $content .= '<form method="POST" action="?'.$get.'tab='.strtolower($args['title']).'">';
-                        $content .= '<input type="hidden" name="form_name" value="'.strtolower($this -> page['menu_title']) .'_'. strtolower($args['title']).'"/>';
-                        $content .= '<div class="row"><h1>%'.$args['title'].'%</h1></div>';
-                        if($args['is_form'])
-                            $content .= '<div class="row mt-3"><div class="col-1"><button type="submit" class="btn btn-primary">_'.strtoupper($args['title']).'_</button></div></div>';
-                    if($args['is_form']) $content .= '</form>';
-                $content .= '</div>';
-            $content .= '</div>';
+            $content .= '<tbody id="the-comment-list" data-wp-lists="list:comment">';
+                $content .= '<tr class="row"><h1>%'.$args['title'].'%</h1></tr>';
+            $content .= '</tbody>';
         
-        $content .= '</div>';
+        $content .= '</table>';
+        if($args['is_form']) {
+            $content .= '<p class="submit">';
+            $content .= '<input type="submit" name="submit" id="submit" class="button button-primary" value="_'.strtoupper($args['title']).'_"/>';
+            $content .= '</p>';
+            $content .= '</form>';
+        } 
 
         $html = array('head' => $head, 'content' => $content);
 

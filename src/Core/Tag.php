@@ -7,31 +7,30 @@ namespace Dev\WpContentAutopilot\Core;
 class Tag {
 
     public static function inputTag ( $args ) {
-        $field = '<div class="'. $args['args']['col'] .' my-2">';
-            $field .= '<label for="'.$args['key'].'" class="form-label">'.$args['title'].'</label>';
-            $field .= '<input type="'.$args['args']['type'].'" class="form-control" id="'.$args['key'].'" placeholder="'.$args['args']['placeholder'].'" aria-describedby="'.$args['key'].'" name="'.$args['id'].'"/>';
-        $field .= '</div>';
+        $field = '<tr>';
+            $field .= '<th scope="row"><label for="'.$args['id'].'" >'.$args['title'].'</label></th>';
+            $field .= '<td><input type="'.$args['args']['type'].'" class="regular-text" placeholder="'.$args['args']['placeholder'].'" name="'.$args['id'].'"/>';
+        $field .= '</tr>';
 
         return $field;
     }
 
     public static function inputCheckboxTag ( $args ) {
-        $field = '<div class="'. $args['args']['col'] .' my-2"><div class="form-check form-switch">';
+        $field = '<tr>';
 
-            $field .= '<input class="form-check-input" type="'.$args['args']['type'].'" value="1" id="'.$args['key'].'" name="'.$args['id'].'"/>';
+            $field .= '<th scope="row"><label for="'.$args['id'].'" >'.$args['title'].'</label></th>';
+            $field .= '<td><input type="'.$args['args']['type'].'" value="1" id="'.$args['key'].'" name="'.$args['id'].'"/></td>';
 
-            $field .= '<label for="'.$args['key'].'" class="form-check-label">'.$args['title'].'</label>';
-            
-        $field .= '</div></div>';
+        $field .= '</tr>';
 
         return $field;
     }
 
     public static function selectTag ( $args ) {
-        $field = '<div class="'. $args['args']['col'] .' my-2"><div class="input-group">';
-            $field .= '<label for="'.$args['key'].'" class="input-group-text">'.$args['title'].'</label>';
+        $field = '<tr>';
+            $field .= '<th scope="row"><label for="'.$args['id'].'" >'.$args['title'].'</label></th>';
 
-            $field .= '<select class="form-select" id="'.$args['key'].'" name="'.$args['id'].'">';
+            $field .= '<td><select id="'.$args['key'].'" name="'.$args['id'].'">';
                 $field .= '<option selected value="">Choose...</option>';
             
                 $options = $args['options'];
@@ -41,21 +40,21 @@ class Tag {
                     $field .= $value;
                     $field .= "</option>";
                 }
-            $field .= '</select>';
+            $field .= '</select></td>';
             
-        $field .= '</div></div>';
+        $field .= '</tr>';
 
         return $field;
     }
 
     public static function textAreaTag ( $args ) {
-        $field = '<div class="'. $args['args']['col'] .' my-2"><div class="form-group">';
+        $field = '<tr>';
 
-            $field .= '<label for="'.$args['key'].'" class="">'.$args['title'].'</label>';
+            $field .= '<th scope="row"><label for="'.$args['id'].'" >'.$args['title'].'</label></th>';
         
-            $field .= '<textarea class="form-control" type="'.$args['args']['type'].'" row="5" value="" id="'.$args['key'].'" name="'.$args['id'].'"></textarea>';
+            $field .= '<td><textarea type="'.$args['args']['type'].'" col="5" value="" id="'.$args['key'].'" name="'.$args['id'].'"></textarea></td>';
 
-        $field .= '</div></div>';
+        $field .= '</tr>';
 
         return $field;
     }
