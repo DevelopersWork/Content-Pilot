@@ -219,11 +219,10 @@ class Job extends Manager {
     public function renderOverViewTable( array $args ){
         
         $html = '
-            <table class="table table-striped border">
-                <thead><tr>
-                    <th scope="col">Job</th><th scope="col">Metadata</th><th scope="col">Trigger</th><th scope="col"></th>
-                </tr></thead>
-                <tbody>
+            <thead><tr>
+                <th scope="col">Job</th><th scope="col">Metadata</th><th scope="col">Trigger</th><th scope="col"></th>
+            </tr></thead>
+            <tbody>
         ';
 
         global $wpdb;
@@ -265,7 +264,7 @@ class Job extends Manager {
             $html .= "</tr>";
         }
           
-        $html .= '</tbody></table>';
+        $html .= '</tbody>';
         return $html;
     }
 

@@ -23,12 +23,11 @@ class Dashboard extends Manager {
     public function renderOverViewTable( array $args ){
         
         $html = '
-            <table class="table table-striped border">
-                <thead><tr>
-                    <th scope="col">Job</th><th scope="col">Service</th><th scope="col">Trigger</th><th scope="col">Meta</th><th scope="col">API</th>
-                    <th scope="col">Status</th><th scope="col">Runs</th>
-                </tr></thead>
-                <tbody>
+            <thead><tr>
+                <th scope="col">Job</th><th scope="col">Service</th><th scope="col">Trigger</th><th scope="col">Meta</th><th scope="col">API</th>
+                <th scope="col">Status</th><th scope="col">Runs</th>
+            </tr></thead>
+            <tbody>
         ';
 
         global $wpdb;
@@ -77,7 +76,7 @@ class Dashboard extends Manager {
             $html .= "</tr>";
         }
           
-        $html .= '</tbody></table>';
+        $html .= '</tbody>';
         return $html;
     }
 

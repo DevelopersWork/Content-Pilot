@@ -109,14 +109,17 @@ class Secret extends Manager {
     }
 
     public function renderOverViewTable( array $args ){
-        
-        $html = '
-            <table class="table table-striped border">
-                <thead><tr>
-                <th scope="col">Name</th><th scope="col">Service</th><th scope="col">Key</th><th scope="col"></th>
-                </tr></thead>
-                <tbody>
+
+        $columns = '
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Service</th>
+                <th scope="col">Key</th>
+                <th scope="col"></th>
+            </tr>
         ';
+        
+        $html = '<thead>'.$columns.'</thead><tbody>';
       
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         global $wpdb;
@@ -145,7 +148,7 @@ class Secret extends Manager {
             $html .= "</tr>";
         }
           
-        $html .= '</tbody></table>';
+        $html .= '</tbody><tfoot>'.$columns.'</tfoot>';
         return $html;
     }
 

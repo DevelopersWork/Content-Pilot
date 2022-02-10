@@ -33,7 +33,7 @@
     </ul>
     <table class="wp-list-table widefat fixed striped table-view-list">
         <?php 
-            if( !isset($section_content) ) echo $section_content;
+            if( isset($section_content) ) echo $section_content;
             else { 
         ?>
             <thead><tr></tr></thead>

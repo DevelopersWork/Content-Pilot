@@ -323,32 +323,40 @@ class Manager {
         $head .= '<li class="'.strtolower($args['title']).'">';
             $head .= '<a href="?'.$get.'tab='.strtolower($args['title']).'" class="'.($args['order'] == 0 ? 'current' : '').'" aria-current="'.($args['order'] == 0 ? 'page' : '').'" aria-selected="'.($args['order'] == 0 ? 'true' : 'false').'">';
                 $head .= $args['title'] . ' ';
-                $head .= '<span class="count">(';
-                $head .= '<span class="'.strtolower($args['title']).'-count">0</span>';
-                $head .= ')</span>';
+                if($args['is_form']) {
+                    $head .= '<span class="count">(';
+                    $head .= '<span class="'.strtolower($args['title']).'-count">0</span>';
+                    $head .= ')</span>';
+                }
             $head .= '</a>';
             $head .= ' |';
         $head .= '</li>';
 
         $content = '';
 
-        if($args['is_form']) {
-            $content .= '<form method="POST" action="?'.$get.'tab='.strtolower($args['title']).'">';
-            $content .= '<input type="hidden" name="form_name" value="'.strtolower($this -> page['menu_title']) .'_'. strtolower($args['title']).'"/>';
+        if ( isset($_GET['page']) && $_GET['page'] == $this -> page['menu_slug'] ) if ( 
+            ( isset($_GET['tab']) && $_GET['tab'] == strtolower($args['title']) ) || 
+            ( !isset($_GET['tab']) && strtolower($args['title']) == 'overview' )
+        ) {
+            if($args['is_form']) {
+                $content .= '<form method="POST" action="?'.$get.'tab='.strtolower($args['title']).'">';
+                $content .= '<input type="hidden" name="form_name" value="'.strtolower($this -> page['menu_title']) .'_'. strtolower($args['title']).'"/>';
+            }
+            $content .= '<table class="wp-list-table widefat fixed striped table-view-list comments '.($args['order'] == 0 ? ' active' : '').'" id="'.$args['id'].'" role="tabpanel" aria-labelledby="'.$args['id'].'-tab">';
+            
+                $content .= '<tbody id="the-comment-list" data-wp-lists="list:comment">';
+                    $content .= '<tr class="row"><h1>%'.$args['title'].'%</h1></tr>';
+                $content .= '</tbody>';
+            
+            $content .= '</table>';
+            if($args['is_form']) {
+                $content .= '<p class="submit">';
+                $content .= '<input type="submit" name="submit" id="submit" class="button button-primary" value="_'.strtoupper($args['title']).'_"/>';
+                $content .= '</p>';
+                $content .= '</form>';
+            }
+
         }
-        $content .= '<table class="wp-list-table widefat fixed striped table-view-list comments '.($args['order'] == 0 ? ' active' : '').'" id="'.$args['id'].'" role="tabpanel" aria-labelledby="'.$args['id'].'-tab">';
-        
-            $content .= '<tbody id="the-comment-list" data-wp-lists="list:comment">';
-                $content .= '<tr class="row"><h1>%'.$args['title'].'%</h1></tr>';
-            $content .= '</tbody>';
-        
-        $content .= '</table>';
-        if($args['is_form']) {
-            $content .= '<p class="submit">';
-            $content .= '<input type="submit" name="submit" id="submit" class="button button-primary" value="_'.strtoupper($args['title']).'_"/>';
-            $content .= '</p>';
-            $content .= '</form>';
-        } 
 
         $html = array('head' => $head, 'content' => $content);
 
