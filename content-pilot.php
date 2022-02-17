@@ -29,7 +29,7 @@ use DW\ContentPilot\Lib\{ Activate, Deactivate };
 
 // If someone already using the prefix hell and heaven with them
 if( defined('DWContetPilotPrefix') ) $error = true;
-else define('DWContetPilotPrefix', 'dw_cp_');
+else define('DWContetPilotPrefix', 'dw_cp');
 
 class DWContentPilot {
 
@@ -37,15 +37,18 @@ class DWContentPilot {
 
     public function __construct() {
 
-        register_activation_hook( __FILE__, array(Activate::class, 'activate') );
-        register_deactivation_hook( __FILE__, array(Deactivate::class, 'deactivate') );
+        $_activate = new Activate(__FILE__);
+        register_activation_hook( __FILE__, array($_activate, 'activate') );
+
+        $_deactivate = new Deactivate(__FILE__);
+        register_deactivation_hook( __FILE__, array($_deactivate, 'deactivate') );
 
         if ( !is_plugin_active( plugin_basename( __FILE__ ) ) ) {
             return;
         }
 
         $this -> main = new Main( '0.1.1', __FILE__ );
-        
+
         // global $wpdb;
         // $wpdb->show_errors();
 
@@ -69,7 +72,7 @@ class DWContentPilot {
     }
 
     public function init() {
-        $this -> main -> createSQLTables();
+        $this -> main -> compatibilityCheck() -> checkSQLTables();
 
         add_action( 'init', array($this -> main, 'init') );
     }

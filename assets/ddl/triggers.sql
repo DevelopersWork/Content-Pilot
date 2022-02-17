@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS %table_prefix%_triggers (
-qsq--
+
     id                  bigint(20)      NOT NULL    AUTO_INCREMENT PRIMARY KEY  COMMENT '',
     name                varchar(255)    NOT NULL                                COMMENT 'Name of the Trigger',
     type                varchar(255)    NOT NULL                                COMMENT 'Hourly, Daily, Weekly',

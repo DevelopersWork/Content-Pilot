@@ -4,15 +4,28 @@
  */
 namespace DW\ContentPilot\Lib;
 
+use DW\ContentPilot\Core\{ Store };
+use DW\ContentPilot\Lib\{ Validations };
+
 class Deactivate {
 
-    public static function deactivate() {
-        flush_rewrite_rules();
+    private $store;
+    private $name;
 
-        // Deactivate:: removeCronJobs();
+    public function __construct(string $__FILE__) {
+        $this -> store = new Store();
+        $this -> name = $__FILE__;
     }
 
-    public static function removeCronJobs() {
+    public function deactivate() {
+        $this -> store -> log( get_class($this).':deactivate()', '{STARTED}' );
+
+        flush_rewrite_rules();
+
+        // this -> removeCronJobs();
+    }
+
+    public function removeCronJobs() {
         global $wpdb;
 
         $query = "

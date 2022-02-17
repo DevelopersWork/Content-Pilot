@@ -4,7 +4,7 @@
  */
 namespace DW\ContentPilot;
 
-use DW\ContentPilot\Lib\{ Validations };
+use DW\ContentPilot\Lib\{ Validations, Activate, Deactivate };
 use DW\ContentPilot\Core\{ Store };
 // use Dev\ContentPilot\Core\Services;
 
@@ -20,80 +20,57 @@ class Main {
         $this -> name = $name;
 
         $this -> store -> log( get_class($this).':__construct()', '{STARTED}' );
-
-        $this -> compatibilityCheck();
     }
 
     public function init() {
+
         $this -> store -> log( get_class($this).':init()', '{STARTED}' );
 
-        
-
         if ( is_user_logged_in() ) {
-            $this -> store -> set('admin_notice', array(
-                'msg' => 'We found a user here', 
-                'type' => 'info', 
-                'domain' => 'dw-content-pilot'
-            ));
+            // $this -> store -> set('admin_notice', array(
+            //     'msg' => 'We found a user here', 
+            //     'type' => 'info', 
+            //     'domain' => 'dw-content-pilot'
+            // ));
 
-            return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
+            // return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
         }
 
     }
 
-    public function createSQLTables() {
+    public function checkSQLTables() {
         global $wpdb;
 
-        $this -> store -> log( get_class($this).':createSQLTables()', '{STARTED}' );
-
-        $charset_collate = $wpdb->get_charset_collate();
-        $plugin_path = plugin_dir_path( $this -> name );
-
-        $ddl_path = $plugin_path . 'assets/ddl/';
-        $ddls = array_diff(scandir($ddl_path), array('.', '..'));
-
-        $regex = "/^.*\.(sql)$/i";
-
         $tables = array('triggers');
-
         $table_prefix = $wpdb -> base_prefix . esc_attr(DWContetPilotPrefix);
 
-        try {
+        foreach ($tables as $table) {
+            $_result = $wpdb -> get_results( "SHOW TABLES LIKE '%".$table_prefix .'_'. $table."%'", 'ARRAY_A' );
 
-            for($i = 0; $i < count($tables); $i++) {
-                $table = $tables[$i];
-                $ddl = $table . '.sql';
-
-                if ( ! in_array($ddl, $ddls, TRUE) ) continue;
-
-                $sql = file_get_contents( $ddl_path . $ddl );
-                $sql = str_replace( "%table_prefix%", $table_prefix, $sql );
-                $sql = str_replace( "%charset_collate%", $charset_collate, $sql );
-
-                dbDelta( $sql );
-
+            if(!$_result) {
+                $this -> store -> set('admin_notice', array(
+                    'msg' => 'Internal error occurred while checking the database tables', 
+                    'type' => 'error', 
+                    'domain' => 'sql-tables-dw-content-pilot'
+                ));
+                deactivate_plugins( plugin_basename( $this -> name ) );
+                return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
             }
-
-        } catch(Exception $e) {
-            $this -> store -> set('admin_notice', array(
-                'msg' => 'Required SQL tables creation failed', 
-                'type' => 'error', 
-                'domain' => 'sql-table-dw-content-pilot'
-            ));
-            add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
         }
+
+        $this -> store -> log( get_class($this).':checkSQLTables()', '{ALL REQUIRED SQL TABLES EXIST}' );
+        
+        return $this;
 
     }
 
-    private function compatibilityCheck() {
-
-        $this -> store -> log( get_class($this).':compatibilityCheck()', '{STARTED}' );
+    public function compatibilityCheck() {
 
         $php_version_check = Validations::validate_php_version();
 
         if( !$php_version_check ) {
             $this -> store -> set('admin_notice', array(
-                'msg' => 'Plugin requires PHP 7.1 or higher!', 
+                'msg' => 'Plugin requires PHP 7.4 or higher!', 
                 'type' => 'error', 
                 'domain' => 'activate-dw-content-pilot'
             ));
@@ -124,8 +101,9 @@ class Main {
 
             return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
         }
-
-        return $this -> store -> log( get_class($this).':compatibilityCheck()', 'PHP v'.$php_version_check.', Wordpress v'.$wp_version_check );
+        
+        $this -> store -> log( get_class($this).':compatibilityCheck()', 'PHP v'.$php_version_check.', Wordpress v'.$wp_version_check );
+        return $this;
     }
 
     // public function init() {

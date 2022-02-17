@@ -12,7 +12,7 @@ class Validations {
             return false;
         }
 
-        if ( version_compare( PHP_VERSION, '7.0', '<=' ) ) {
+        if ( version_compare( PHP_VERSION, '7.4', '<=' ) ) {
             return false;
         }
 

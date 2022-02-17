@@ -62,7 +62,7 @@ class Store {
         $class = 'notice notice-' . $type . ($dismissible ? ' is-dismissible' : '');
         $message = __( $msg, $domain );
  
-        printf( '<div class="%1$s"><p><strong>%2$s: </strong>%3$s</p></div>', esc_attr( $class ), esc_attr( ucfirst($type) ), esc_html( $message ) ); 
+        printf( '<div class="%1$s"><p><strong>[Content Pilot] %2$s: </strong>%3$s</p></div>', esc_attr( $class ), esc_attr( ucfirst($type) ), esc_html( $message ) ); 
         
         $this -> MEMORY['admin_notice'] = null;
     }
