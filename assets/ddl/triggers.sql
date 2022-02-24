@@ -14,4 +14,4 @@ CREATE TABLE IF NOT EXISTS %table_prefix%_triggers (
     hash                varchar(512)    NOT NULL                                COMMENT 'md5(name, type, seconds, minutes, hours, days)',
     CONSTRAINT %table_prefix%_triggers_unique UNIQUE (disabled, deleted, hash)
     
-) %charset_collate% ;
+) %charset_collate%;

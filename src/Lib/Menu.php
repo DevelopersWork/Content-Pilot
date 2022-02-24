@@ -4,19 +4,19 @@
  */
 namespace DW\ContentPilot\Lib;
 
-class MenuBuilder {
+class Menu {
 
-    protected $page = array();
-    protected $sections = array();
+    private $page = array();
+    private $sections = array();
 
-    public function addPage( array $_page ) {
+    protected function addPage( array $_page ) {
         
         $this -> page = $this -> createPage($_page);
 
         return $this;
     }
 
-    public function addSubPage( array $_page ) {
+    protected function addSubPage( array $_page ) {
 
         if ( !array_key_exists('parent_slug', $_page) ) 
             return array();
@@ -47,7 +47,7 @@ class MenuBuilder {
 
         foreach( $optional as $key ) {
             if ( !array_key_exists($key, $_page) ) 
-                continue;
+                $page[$key] = NULL;
             else 
                 $page[$key] = $_page[$key];
         }
@@ -55,7 +55,7 @@ class MenuBuilder {
         return $page;
     }
 
-    public function addSections( array $_sections ) {
+    protected function addSections( array $_sections ) {
 
         $sections = array();
         
@@ -88,13 +88,33 @@ class MenuBuilder {
         return $section;
     }
 
-    public function get( string $key ) {
+    protected function get( string $key ) {
 
         if($key == 'page') return $this -> page;
         
         if($key == 'sections') return $this -> sections;
 
         return null;
+    }
+
+    public function register_page() {
+        $page = $this -> page;
+
+        if ( !array_key_exists('parent_slug', $_page) ) 
+			add_menu_page( $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['function'], $page['icon'], $page['position'] );
+
+		else
+			add_submenu_page( $page['parent_slug'], $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['function'] );
+
+        return $this;
+    }
+
+    public function register_section() {
+        foreach ( $this->sections as $section ) {
+			add_settings_section( $section["id"], $section["title"], $section["callback"], $section["page"] );
+		}
+
+        return $this;
     }
 
 }

@@ -20,11 +20,11 @@ class Activate {
     public function activate() {
         $this -> store -> log( get_class($this).':activate()', '{STARTED}' );
 
-        flush_rewrite_rules();
-
         $this -> compatibilityCheck();
         $this -> createSQLTables();
+        $this -> loadReferenceData();
 
+        flush_rewrite_rules();
     }
 
     private function createSQLTables() {
@@ -102,6 +102,45 @@ class Activate {
 
         return $this -> store -> log( get_class($this).':compatibilityCheck()', 'PHP v'.$php_version_check.', Wordpress v'.$wp_version_check );
     }
+
+    private function loadReferenceData() {
+        global $wpdb;
+
+        $this -> store -> log( get_class($this).':loadReferenceData()', '{STARTED}' );
+
+        $charset_collate = $wpdb->get_charset_collate();
+        $plugin_path = plugin_dir_path( $this -> name );
+
+        $path = $plugin_path . 'assets/dml/';
+        $dmls = array_diff(scandir($path), array('.', '..'));
+
+        $regex = "/^.*\.(sql)$/i";
+
+        $tables = array('triggers');
+
+        $table_prefix = $wpdb -> base_prefix . esc_attr(DWContetPilotPrefix);
+        
+
+        for($i = 0; $i < count($tables); $i++) {
+
+            $table = $tables[$i];
+            $dml = $table . '.sql';
+
+            if ( ! preg_match($regex, $dml) ) continue;
+
+            $queries = file_get_contents( $path . $dml );
+            $queries = str_replace( "%table_prefix%", $table_prefix, $queries );
+            
+            foreach ( explode( '\n', $queries ) as $query ) {
+
+                dbDelta( $query );
+
+            }
+
+        }
+
+    }
+
 
 
 }

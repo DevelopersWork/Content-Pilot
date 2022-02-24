@@ -18,27 +18,32 @@ class Main {
 
         $this -> store = new Store();
         $this -> name = $name;
+        $this -> version = $version;
 
         $this -> store -> log( get_class($this).':__construct()', '{STARTED}' );
+    }
+
+    public function admin_init() {
+            
+        $this -> store -> log( get_class($this).':admin_init()', '{STARTED}' );
+
+        if ( !is_user_logged_in() ) return $this -> store -> log( get_class($this).':admin_init()', '{WP AUTH BROKEN}' );;
+        
+        $this -> register_scripts() -> register_styles() -> register_menus();
+
     }
 
     public function init() {
 
         $this -> store -> log( get_class($this).':init()', '{STARTED}' );
 
-        if ( is_user_logged_in() ) {
-            // $this -> store -> set('admin_notice', array(
-            //     'msg' => 'We found a user here', 
-            //     'type' => 'info', 
-            //     'domain' => 'dw-content-pilot'
-            // ));
+        $this -> compatibilityCheck() -> checkSQLTables();
 
-            // return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
-        }
+        $this -> register_filters() -> register_actions();
 
     }
 
-    public function checkSQLTables() {
+    private function checkSQLTables() {
         global $wpdb;
 
         $tables = array('triggers');
@@ -64,7 +69,7 @@ class Main {
 
     }
 
-    public function compatibilityCheck() {
+    private function compatibilityCheck() {
 
         $php_version_check = Validations::validate_php_version();
 
@@ -104,6 +109,67 @@ class Main {
         
         $this -> store -> log( get_class($this).':compatibilityCheck()', 'PHP v'.$php_version_check.', Wordpress v'.$wp_version_check );
         return $this;
+    }
+
+    private function register_actions() {
+            
+        $this -> store -> log( get_class($this).':register_actions()', '{STARTED}' );
+
+        add_action( 'admin_init', array( $this, 'admin_init' ) );
+
+        return $this;
+
+    }
+
+    private function register_scripts(){
+
+        $this -> store -> log( get_class($this).':register_scripts()', '{STARTED}' );
+
+        $PLUGIN_URL = plugin_dir_url( $this -> name );
+
+        // jQuery v3.3.1
+        wp_register_script(DWContetPilotPrefix . '-jquery3', 'https://code.jquery.com/jquery-3.3.1.min.js', array(), '3.3.1', true);
+        wp_script_add_data(DWContetPilotPrefix . '-jquery3', array( 'integrity', 'crossorigin' ) , array( 'sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=', 'anonymous' ));
+        wp_enqueue_script(DWContetPilotPrefix . '-jquery3');
+        // Bootstrap v5.1.3
+        wp_register_script(DWContetPilotPrefix . '-bootstrap.bundle.min', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', array(), '5.1.3', true);
+        wp_script_add_data(DWContetPilotPrefix . '-bootstrap.bundle.min', array( 'integrity', 'crossorigin' ) , array( ));
+        wp_enqueue_script(DWContetPilotPrefix . '-bootstrap.bundle.min');
+        // Admin Script
+        wp_enqueue_script(DWContetPilotPrefix . '-script.admin', $PLUGIN_URL . 'assets/js/script.admin.js', array(), $this -> version, true );
+
+        return $this;
+    
+    }
+
+    private function register_styles(){
+
+        $this -> store -> log( get_class($this).':register_styles()', '{STARTED}' );
+
+        $PLUGIN_URL = plugin_dir_url( $this -> name );
+
+        // Bootstrap v5.1.3
+        wp_enqueue_style(DWContetPilotPrefix . '-bootstrap.min', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', array(), '5.1.3', 'all');
+        // Admin Style
+        wp_enqueue_style(DWContetPilotPrefix . '-style.admin', $PLUGIN_URL . 'assets/css/style.admin.css', array(), $this->version, 'all' );
+
+        return $this;
+    
+    }
+
+    private function register_filters() {
+
+        $this -> store -> log( get_class($this).':register_filters()', '{STARTED}' );
+
+        add_filter( 'cron_schedules', array( $this, 'add_cron_triggers') );
+
+        return $this;
+    }
+
+    private function register_menus() {
+
+        $this -> store -> log( get_class($this).':register_menus()', '{STARTED}' );
+
     }
 
     // public function init() {
@@ -152,55 +218,59 @@ class Main {
 
     // public function admin_enqueue() {
 
-    //     $this -> store -> log('Main:admin_enqueue()', '{STARTED}');
+    //     $this -> store -> log( get_class($this).':admin_enqueue()', '{STARTED}' );
 
-    //     $regex = "/^".dw_cp_PLUGIN_SLUG.".*$/i";
+    //     $regex = "/^". $this -> name .".*$/i";
     //     if ( ! isset( $_GET['page'] ) ) return;
     //     if ( ! preg_match($regex, $_GET['page']) ) return;
 
-    //     wp_register_script(dw_cp_PLUGIN_SLUG . '-jquery3', 'https://code.jquery.com/jquery-3.3.1.min.js', array(), '3.3.1', true); // jQuery v3
-    //     wp_enqueue_script(dw_cp_PLUGIN_SLUG . '-jquery3');
-    //     wp_script_add_data(dw_cp_PLUGIN_SLUG . '-jquery3', array( 'integrity', 'crossorigin' ) , array( 'sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=', 'anonymous' ));
+    //     wp_register_script(DWContetPilotPrefix . '-jquery3', 'https://code.jquery.com/jquery-3.3.1.min.js', array(), '3.3.1', true); // jQuery v3
+    //     wp_enqueue_script(DWContetPilotPrefix . '-jquery3');
+    //     wp_script_add_data(DWContetPilotPrefix . '-jquery3', array( 'integrity', 'crossorigin' ) , array( 'sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=', 'anonymous' ));
 
-    //     // wp_register_script(dw_cp_PLUGIN_SLUG . '-bootstrap.bundle.min', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', array(), '5.1.3', true);
-    //     // wp_enqueue_script(dw_cp_PLUGIN_SLUG . '-bootstrap.bundle.min');
-    //     // wp_script_add_data(dw_cp_PLUGIN_SLUG . '-bootstrap.bundle.min', array( 'integrity', 'crossorigin' ) , array( ));
+    //     wp_register_script(DWContetPilotPrefix . '-bootstrap.bundle.min', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', array(), '5.1.3', true);
+    //     wp_enqueue_script(DWContetPilotPrefix . '-bootstrap.bundle.min');
+    //     wp_script_add_data(DWContetPilotPrefix . '-bootstrap.bundle.min', array( 'integrity', 'crossorigin' ) , array( ));
 
-    //     // wp_enqueue_style( 
-    //     //     dw_cp_PLUGIN_SLUG . '-bootstrap.min', 
-    //     //     'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', 
-    //     //     array(), 
-    //     //     '5.1.3', 
-    //     //     'all'
-    //     // );
+    //     wp_enqueue_style( 
+    //         DWContetPilotPrefix . '-bootstrap.min', 
+    //         'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', 
+    //         array(), 
+    //         '5.1.3', 
+    //         'all'
+    //     );
 
-    //     wp_enqueue_script(dw_cp_PLUGIN_NAME . '-script.admin', dw_cp_PLUGIN_URL . 'assets/js/script.admin.js', array(), $this->version, true );
-    //     wp_enqueue_style(dw_cp_PLUGIN_NAME . '-style.admin', dw_cp_PLUGIN_URL . 'assets/css/style.admin.css', array(), $this->version, 'all' );
+    //     wp_enqueue_script(DWContetPilotPrefix . '-script.admin', dw_cp_PLUGIN_URL . 'assets/js/script.admin.js', array(), $this->version, true );
+    //     wp_enqueue_style(DWContetPilotPrefix . '-style.admin', dw_cp_PLUGIN_URL . 'assets/css/style.admin.css', array(), $this->version, 'all' );
 
+    //     return $this;
     // }
 
 
-    // public function content_pilot_add_cron_interval( $schedules ) { 
-    //     global $wpdb;
+    public function add_cron_triggers( $schedules ) { 
 
-    //     $this -> store -> log('Main:content_pilot_add_cron_interval()', '{STARTED}');
+        $this -> store -> log( get_class($this).':add_cron_jobs()', '{STARTED}' );
         
-    //     $query = "SELECT * FROM " . dw_cp_PLUGIN_PREFIX . "_triggers WHERE disabled = 0 AND deleted = 0";
-    
-    //     $_result = $wpdb->get_results( $query, 'ARRAY_A' );
-    
-    //     foreach($_result as $_ => $row) {
+        global $wpdb;
 
-    //         $name = dw_cp_PLUGIN_SLUG . '_' . $row['name'];
-
-    //         $schedules[ $row['type'] ] = array(
-    //             'interval' => $row['seconds'] + ( $row['minutes'] + ( $row['hours'] + $row['days'] * 24 ) * 60 ) * 60,
-    //             'display'  => esc_html__( str_replace('_', ' ', $row['type']) ) 
-    //         );
-
-    //     }
+        $table_prefix = $wpdb -> base_prefix . esc_attr(DWContetPilotPrefix);
+        
+        $query = "SELECT * FROM " . $table_prefix . "_triggers WHERE disabled = 0 AND deleted = 0";
     
-    //     return $schedules;
-    // }
+        $_result = $wpdb -> get_results( $query, 'ARRAY_A' );
+    
+        foreach($_result as $_ => $row) {
+
+            $name = DWContetPilotPrefix . '_' . $row['name'];
+
+            $schedules[ DWContetPilotPrefix . '_' .$row['type'] ] = array(
+                'interval' => $row['seconds'] + ( $row['minutes'] + ( $row['hours'] + $row['days'] * 24 ) * 60 ) * 60,
+                'display'  => esc_html__( str_replace('_', ' ', $row['type']) ) 
+            );
+
+        }
+    
+        return $schedules;
+    }
     
 }

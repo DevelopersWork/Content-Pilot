@@ -29,14 +29,28 @@ class Store {
 
     public function log(string $trace, string $message) {
 
-        $line = time() . ': ' . $trace . ':: ' . $message . PHP_EOL;
+        $line = $trace . ':: ' . $message . PHP_EOL;
+        
+        file_put_contents('php://stdout', print_r($line, TRUE));
+    }
+
+    public function debug(string $trace, string $message) {
+
+        $line = $trace . ':: ' . $message . PHP_EOL;
+        
+        file_put_contents('php://stdout', print_r($line, TRUE));
+    }
+
+    public function info(string $trace, string $message) {
+
+        $line = $trace . ':: ' . $message . PHP_EOL;
         
         file_put_contents('php://stdout', print_r($line, TRUE));
     }
 
     public function error(string $trace, string $message) {
 
-        $line = time() . ': ' . $trace . '>> ' . $message . PHP_EOL;
+        $line = $trace . '>> ' . $message . PHP_EOL;
         
         file_put_contents('php://stderr', print_r($line, TRUE));
     }

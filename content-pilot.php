@@ -49,55 +49,28 @@ class DWContentPilot {
 
         $this -> main = new Main( '0.1.1', __FILE__ );
 
-        // global $wpdb;
-        // $wpdb->show_errors();
+        // // $this -> store->set('Google_Client', Google_Client:: class);
+        // // $this -> store->set('Google_Service_YouTube', Google_Service_YouTube:: class);
 
-        // define( 'dw_cp_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
-        // define( 'dw_cp_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-        // define( 'dw_cp_PLUGIN_SLUG', 'dw-content-pilot' );
-        // define( 'dw_cp_PLUGIN_PREFIX', $wpdb -> base_prefix . str_replace('-', '', dw_cp_PLUGIN_SLUG) );
-
-        // $this -> store = new Store();
-
-        // $this -> store -> log('DevWPContentAutopilot:__construct()', '{STARTED}');
-
-        // $this -> store->set('name', plugin_basename(__FILE__));
-
-        // $this -> store->set('Google_Client', Google_Client:: class);
-        // $this -> store->set('Google_Service_YouTube', Google_Service_YouTube:: class);
-        
-        
-
-        add_action( 'plugins_loaded', array($this, 'init') );
+        add_action( 'plugins_loaded', array($this, 'plugins_loaded') );
     }
 
-    public function init() {
-        $this -> main -> compatibilityCheck() -> checkSQLTables();
+    public function plugins_loaded() {
 
         add_action( 'init', array($this -> main, 'init') );
+
+        add_action( 'wp_loaded', array($this, 'wp_loaded') );
+
+    }
+
+    public function wp_loaded() {
+
+        
+
     }
 
 }
 
-/**
- * The code that runs during plugin activation
- */
-// function onActivate() {
-
-// 	Dev\WpContentAutopilot\Core\Activate:: activate();
-
-// }
-
-/**
- * The code that runs during plugin deactivation
- */
-// function onDeactivate() {
-// 	Dev\WpContentAutopilot\Core\Deactivate:: deactivate();
-// }
-
-/**
- * Initialize all the core classes of the plugin
- */
 if ( class_exists('DWContentPilot') && $error == FALSE ) {
 
     new DWContentPilot();
