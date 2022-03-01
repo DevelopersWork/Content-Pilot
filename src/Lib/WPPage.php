@@ -4,10 +4,17 @@
  */
 namespace DW\ContentPilot\Lib;
 
-class Menu {
+class WPPage {
 
     private $page = array();
-    private $sections = array();
+
+    WPPage($page = array()) {
+
+        $this -> page = $page;
+
+        add_action(DWContetPilotPrefix.'register_menus', [$this, 'register_page']);
+
+    }
 
     protected function addPage( array $_page ) {
         
@@ -55,48 +62,6 @@ class Menu {
         return $page;
     }
 
-    protected function addSections( array $_sections ) {
-
-        $sections = array();
-        
-        foreach ($_sections as $_section) {
-            $section = $this -> createSection($_section);
-            if ( ! empty($section) ) array_push($sections, $section);
-        }
-        
-        $this -> sections = $sections;
-
-        return $this;
-
-    }
-
-    private function createSection( array $_section ) {
-
-        $section = array();
-
-        $required = array('id', 'title', 'callback', 'page');
-
-        foreach( $required as $key ) {
-
-            if ( !array_key_exists($key, $_section) ) 
-                return array();
-            else 
-                $section[$key] = $_section[$key];
-        
-        }
-
-        return $section;
-    }
-
-    protected function get( string $key ) {
-
-        if($key == 'page') return $this -> page;
-        
-        if($key == 'sections') return $this -> sections;
-
-        return null;
-    }
-
     public function register_page() {
         $page = $this -> page;
 
@@ -105,14 +70,6 @@ class Menu {
 
 		else
 			add_submenu_page( $page['parent_slug'], $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['function'] );
-
-        return $this;
-    }
-
-    public function register_section() {
-        foreach ( $this->sections as $section ) {
-			add_settings_section( $section["id"], $section["title"], $section["callback"], $section["page"] );
-		}
 
         return $this;
     }

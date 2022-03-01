@@ -14,7 +14,7 @@ class Activate {
 
     public function __construct(string $__FILE__) {
         $this -> store = new Store();
-        $this -> name = $__FILE__;
+        $this -> __FILE__ = $__FILE__;
     }
 
     public function activate() {
@@ -33,7 +33,7 @@ class Activate {
         $this -> store -> log( get_class($this).':createSQLTables()', '{STARTED}' );
 
         $charset_collate = $wpdb->get_charset_collate();
-        $plugin_path = plugin_dir_path( $this -> name );
+        $plugin_path = plugin_dir_path( $this -> __FILE__ );
 
         $ddl_path = $plugin_path . 'assets/ddl/';
         $ddls = array_diff(scandir($ddl_path), array('.', '..'));
@@ -64,41 +64,13 @@ class Activate {
 
         $this -> store -> log( get_class($this).':compatibilityCheck()', '{STARTED}' );
 
-        $php_version_check = Validations::validate_php_version();
+        $php_version_check = Validations::validate_php_version($this -> store, $this -> __FILE__);
 
-        if( !$php_version_check ) {
-            $this -> store -> set('admin_notice', array(
-                'msg' => 'Plugin requires PHP 7.4 or higher!', 
-                'type' => 'error', 
-                'domain' => 'activate-dw-content-pilot'
-            ));
+        if( !$php_version_check ) return $php_version_check;
 
-            deactivate_plugins( plugin_basename( $this -> name ) );
-            
-            if ( isset( $_GET['activate'] ) ) {
-                unset( $_GET['activate'] );
-            }
+        $wp_version_check = Validations::validate_wp_version($this -> store, $this -> __FILE__);
 
-            return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
-        }
-
-        $wp_version_check = Validations::validate_wp_version();
-
-        if( !$wp_version_check ) {
-            $this -> store -> set('admin_notice', array(
-                'msg' => 'Plugin requires Wordpress 5.9 or higher!', 
-                'type' => 'error', 
-                'domain' => 'activate-dw-content-pilot'
-            ));
-
-            deactivate_plugins( plugin_basename( $this -> name ) );
-            
-            if ( isset( $_GET['activate'] ) ) {
-                unset( $_GET['activate'] );
-            }
-
-            return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
-        }
+        if( !$wp_version_check ) return $wp_version_check;
 
         return $this -> store -> log( get_class($this).':compatibilityCheck()', 'PHP v'.$php_version_check.', Wordpress v'.$wp_version_check );
     }
@@ -109,7 +81,7 @@ class Activate {
         $this -> store -> log( get_class($this).':loadReferenceData()', '{STARTED}' );
 
         $charset_collate = $wpdb->get_charset_collate();
-        $plugin_path = plugin_dir_path( $this -> name );
+        $plugin_path = plugin_dir_path( $this -> __FILE__ );
 
         $path = $plugin_path . 'assets/dml/';
         $dmls = array_diff(scandir($path), array('.', '..'));

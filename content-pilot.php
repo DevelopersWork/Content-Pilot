@@ -49,9 +49,6 @@ class DWContentPilot {
 
         $this -> main = new Main( '0.1.1', __FILE__ );
 
-        // // $this -> store->set('Google_Client', Google_Client:: class);
-        // // $this -> store->set('Google_Service_YouTube', Google_Service_YouTube:: class);
-
         add_action( 'plugins_loaded', array($this, 'plugins_loaded') );
     }
 
