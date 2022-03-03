@@ -25,13 +25,15 @@ class Main {
         
     }
 
-    public function admin_init() {
+    public function admin_menu() {
             
-        $this -> store -> log( get_class($this).':admin_init()', '{STARTED}' );
+        $this -> store -> log( get_class($this).':admin_menu()', '{STARTED}' );
 
-        if ( !is_user_logged_in() ) return $this -> store -> log( get_class($this).':admin_init()', '{WP AUTH BROKEN}' );
+        if ( !is_user_logged_in() ) return $this -> store -> log( get_class($this).':admin_menu()', '{WP AUTH BROKEN}' );
         
         $this -> register_scripts() -> register_styles() -> register_menus();
+        
+        // add_action('admin_menu', [$this, 'register_menus']);
 
     }
 
@@ -43,7 +45,8 @@ class Main {
 
         $this -> service = new Service($this -> __FILE__);
 
-        add_action( 'wp_loaded', array($this, 'wp_loaded') );
+        if($this -> service -> register())
+            add_action( 'wp_loaded', array($this, 'wp_loaded') );
     }
 
     public function wp_loaded() {
@@ -71,7 +74,7 @@ class Main {
             
         $this -> store -> log( get_class($this).':register_actions()', '{STARTED}' );
 
-        add_action( 'admin_init', array( $this, 'admin_init' ) );
+        add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 
         do_action(DWContetPilotPrefix.'register_actions');
 

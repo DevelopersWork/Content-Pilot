@@ -7,15 +7,12 @@ namespace DW\ContentPilot\Features;
 use DW\ContentPilot\Core\{ Store };
 use DW\ContentPilot\Lib\{ WPPage };
 
-class Dashboard extends WPPage {
+class Home extends WPPage {
 
     private $store;
-    private $parent;
     private $load_flag = True;
 
-    function __construct( $__FILE__ = 'DWContentPilot' ) {
-
-        $this -> parent = new Home();
+    function __construct( ) {
 
         $this -> store = new Store();
         $this -> store -> log( get_class($this).':__construct()', '{STARTED}' );
@@ -25,12 +22,17 @@ class Dashboard extends WPPage {
         $class_name = explode('\\', get_class($this));
         $class_name = array_pop($class_name);
 
-        $_result = $this -> addSubPage (array(
-            'parent_slug' => $this -> parent -> get_slug(),
-            'page_title' => $class_name, 
-            'menu_title' => $class_name, 
+        $slug = strtolower(str_replace('_', '-', DWContetPilotPrefix . '-' . $class_name));
+
+        print($slug);
+
+        $_result = $this -> addPage (array(
+            'page_title' => 'Content Pilot', 
+            'menu_title' => 'Content Pilot', 
             'capability' => 'manage_options', 
-            'menu_slug' => DWContetPilotPrefix . '_' . get_class($this)
+            'menu_slug' => $slug, 
+            'icon_url' => 'dashicons-hammer', 
+            'position' => 22
         ));
 
         if(!$_result) {
@@ -47,8 +49,6 @@ class Dashboard extends WPPage {
         if(!$this -> load_flag) return false;
             
         $this -> store -> log( get_class($this).':register()', '{STARTED}' );
-
-        $this -> parent -> register();
 
         add_action(DWContetPilotPrefix.'register_actions', array( $this, 'register_actions'));
     }

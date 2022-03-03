@@ -36,7 +36,7 @@ class Store {
 
     public function debug(string $trace, string $message) {
 
-        $line = $trace . ':: ' . $message . PHP_EOL;
+        $line = $trace . '<:> ' . $message . PHP_EOL;
         
         file_put_contents('php://stdout', print_r($line, TRUE));
     }
