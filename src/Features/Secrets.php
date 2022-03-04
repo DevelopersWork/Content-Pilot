@@ -7,18 +7,15 @@ namespace DW\ContentPilot\Features;
 use DW\ContentPilot\Core\{ Store };
 use DW\ContentPilot\Lib\{ WPPage };
 
-class Dashboard extends WPPage {
+class Secrets extends WPPage {
 
     private $store;
-    private $parent;
     public $__FILE__;
     private $load_flag = True;
 
     function __construct( $__FILE__ = 'DWContentPilot' ) {
 
         $this -> __FILE__ = $__FILE__;
-
-        $this -> parent = new Home();
 
         $this -> store = new Store();
         $this -> store -> log( get_class($this).':__construct()', '{STARTED}' );
@@ -33,7 +30,7 @@ class Dashboard extends WPPage {
             'page_title' => $class_name, 
             'menu_title' => $class_name, 
             'capability' => 'manage_options', 
-            'menu_slug' => dw_cp_plugin_name,
+            'menu_slug' => DWContetPilotPrefix .'_'. $class_name,
             'function' => array( $this, 'render_page' )
         ));
 
@@ -42,6 +39,16 @@ class Dashboard extends WPPage {
             $this -> load_flag = false;
             return $this -> store -> debug( get_class($this).':__construct()', '{FAILED}' );
 
+        }
+
+        
+
+        if(isset($_POST['form-submitted']) && $_POST['form-submitted'] == 'true')
+        if(isset($_POST['form-name'])) {
+            if($_POST['form-name'] == md5(DWContetPilotPrefix . '_add_secrets')) {
+                $this -> add_secrets();
+            }
+            
         }
     
     }
@@ -52,8 +59,6 @@ class Dashboard extends WPPage {
             
         $this -> store -> log( get_class($this).':register()', '{STARTED}' );
 
-        $this -> parent -> register();
-
         add_action(DWContetPilotPrefix.'register_actions', array( $this, 'register_actions'));
     }
 
@@ -63,6 +68,29 @@ class Dashboard extends WPPage {
 
         add_action(DWContetPilotPrefix.'register_menus', array($this, 'register_page'));
         
+    }
+
+    private function add_secrets(){
+
+        $notice = array(
+            'msg' => 'Adding Secrets Failed!!!', 
+            'type' => 'error', 
+            'domain' => 'add-secrets-dw-content-pilot'
+        );
+
+        $keys = array('secret_name', 'secret_key', 'secret_service');
+
+        foreach($keys as $key) {
+            if(!isset($_POST[$key]) || !$_POST[$key]) {
+                $this -> store -> set('admin_notice', $notice);
+                return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
+            }
+        }
+
+        $notice['type'] = 'success';
+        $notice['msg'] = 'New key was successfully added!';
+        $this -> store -> set('admin_notice', $notice);
+        return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
     }
 
 }

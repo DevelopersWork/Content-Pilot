@@ -6,7 +6,7 @@ namespace DW\ContentPilot\Core;
 
 use DW\ContentPilot\Core\{ Store };
 
-use DW\ContentPilot\Features\{ Dashboard };
+use DW\ContentPilot\Features\{ Dashboard, Secrets, Settings };
 
 class Service {
 
@@ -32,9 +32,12 @@ class Service {
             'system' => array(),
             'public' => array(),
             'private' => array(
-                Dashboard::class
+                Dashboard::class,
+                Secrets::class
             ),
-            'protected' => array()
+            'protected' => array(
+                Settings::class
+            )
         );
 
         // $this -> services = $this -> fetchServices($__FILE__);

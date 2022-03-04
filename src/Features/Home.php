@@ -19,18 +19,11 @@ class Home extends WPPage {
 
         parent::__construct();
 
-        $class_name = explode('\\', get_class($this));
-        $class_name = array_pop($class_name);
-
-        $slug = strtolower(str_replace('_', '-', DWContetPilotPrefix . '-' . $class_name));
-
-        print($slug);
-
         $_result = $this -> addPage (array(
-            'page_title' => 'Content Pilot', 
-            'menu_title' => 'Content Pilot', 
+            'page_title' => dw_cp_plugin_name, 
+            'menu_title' => dw_cp_plugin_name, 
             'capability' => 'manage_options', 
-            'menu_slug' => $slug, 
+            'menu_slug' => dw_cp_plugin_name, 
             'icon_url' => 'dashicons-hammer', 
             'position' => 22
         ));

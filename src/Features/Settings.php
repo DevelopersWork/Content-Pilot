@@ -7,18 +7,15 @@ namespace DW\ContentPilot\Features;
 use DW\ContentPilot\Core\{ Store };
 use DW\ContentPilot\Lib\{ WPPage };
 
-class Dashboard extends WPPage {
+class Settings extends WPPage {
 
     private $store;
-    private $parent;
     public $__FILE__;
     private $load_flag = True;
 
     function __construct( $__FILE__ = 'DWContentPilot' ) {
 
         $this -> __FILE__ = $__FILE__;
-
-        $this -> parent = new Home();
 
         $this -> store = new Store();
         $this -> store -> log( get_class($this).':__construct()', '{STARTED}' );
@@ -33,7 +30,7 @@ class Dashboard extends WPPage {
             'page_title' => $class_name, 
             'menu_title' => $class_name, 
             'capability' => 'manage_options', 
-            'menu_slug' => dw_cp_plugin_name,
+            'menu_slug' => DWContetPilotPrefix .'_'. $class_name,
             'function' => array( $this, 'render_page' )
         ));
 
@@ -51,8 +48,6 @@ class Dashboard extends WPPage {
         if(!$this -> load_flag) return false;
             
         $this -> store -> log( get_class($this).':register()', '{STARTED}' );
-
-        $this -> parent -> register();
 
         add_action(DWContetPilotPrefix.'register_actions', array( $this, 'register_actions'));
     }

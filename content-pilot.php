@@ -31,6 +31,9 @@ use DW\ContentPilot\Lib\{ Activate, Deactivate };
 if( defined('DWContetPilotPrefix') ) $error = true;
 else define('DWContetPilotPrefix', 'dw_cp');
 
+define( 'dw_cp_plugin_name', 'Content Pilot');
+define( 'dw_cp_plugin_version', '0.1.1');
+
 class DWContentPilot {
 
     private $main;
@@ -47,7 +50,7 @@ class DWContentPilot {
             return;
         }
 
-        $this -> main = new Main( '0.1.1', __FILE__ );
+        $this -> main = new Main( dw_cp_plugin_version, __FILE__ );
 
         add_action( 'plugins_loaded', array($this, 'plugins_loaded') );
     }
