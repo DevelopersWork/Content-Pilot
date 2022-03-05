@@ -50,6 +50,7 @@
             </div>
         </div>
 
+        <input type="hidden" name="auth_key" value="<?php echo $auth_key; ?>">
         <input type="hidden" name="form-submitted" value="true">
         <input type="hidden" name="form-name" value="<?php echo md5(DWContetPilotPrefix . '_add_secrets');?>">
         <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">

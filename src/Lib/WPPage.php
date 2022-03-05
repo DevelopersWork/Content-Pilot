@@ -7,10 +7,13 @@ namespace DW\ContentPilot\Lib;
 class WPPage {
 
     private $page = array();
+    protected $auth_key = "";
 
     public function __construct($page = array()) {
 
         $this -> page = $page;
+
+        $this -> auth_key = wp_get_session_token();
 
         if($this -> page)   add_action(DWContetPilotPrefix.'register_menus', [$this, 'register_page']);
 
@@ -81,6 +84,13 @@ class WPPage {
         
         if(array_key_exists('menu_slug', $this -> page)) 
             return $this -> page['menu_slug'];
+        
+        return '';
+    }
+
+    public function get($name) {
+        if(array_key_exists($name, $this -> page)) 
+            return $this -> page[$name];
         
         return '';
     }
