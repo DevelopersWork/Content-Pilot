@@ -1,10 +1,9 @@
 
-<h2 class="nav-tab-wrapper">
+<!-- <h2 class="nav-tab-wrapper">
     <a href="<?php echo $slug; ?>&amp;tab=view" target="" class="nav-tab">View</a>
     <a href="<?php echo $slug; ?>&amp;tab=modify" target="" class="nav-tab">Modify</a>
     <span class="nav-tab nav-tab-active">Add</span>
-</h2>
-
+</h2> -->
 <div id="poststuff">
     <form action="" method="POST">
         <div id="dw_cp_metabox_add_secrets" class="postbox">
@@ -54,5 +53,7 @@
         <input type="hidden" name="form-submitted" value="true">
         <input type="hidden" name="form-name" value="<?php echo md5(DWContetPilotPrefix . '_add_secrets');?>">
         <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">
+        <a href="<?php echo $slug; ?>&amp" target="" class="button">Cancel</a>
     </form>
+    <!-- <input type="cancel" name="cancel" id="cancel" class="button" value="Cancel"> -->
 </div>

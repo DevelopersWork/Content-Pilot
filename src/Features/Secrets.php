@@ -33,12 +33,16 @@ class Secrets extends WPPage {
         $class_name = explode('\\', get_class($this));
         $class_name = array_pop($class_name);
 
-        register_post_type( DWContetPilotPrefix .'_'. $class_name, array(
+        $args = array(
             'description' => 'API keys of the Content Pilot plugin',
-            'exclude_from_search' => false,
+            'public' => false,
+            'has_archive' => true,
             'can_export' => false,
-            'delete_with_user' => true
-        ));
+            'delete_with_user' => true,
+            'exclude_from_search' =>  false,
+            'show_in_rest' => true
+        );
+        register_post_type( DWContetPilotPrefix .'_'. $class_name, $args );
 
         $_result = $this -> addSubPage (array(
             'parent_slug' => dw_cp_plugin_name,
@@ -94,7 +98,9 @@ class Secrets extends WPPage {
         }
 
         echo '<div class="wrap">';
-        echo '<h1>API KEY\'s</h1>';
+        echo '<h1 class="wp-heading-inline">API KEY\'s</h1>';
+        echo '<a href="'.$slug.'&amp;tab=add" class="page-title-action">Add New</a>';
+        echo '<hr class="wp-header-end">';
         echo settings_errors();
 
         if(isset($_GET['tab'])) {
@@ -104,7 +110,7 @@ class Secrets extends WPPage {
         }
 
         if($active_tab == 'view') {
-            $secrets = $this -> view_secrets();
+            $posts = $this -> view_secrets();
 
             return include_once $path . "/src/Pages/".'Tabs/secrets/view_secrets.php';
         } else if($active_tab == 'modify')
@@ -143,7 +149,7 @@ class Secrets extends WPPage {
 			'post_title' => $_POST['secret_name'],
             'post_name' => str_replace('%', '', urlencode($_POST['secret_name'])),
 			'post_content' => $_POST['secret_key'],
-			'post_status' => 'public',
+			'post_status' => 'publish',
 			'post_type' => $this -> get('menu_slug')
 		);
 
@@ -164,10 +170,16 @@ class Secrets extends WPPage {
         $args = array(
             'post_type' => $this -> get('menu_slug')
         );
+
         $posts = array();
-        $posts = get_posts( $args );
-        // print_r($this -> get('menu_slug'));
-        print_r($posts);
+
+        $_posts = get_posts( $args );
+
+        foreach ($_posts as $_post) {
+            $post = $_post -> to_array();
+            $post['service'] = get_post_meta( $post['ID'], 'service', true );
+            array_push($posts, $post);
+        }
 
         return $posts;
     }
