@@ -4,18 +4,36 @@
  */
 namespace DW\ContentPilot\Lib;
 
+use DW\ContentPilot\Core\{ Store };
+use DW\ContentPilot\Lib\{ API };
+
 class WPPage {
 
     private $page = array();
     protected $auth_key = "";
+    protected $store;
+    protected $api = new API();
 
     public function __construct($page = array()) {
+
+        $this -> store = new Store();
+
+        $this -> api -> setStore($this -> store);
 
         $this -> page = $page;
 
         $this -> auth_key = wp_get_session_token();
 
-        if($this -> page)   add_action(DWContetPilotPrefix.'register_menus', [$this, 'register_page']);
+        if($this -> page) add_action(DWContetPilotPrefix.'register_menus', [$this, 'register_page']);
+
+        $this -> store -> set(
+            '_ERROR': False,
+            '_AUTH_KEY': wp_get_session_token(),
+            'categories': [
+                'name': '',
+                'value': []
+            ]
+        );
 
     }
 

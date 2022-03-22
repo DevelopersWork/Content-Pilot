@@ -5,31 +5,23 @@
 namespace DW\ContentPilot\Features;
 
 use DW\ContentPilot\Core\{ Store };
-use DW\ContentPilot\Lib\{ WPPage, IO, API };
+use DW\ContentPilot\Lib\{ WPPage, IO };
 
-class Secrets extends WPPage {
+class Jobs extends WPPage {
 
+    private $store;
     public $__FILE__;
     private $load_flag = True;
     private $category, $services = array();
-    private $api;
 
     function __construct( $__FILE__ = 'DWContentPilot' ) {
 
         $this -> __FILE__ = $__FILE__;
 
-        parent::__construct();
-
+        $this -> store = new Store();
         $this -> store -> log( get_class($this).':__construct()', '{STARTED}' );
 
-        $this -> store -> set(
-            'categories', [
-                'name': 'Secret',
-                'value': ['YouTube']
-            ]
-        );
-
-        $this -> api -> createCategories();
+        parent::__construct();
     
     }
 
@@ -42,14 +34,14 @@ class Secrets extends WPPage {
         $class_name = explode('\\', get_class($this));
         $class_name = array_pop($class_name);
 
-        $parent_id = wp_create_category( strtoupper(DWContetPilotPrefix) . '_Secret' );
+        $parent_id = wp_create_category( 'Job');
         if(!$parent_id){
             $this -> load_flag = false;
             return $this -> store -> debug( get_class($this).':__construct()', '{FAILED}' );
         }
         $this -> category = $parent_id;
         
-        $youtube = wp_create_category( strtoupper(DWContetPilotPrefix) . '_YouTube', $parent_id);
+        $youtube = wp_create_category( 'YouTube', $parent_id);
         if(!$youtube){
             $this -> load_flag = false;
             return $this -> store -> debug( get_class($this).':__construct()', '{FAILED}' );

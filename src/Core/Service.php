@@ -6,7 +6,10 @@ namespace DW\ContentPilot\Core;
 
 use DW\ContentPilot\Core\{ Store };
 
-use DW\ContentPilot\Features\{ Dashboard, Secrets, Settings };
+use DW\ContentPilot\Features\{ 
+    Dashboard, Secrets, 
+    Settings, Jobs 
+};
 
 class Service {
 
@@ -33,7 +36,8 @@ class Service {
             'public' => array(),
             'private' => array(
                 Dashboard::class,
-                Secrets::class
+                Secrets::class,
+                Jobs::class
             ),
             'protected' => array(
                 Settings::class

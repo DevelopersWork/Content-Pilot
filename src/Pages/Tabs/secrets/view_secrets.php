@@ -7,14 +7,14 @@
 	<!-- <li class="publish"><a href="edit.php?post_status=publish&amp;post_type=post">Published <span class="count">(22)</span></a></li> -->
 </ul>
 
-<form id="posts-filter" method="get">
+<form method="POST" action="">
 
 <p class="search-box">
 	<label class="screen-reader-text" for="post-search-input">Search Posts:</label>
 	<input type="search" id="post-search-input" name="s" value="" disabled>
 	<input type="submit" id="search-submit" class="button" value="Search Posts" disabled>
 </p>
-		
+
 <input type="hidden" name="post_status" class="post_status_page" value="<?php echo is_array($args['post_status']) ? 'all' : $args['post_status'];?>">
 <input type="hidden" name="post_type" class="post_type_page" value="<?php echo $args['post_type'];?>">
 
@@ -24,12 +24,12 @@
 <div class="tablenav top">
     <div class="alignleft actions bulkactions">
         <label for="bulk-action-selector-top" class="screen-reader-text">Select bulk action</label>
-        <select name="action" id="bulk-action-selector-top">
+        <select name="action" id="bulk-action-selector-top" disabled>
             <option value="-1">Bulk actions</option>
-            <option value="edit" class="hide-if-no-js">Edit</option>
+            <!-- <option value="edit" class="hide-if-no-js">Edit</option> -->
             <option value="trash">Move to Trash</option>
         </select>
-        <input type="submit" id="doaction" class="button action" value="Apply">
+        <input type="submit" id="doaction" class="button action" name="bulk_action_submit" value="Apply" disabled>
 		</div>
 					<div class="alignleft actions">
 				<label for="filter-by-date" class="screen-reader-text">Filter by date</label>
@@ -68,7 +68,7 @@
 	<tr>
 		<td id="cb" class="manage-column column-cb check-column">
             <label class="screen-reader-text" for="cb-select-all-1">Select All</label>
-            <input id="cb-select-all-1" type="checkbox">
+            <input id="cb-select-all-1" type="checkbox" disabled>
         </td>
         <th scope="col" id="title" class="manage-column column-title column-primary sortable desc">
             <a href="#orderby=title&amp;order=asc">
@@ -108,7 +108,7 @@
 	<tr>
 		<td class="manage-column column-cb check-column">
             <label class="screen-reader-text" for="cb-select-all-2">Select All</label>
-            <input id="cb-select-all-2" type="checkbox">
+            <input id="cb-select-all-2" type="checkbox" disabled>
         </td>
         <th scope="col" class="manage-column column-title column-primary sortable desc">
             <a href="#orderby=title&amp;order=asc">
