@@ -1,14 +1,14 @@
 name: ✨ Build
 on: [push]
 jobs:
-  code-checks:
-    name: 🧪 Code Analysis
+  warmup:
+    name: 🔥 Warming up Engines
     runs-on: ubuntu-latest
     steps:
     - name: 🚚 Get latest code
       uses: actions/checkout@v2
     
-    - name: Validate composer.json and composer.lock
+    - name: ⚡ Validate composer.json and composer.lock
       run: composer validate --strict
 
     - name: 😇 Cache composer dependencies
@@ -20,17 +20,33 @@ jobs:
 
     - name: 🤬 Install dependencies
       uses: php-actions/composer@v6
-
-    - name: 🛡️ Security Checker
-      uses: symfonycorp/security-checker-action@v2
-
-    - name: 🔐 Psalm
-      uses: docker://vimeo/psalm-github-actions
-      with:
+      
+  security-checker:
+    name: 🛡️ Security Checker
+    runs-on: ubuntu-latest
+    needs: warmup
+    steps:
+    - uses: symfonycorp/security-checker-action@v2
+  
+  psalm:
+    name: 🔐 Psalm
+    runs-on: ubuntu-latest
+    needs: warmup
+    steps:
+    - uses: docker://vimeo/psalm-github-actions
+      with: 
         security_analysis: true
-
-    - name: Run lint
-      run: composer lint
-    
-    - name: Run phpcs
-      run: composer phpcs
+  
+  lint:
+    name: 🔐 PHP Lint
+    runs-on: ubuntu-latest
+    needs: warmup
+    steps:
+    - run: composer lint
+  
+  code-coverage:
+    name: 🔐 PHP Code Coverage
+    runs-on: ubuntu-latest
+    needs: warmup
+    steps:
+    - run: composer phpcs
