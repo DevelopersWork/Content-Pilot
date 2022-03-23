@@ -7,12 +7,16 @@ jobs:
     steps:
     - name: 🚚 Get latest code
       uses: actions/checkout@v2
+    
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
 
     - name: 😇 Cache composer dependencies
       uses: actions/cache@v2
       with:
         path: /tmp/composer-cache
         key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-php-
 
     - name: 🤬 Install dependencies
       uses: php-actions/composer@v6
@@ -24,3 +28,9 @@ jobs:
       uses: docker://vimeo/psalm-github-actions
       with:
         security_analysis: true
+
+    - name: Run lint
+      run: composer lint
+    
+    - name: Run phpcs
+      run: composer phpcs

@@ -26,10 +26,10 @@ class WPPage {
 
         if($this -> page) add_action(DWContetPilotPrefix.'register_menus', [$this, 'register_page']);
 
+        $this -> store -> set('_ERROR', False);
+        $this -> store -> set('_AUTH_KEY', wp_get_session_token());
         $this -> store -> set(
-            '_ERROR': False,
-            '_AUTH_KEY': wp_get_session_token(),
-            'categories': [
+            'categories', [
                 'name': '',
                 'value': []
             ]
