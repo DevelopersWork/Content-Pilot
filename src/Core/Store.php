@@ -1,68 +1,76 @@
 <?php
-/** 
+/**
  * @package DWContentPilot
  */
 namespace DW\ContentPilot\Core;
 
-class Store {
+class Store
+{
 
     private $MEMORY;
 
-    public function __construct() {
+    public function __construct()
+    {
         
         $this->MEMORY = array(
             'STORE' => 'Lol',
             'admin_notice' => null
         );
-
     }
 
-    public function set(string $name, $value){
+    public function set(string $name, $value)
+    {
         $this->MEMORY[$name] = $value;
 
         return $this;
     }
 
-    public function get(string $name){
+    public function get(string $name)
+    {
         return $this->MEMORY[$name];
     }
 
-    public function log(string $trace, string $message) {
+    public function log(string $trace, string $message)
+    {
 
         $line = $trace . ':: ' . $message . PHP_EOL;
         
-        file_put_contents('php://stdout', print_r($line, TRUE));
+        file_put_contents('php://stdout', print_r($line, true));
     }
 
-    public function debug(string $trace, string $message) {
+    public function debug(string $trace, string $message)
+    {
 
         $line = $trace . '<:> ' . $message . PHP_EOL;
         
-        file_put_contents('php://stdout', print_r($line, TRUE));
+        file_put_contents('php://stdout', print_r($line, true));
     }
 
-    public function info(string $trace, string $message) {
+    public function info(string $trace, string $message)
+    {
 
         $line = $trace . ':: ' . $message . PHP_EOL;
         
-        file_put_contents('php://stdout', print_r($line, TRUE));
+        file_put_contents('php://stdout', print_r($line, true));
     }
 
-    public function error(string $trace, string $message) {
+    public function error(string $trace, string $message)
+    {
 
         $line = $trace . '>> ' . $message . PHP_EOL;
         
-        file_put_contents('php://stderr', print_r($line, TRUE));
+        file_put_contents('php://stderr', print_r($line, true));
     }
 
-    public function admin_notice() {
+    public function admin_notice()
+    {
 
         // $this -> store -> set('admin_notice', array('msg' => 'uWWW.com', 'type' => 'error', 'domain' => 'dw-content-pilot'));
 
         // add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
 
 
-        if ( !$this -> MEMORY['admin_notice'] ) {
+        if (!$this -> MEMORY['admin_notice']) {
             return;
         }
 
@@ -74,11 +82,10 @@ class Store {
         $dismissible = isset($admin_notice['dismissible']) ? $admin_notice['dismissible'] : false;
         
         $class = 'notice notice-' . $type . ($dismissible ? ' is-dismissible' : '');
-        $message = __( $msg, $domain );
+        $message = __($msg, $domain);
  
-        printf( '<div class="%1$s"><p><strong>[Content Pilot] %2$s: </strong>%3$s</p></div>', esc_attr( $class ), esc_attr( ucfirst($type) ), esc_html( $message ) ); 
+        printf('<div class="%1$s"><p><strong>[Content Pilot] %2$s: </strong>%3$s</p></div>', esc_attr($class), esc_attr(ucfirst($type)), esc_html($message));
         
         $this -> MEMORY['admin_notice'] = null;
     }
-
 }

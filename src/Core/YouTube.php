@@ -1,22 +1,24 @@
 <?php
-/** 
+/**
  * @package DevWPContentAutopilot
  */
 namespace Dev\WpContentAutopilot\Core;
 
-class YouTube {
+class YouTube
+{
 
     private $store;
     private $client, $service, $lastResponse;
     private $key;
 
-    public function __construct($store) {
+    public function __construct($store)
+    {
 
         $this -> store = $store;
-
     }
 
-    public function fetchVideoIds(string $query = null, array $queryParams = array()) {
+    public function fetchVideoIds(string $query = null, array $queryParams = array())
+    {
 
         $this -> createClient() -> createService();
 
@@ -28,7 +30,8 @@ class YouTube {
         return $this -> service -> search -> listSearch('id', $queryParams);
     }
 
-    public function getVideoById(string $id = '', array $queryParams = array()) {
+    public function getVideoById(string $id = '', array $queryParams = array())
+    {
 
         $this -> createClient() -> createService();
 
@@ -37,7 +40,8 @@ class YouTube {
         return $this -> service -> videos -> listVideos('snippet, contentDetails, statistics', $queryParams);
     }
 
-    public function search($search_string = null) {
+    public function search($search_string = null)
+    {
         
         $queryParams = [
             'maxResults' => 5,
@@ -51,13 +55,13 @@ class YouTube {
         $this -> lastResponse = $this -> service -> videos -> listVideos('snippet,contentDetails,statistics', $queryParams);
         
         return $this -> lastResponse;
-
     }
 
-    public function makePost($key = "", $search = "") {
+    public function makePost($key = "", $search = "")
+    {
 
-        if( $key == "" ) {
-            return FALSE;
+        if ($key == "") {
+            return false;
         }
 
         $this -> key = $key;
@@ -70,94 +74,93 @@ class YouTube {
         $response = $this -> getVideoById($videoID)['items'][0];
 
         $path = dw_cp_PLUGIN_PATH . 'assets/html/';
-        $post_content = file_get_contents( $path . 'youtube_live_post.html' );
+        $post_content = file_get_contents($path . 'youtube_live_post.html');
 
-        $post_content = str_replace( "%videoid%", $videoID, $post_content );
+        $post_content = str_replace("%videoid%", $videoID, $post_content);
         
-        $post_content = str_replace( "%channel_id%", $response['snippet']['channelId'], $post_content );
-        $post_content = str_replace( "%channel_name%", $response['snippet']['channelTitle'], $post_content );
+        $post_content = str_replace("%channel_id%", $response['snippet']['channelId'], $post_content);
+        $post_content = str_replace("%channel_name%", $response['snippet']['channelTitle'], $post_content);
 
-        $post_content = str_replace( "%viewCount%", $response['statistics']['viewCount'] || 0, $post_content );
-        $post_content = str_replace( "%likeCount%", $response['statistics']['likeCount'] || 0, $post_content );
-        $post_content = str_replace( "%commentCount%", $response['statistics']['commentCount'] || 0, $post_content );
+        $post_content = str_replace("%viewCount%", $response['statistics']['viewCount'] || 0, $post_content);
+        $post_content = str_replace("%likeCount%", $response['statistics']['likeCount'] || 0, $post_content);
+        $post_content = str_replace("%commentCount%", $response['statistics']['commentCount'] || 0, $post_content);
 
         $desc = str_replace('\n', '<br/>', $response['snippet']['description']);
-        $post_content = str_replace( "%description%", $desc, $post_content );
+        $post_content = str_replace("%description%", $desc, $post_content);
 
         $data = array(
-			'post_title' => $response['snippet']['title'],
+            'post_title' => $response['snippet']['title'],
             'post_name' => str_replace('%', '', urlencode($response['snippet']['title'])),
-			'post_content' => $post_content,
-			'post_category' => array($search),
-			'tags_input' => $response['snippet']['tags'],
-			'post_status' => 'publish',
-			'post_type' => 'post'
-		);
+            'post_content' => $post_content,
+            'post_category' => array($search),
+            'tags_input' => $response['snippet']['tags'],
+            'post_status' => 'publish',
+            'post_type' => 'post'
+        );
 
-        $result = wp_insert_post( $data );
+        $result = wp_insert_post($data);
 
-        if ( $result && ! is_wp_error( $result ) ) {
-			$thenewpostID = $result;
+        if ($result && ! is_wp_error($result)) {
+            $thenewpostID = $result;
 
-			//add the youtube meta data
-			add_post_meta( $thenewpostID, 'videoID', $videoID);
-			add_post_meta( $thenewpostID, 'publishedAt',  $response['snippet']['publishedAt']);
-			add_post_meta( $thenewpostID, 'channelId', $response['snippet']['channelId']);
-            add_post_meta( $thenewpostID, 'channelTitle', $response['snippet']['channelTitle']);
-			add_post_meta( $thenewpostID, 'ytitle', $response['snippet']['title']);
-			add_post_meta( $thenewpostID, 'ydescription', $response['snippet']['description']);
-            if ($response['snippet']['thumbnails']['maxres']){
-                add_post_meta( $thenewpostID, 'imageresmed', $response['snippet']['thumbnails']['high']['url']);
-			    add_post_meta( $thenewpostID, 'imagereshigh', $response['snippet']['thumbnails']['maxres']['url']);
+            //add the youtube meta data
+            add_post_meta($thenewpostID, 'videoID', $videoID);
+            add_post_meta($thenewpostID, 'publishedAt', $response['snippet']['publishedAt']);
+            add_post_meta($thenewpostID, 'channelId', $response['snippet']['channelId']);
+            add_post_meta($thenewpostID, 'channelTitle', $response['snippet']['channelTitle']);
+            add_post_meta($thenewpostID, 'ytitle', $response['snippet']['title']);
+            add_post_meta($thenewpostID, 'ydescription', $response['snippet']['description']);
+            if ($response['snippet']['thumbnails']['maxres']) {
+                add_post_meta($thenewpostID, 'imageresmed', $response['snippet']['thumbnails']['high']['url']);
+                add_post_meta($thenewpostID, 'imagereshigh', $response['snippet']['thumbnails']['maxres']['url']);
 
                 $this -> generateFeaturedImage($response['snippet']['thumbnails']['maxres']['url'], $thenewpostID, $videoID);
-            }else {
-
-                add_post_meta( $thenewpostID, 'imageresmed', $response['snippet']['thumbnails']['medium']['url']);
-			    add_post_meta( $thenewpostID, 'imagereshigh', $response['snippet']['thumbnails']['high']['url']);
+            } else {
+                add_post_meta($thenewpostID, 'imageresmed', $response['snippet']['thumbnails']['medium']['url']);
+                add_post_meta($thenewpostID, 'imagereshigh', $response['snippet']['thumbnails']['high']['url']);
 
                 $this -> generateFeaturedImage($response['snippet']['thumbnails']['high']['url'], $thenewpostID, $videoID);
-            
             }
 
             return $thenewpostID;
-	
-		}
+        }
 
-        return FALSE;
+        return false;
     }
 
-    private function generateFeaturedImage( $image_url, $post_id, $custom_filename = ''  ){
+    private function generateFeaturedImage($image_url, $post_id, $custom_filename = '')
+    {
         $upload_dir = wp_upload_dir();
         $image_data = file_get_contents($image_url);
         $filename = $custom_filename . '_' . basename($image_url);
-        if(wp_mkdir_p($upload_dir['path']))
-          $file = $upload_dir['path'] . '/' . $filename;
-        else
-          $file = $upload_dir['basedir'] . '/' . $filename;
+        if (wp_mkdir_p($upload_dir['path'])) {
+            $file = $upload_dir['path'] . '/' . $filename;
+        } else {
+            $file = $upload_dir['basedir'] . '/' . $filename;
+        }
         file_put_contents($file, $image_data);
     
-        $wp_filetype = wp_check_filetype($filename, null );
+        $wp_filetype = wp_check_filetype($filename, null);
         $attachment = array(
             'post_mime_type' => $wp_filetype['type'],
             'post_title' => sanitize_file_name($filename),
             'post_content' => '',
             'post_status' => 'inherit'
         );
-        $attach_id = wp_insert_attachment( $attachment, $file, $post_id );
+        $attach_id = wp_insert_attachment($attachment, $file, $post_id);
         require_once(ABSPATH . 'wp-admin/includes/image.php');
-        $attach_data = wp_generate_attachment_metadata( $attach_id, $file );
-        $res1= wp_update_attachment_metadata( $attach_id, $attach_data );
-        $res2= set_post_thumbnail( $post_id, $attach_id );
-
+        $attach_data = wp_generate_attachment_metadata($attach_id, $file);
+        $res1= wp_update_attachment_metadata($attach_id, $attach_data);
+        $res2= set_post_thumbnail($post_id, $attach_id);
     }
 
-    private function createClient() {
+    private function createClient()
+    {
         global $wpdb;
 
         $key = $this -> key;
 
-        if ( ! $key ) {
+        if (! $key) {
             // Fetch API key from the database
             $query = "SELECT 
                 secrets.value AS _key 
@@ -170,7 +173,7 @@ class YouTube {
                 services.disabled = 0
             ";
 
-            $_result = $wpdb->get_results( $query, 'ARRAY_A' );
+            $_result = $wpdb->get_results($query, 'ARRAY_A');
 
             $key = $_result[rand(0, count($_result) - 1)]['_key'];
         }
@@ -189,10 +192,12 @@ class YouTube {
         return $this;
     }
 
-    private function createService() {
+    private function createService()
+    {
 
-        if ( ! $this -> client )
+        if (! $this -> client) {
             $this -> createClient();
+        }
 
         $Google_Service_YouTube = $this -> store -> get('Google_Service_YouTube');
 
@@ -200,5 +205,4 @@ class YouTube {
 
         return $this;
     }
-
 }

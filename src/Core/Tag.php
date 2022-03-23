@@ -1,12 +1,14 @@
 <?php
-/** 
+/**
  * @package DevWPContentAutopilot
  */
 namespace Dev\WpContentAutopilot\Core;
 
-class Tag {
+class Tag
+{
 
-    public static function inputTag ( $args ) {
+    public static function inputTag($args)
+    {
         $field = '<tr>';
             $field .= '<th scope="row"><label for="'.$args['id'].'" >'.$args['title'].'</label></th>';
             $field .= '<td><input type="'.$args['args']['type'].'" class="regular-text" placeholder="'.$args['args']['placeholder'].'" name="'.$args['id'].'"/>';
@@ -15,7 +17,8 @@ class Tag {
         return $field;
     }
 
-    public static function inputCheckboxTag ( $args ) {
+    public static function inputCheckboxTag($args)
+    {
         $field = '<tr>';
 
             $field .= '<th scope="row"><label for="'.$args['id'].'" >'.$args['title'].'</label></th>';
@@ -26,7 +29,8 @@ class Tag {
         return $field;
     }
 
-    public static function selectTag ( $args ) {
+    public static function selectTag($args)
+    {
         $field = '<tr>';
             $field .= '<th scope="row"><label for="'.$args['id'].'" >'.$args['title'].'</label></th>';
 
@@ -35,11 +39,11 @@ class Tag {
             
                 $options = $args['options'];
 
-                foreach($options as $key => $value) {
-                    $field .= '<option value="'.$key.'">';
-                    $field .= $value;
-                    $field .= "</option>";
-                }
+        foreach ($options as $key => $value) {
+            $field .= '<option value="'.$key.'">';
+            $field .= $value;
+            $field .= "</option>";
+        }
             $field .= '</select></td>';
             
         $field .= '</tr>';
@@ -47,7 +51,8 @@ class Tag {
         return $field;
     }
 
-    public static function textAreaTag ( $args ) {
+    public static function textAreaTag($args)
+    {
         $field = '<tr>';
 
             $field .= '<th scope="row"><label for="'.$args['id'].'" >'.$args['title'].'</label></th>';
@@ -58,5 +63,4 @@ class Tag {
 
         return $field;
     }
-
 }

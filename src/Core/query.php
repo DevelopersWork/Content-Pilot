@@ -19,7 +19,7 @@ FROM
         WordpressPlugins_ContentPilot_triggers AS triggers ON triggers.id = ref.trigger_id
 ";
 
-$_result = $wpdb->get_row( $query );
+$_result = $wpdb->get_row($query);
 // use Dev\WpContentAutopilot\Core\YouTube;
 // $yt = new YouTube($this -> store);
 // $yt -> makePost();

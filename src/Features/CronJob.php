@@ -1,26 +1,28 @@
 <?php
-/** 
+/**
  * @package DevWPContentAutopilot
  */
 namespace Dev\WpContentAutopilot\Features;
 
 use Dev\WpContentAutopilot\Core\YouTube;
 
-require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
-class CronJob {
+class CronJob
+{
 
     private $store;
 
-    function __construct( $store ) {
+    function __construct($store)
+    {
 
         $this -> store = $store;
 
         $this -> store -> set('CronJob', $this);
-    
     }
 
-    public function register() {
+    public function register()
+    {
         global $wpdb;
         
         $query = "
@@ -37,41 +39,38 @@ class CronJob {
                 ".dw_cp_PLUGIN_PREFIX."_triggers AS triggers ON triggers.id = ref.trigger_id
         ";
 
-        $_result = $wpdb->get_results( $query, 'ARRAY_A' );
+        $_result = $wpdb->get_results($query, 'ARRAY_A');
 
-        foreach($_result as $_ => $row) {
-
+        foreach ($_result as $_ => $row) {
             $name = dw_cp_PLUGIN_SLUG . '_' . $row['trigger_name'] . '#' . $row['job_id'];
 
             $args = array ( $row['job_hash'] );
 
-            add_action( $name, array($this, 'run') );
+            add_action($name, array($this, 'run'));
             
-            if ( ! wp_next_scheduled( $name, $args ) ) {
-
-                wp_schedule_event( time() + 3, $row['trigger_type'], $name, $args );
-
-            } 
-
+            if (! wp_next_scheduled($name, $args)) {
+                wp_schedule_event(time() + 3, $row['trigger_type'], $name, $args);
+            }
         }
-
     }
 
-    public function run( string $job_hash ) {
+    public function run(string $job_hash)
+    {
         global $wpdb;
 
-        if( $job_hash == "" ) {
-
+        if ($job_hash == "") {
             $table = dw_cp_PLUGIN_PREFIX . '_audits';
 
             $data = array(
-                'job_id' => $request['job_id'], 
-                'post_id' => isset($response) ? $response : NULL,
+                'job_id' => $request['job_id'],
+                'post_id' => isset($response) ? $response : null,
                 'is_success' => 0
             );
             
             $st = '';
-            foreach($data as $key => $value) $st .= md5($key . $value). '_';
+            foreach ($data as $key => $value) {
+                $st .= md5($key . $value). '_';
+            }
             $st .= md5('insert_timestamp' . microtime(true)). '_';
             $data['hash'] = md5($st);
             
@@ -101,28 +100,28 @@ class CronJob {
                 ".dw_cp_PLUGIN_PREFIX."_secrets AS secrets ON secrets.id = ref.secret_id
         ";
 
-        $_result = $wpdb->get_results( $query, 'ARRAY_A' );
+        $_result = $wpdb->get_results($query, 'ARRAY_A');
         $index = rand(0, count($_result) - 1);
 
         $request = $_result[$index];
         
-        if( strtolower($request['service_name']) == 'youtube' &&  $request['key_required'] == 1 ) {
-
+        if (strtolower($request['service_name']) == 'youtube' &&  $request['key_required'] == 1) {
             $response = CronJob:: youtube($request['_key'], $request['data']);
-
         }
 
         $table = dw_cp_PLUGIN_PREFIX . '_audits';
 
         $data = array(
-            'job_id' => $request['job_id'], 
-            'post_id' => isset($response) ? $response : NULL,
+            'job_id' => $request['job_id'],
+            'post_id' => isset($response) ? $response : null,
             'is_success' => isset($response) ? 1 : 0,
             'secret_id' => $request['secret_id']
         );
         
         $st = '';
-        foreach($data as $key => $value) $st .= md5($key . $value). '_';
+        foreach ($data as $key => $value) {
+            $st .= md5($key . $value). '_';
+        }
         $st .= md5('insert_timestamp' . microtime(true)). '_';
         $data['hash'] = md5($st);
         
@@ -131,13 +130,11 @@ class CronJob {
         return $wpdb -> insert($table, $data, $format);
     }
 
-    public function youtube($key, $q = "") {
+    public function youtube($key, $q = "")
+    {
 
         $yt = new YouTube($this -> store);
 
         return $yt -> makePost($key, $q);
-        
     }
-
 }
-

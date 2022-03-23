@@ -1,31 +1,35 @@
 <?php
-/** 
+/**
  * @package DWContentPilot
  */
 namespace DW\ContentPilot\Lib;
 
-use DW\ContentPilot\Core\{ Store };
-use DW\ContentPilot\Lib\{ Validations };
+use DW\ContentPilot\Core\Store;
+use DW\ContentPilot\Lib\Validations;
 
-class Deactivate {
+class Deactivate
+{
 
     private $store;
     private $name;
 
-    public function __construct(string $__FILE__) {
+    public function __construct(string $__FILE__)
+    {
         $this -> store = new Store();
         $this -> name = $__FILE__;
     }
 
-    public function deactivate() {
-        $this -> store -> log( get_class($this).':deactivate()', '{STARTED}' );
+    public function deactivate()
+    {
+        $this -> store -> log(get_class($this).':deactivate()', '{STARTED}');
 
         flush_rewrite_rules();
 
         // this -> removeCronJobs();
     }
 
-    public function removeCronJobs() {
+    public function removeCronJobs()
+    {
         global $wpdb;
 
         $query = "
@@ -40,19 +44,16 @@ class Deactivate {
                 ".dw_cp_PLUGIN_PREFIX."_triggers AS triggers ON triggers.id = jobs.trigger_id
         ";
 
-        try{
-            $_result = $wpdb->get_results( $query, 'ARRAY_A' );
-        }catch(Exception $e) {
+        try {
+            $_result = $wpdb->get_results($query, 'ARRAY_A');
+        } catch (Exception $e) {
             $_result = array();
         }
 
-        foreach($_result as $_ => $row) {
-
+        foreach ($_result as $_ => $row) {
             $name = dw_cp_PLUGIN_SLUG . '_' . $row['trigger_name'] . '#' . $row['job_id'];
 
-            wp_clear_scheduled_hook( $name );
-
+            wp_clear_scheduled_hook($name);
         }
-
     }
 }

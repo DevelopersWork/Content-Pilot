@@ -1,27 +1,29 @@
 <?php
-/** 
+/**
  * @package DWContentPilot
  */
 namespace DW\ContentPilot\Core;
 
-use DW\ContentPilot\Core\{ Store };
+use DW\ContentPilot\Core\Store;
 
-use DW\ContentPilot\Features\{ 
-    Dashboard, Secrets, 
-    Settings, Jobs 
-};
+use DW\ContentPilot\Features\Dashboard;
+use DW\ContentPilot\Features\Secrets;
+use DW\ContentPilot\Features\Settings;
+use DW\ContentPilot\Features\Jobs;
 
-class Service {
+class Service
+{
 
     private $store, $services, $__FILE__;
 
-    function __construct($__FILE__) {
+    function __construct($__FILE__)
+    {
 
         $this -> __FILE__ = $__FILE__;
 
         $this -> store = new Store();
 
-        $this -> store -> log( get_class($this).':__construct()', '{STARTED}' );
+        $this -> store -> log(get_class($this).':__construct()', '{STARTED}');
 
         /*
         * 4-categories of services:
@@ -36,49 +38,46 @@ class Service {
             'public' => array(),
             'private' => array(
                 Dashboard::class,
-                Secrets::class,
-                Jobs::class
+                Secrets::class
             ),
             'protected' => array(
-                Settings::class
+                // Settings::class
             )
         );
 
         // $this -> services = $this -> fetchServices($__FILE__);
         $this -> services = array();
-
     }
     
 
-    private function fetchServices($__FILE__) {
+    private function fetchServices($__FILE__)
+    {
 
-        $this -> store -> log( get_class($this).':fetchServices()', '{STARTED}' );
+        $this -> store -> log(get_class($this).':fetchServices()', '{STARTED}');
 
-        $plugin_path = plugin_dir_path( $__FILE__ );
+        $plugin_path = plugin_dir_path($__FILE__);
 
         $file = $plugin_path . 'assets/reference/services.json';
         
-        $content = file_get_contents( $file );
+        $content = file_get_contents($file);
         
-        foreach(json_decode($content) as $item){
+        foreach (json_decode($content) as $item) {
             $this -> store -> set($item -> id, $item);
         }
 
         return count(json_decode($content));
     }
 
-    public function register() {
+    public function register()
+    {
 
-        foreach($this -> features as $type => $classes){
+        foreach ($this -> features as $type => $classes) {
+            $this -> store -> log(get_class($this).':register()', '{REGISTERING} '.$type);
             
-            $this -> store -> log( get_class($this).':register()', '{REGISTERING} '.$type);
-            
-            foreach($classes as $FeatureClass) {
-
+            foreach ($classes as $FeatureClass) {
                 $feature = $this -> instantiate($FeatureClass);
 
-                if(method_exists($feature, 'register')) {
-                    
+                if (method_exists($feature, 'register')) {
                     $feature -> register();
 
                     $this -> services[get_class($feature)] = $feature;
@@ -87,26 +86,27 @@ class Service {
         }
 
         return $this;
-
     }
 
-    private function instantiate($class){
+    private function instantiate($class)
+    {
         return new $class($this -> __FILE__);
     }
 
-    public function list() {
+    public function list()
+    {
         $s_list = array();
 
-        foreach($this -> services as $key => $val) {
+        foreach ($this -> services as $key => $val) {
             array_push($s_list, $key);
         }
 
         return $s_list;
     }
 
-    public function get(string $name) {
+    public function get(string $name)
+    {
 
         return $this->services[$name];
-    
     }
 }

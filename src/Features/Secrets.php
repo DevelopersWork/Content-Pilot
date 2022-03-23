@@ -1,58 +1,60 @@
 <?php
-/** 
+/**
  * @package DWContentPilot
  */
 namespace DW\ContentPilot\Features;
 
-use DW\ContentPilot\Core\{ Store };
-use DW\ContentPilot\Lib\{ WPPage, IO, API };
+use DW\ContentPilot\Core\Store;
+use DW\ContentPilot\Lib\WPPage;
+use DW\ContentPilot\Lib\IO;
+use DW\ContentPilot\Lib\API;
 
-class Secrets extends WPPage {
+class Secrets extends WPPage
+{
 
     public $__FILE__;
-    private $load_flag = True;
+    private $load_flag = true;
     private $category, $services = array();
-    private $api;
 
-    function __construct( $__FILE__ = 'DWContentPilot' ) {
+    function __construct($__FILE__ = 'DWContentPilot')
+    {
 
         $this -> __FILE__ = $__FILE__;
 
         parent::__construct();
 
-        $this -> store -> log( get_class($this).':__construct()', '{STARTED}' );
+        $this -> store -> log(get_class($this).':__construct()', '{STARTED}');
 
-        $this -> store -> set(
-            'categories', [
-                'name': 'Secret',
-                'value': ['YouTube']
-            ]
-        );
+        $categories = array('name' => 'Secret', 'value' => array('YouTube'));
+
+        $this -> store -> set('categories', $categories);
 
         $this -> api -> createCategories();
-    
     }
 
-    public function register() {
+    public function register()
+    {
 
-        if(!$this -> load_flag) return false;
+        if (!$this -> load_flag) {
+            return false;
+        }
             
-        $this -> store -> log( get_class($this).':register()', '{STARTED}' );
+        $this -> store -> log(get_class($this).':register()', '{STARTED}');
 
         $class_name = explode('\\', get_class($this));
         $class_name = array_pop($class_name);
 
-        $parent_id = wp_create_category( strtoupper(DWContetPilotPrefix) . '_Secret' );
-        if(!$parent_id){
+        $parent_id = wp_create_category(strtoupper(DWContetPilotPrefix) . '_Secret');
+        if (!$parent_id) {
             $this -> load_flag = false;
-            return $this -> store -> debug( get_class($this).':__construct()', '{FAILED}' );
+            return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
         }
         $this -> category = $parent_id;
         
-        $youtube = wp_create_category( strtoupper(DWContetPilotPrefix) . '_YouTube', $parent_id);
-        if(!$youtube){
+        $youtube = wp_create_category(strtoupper(DWContetPilotPrefix) . '_YouTube', $parent_id);
+        if (!$youtube) {
             $this -> load_flag = false;
-            return $this -> store -> debug( get_class($this).':__construct()', '{FAILED}' );
+            return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
         }
         $this -> service['youtube'] = $youtube;
 
@@ -67,47 +69,49 @@ class Secrets extends WPPage {
             'capability_type' =>  array( 'post', 'page' ),
             'taxonomies'  => array( 'category' )
         );
-        register_post_type( DWContetPilotPrefix .'_'. $class_name, $args );
+        register_post_type(DWContetPilotPrefix .'_'. $class_name, $args);
 
-        $_result = $this -> addSubPage (array(
+        $_result = $this -> addSubPage(array(
             'parent_slug' => dw_cp_plugin_name,
-            'page_title' => $class_name, 
-            'menu_title' => 'Secrets', 
-            'capability' => 'manage_options', 
+            'page_title' => $class_name,
+            'menu_title' => 'Secrets',
+            'capability' => 'manage_options',
             'menu_slug' => DWContetPilotPrefix .'_'. $class_name,
             'function' => array( $this, 'render_page' )
         ));
 
-        if(!$_result) {
-
+        if (!$_result) {
             $this -> load_flag = false;
-            return $this -> store -> debug( get_class($this).':__construct()', '{FAILED}' );
-
+            return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
         }
 
         add_action(DWContetPilotPrefix.'register_actions', array( $this, 'register_actions'));
     }
 
-    public function register_actions() {
+    public function register_actions()
+    {
 
-        if(!$this -> load_flag) return false;
+        if (!$this -> load_flag) {
+            return false;
+        }
 
         add_action(DWContetPilotPrefix.'register_menus', array($this, 'register_page'));
         add_action(DWContetPilotPrefix.'register_menus', array($this, 'form_submissions'));
-        
     }
 
-    public function form_submissions(){
-        if(isset($_POST['form-submitted']) && $_POST['form-submitted'] == 'true')
-        if(isset($_POST['form-name'])) {
-            if($_POST['form-name'] == md5(DWContetPilotPrefix . '_add_secrets')) {
-                $this -> add_secrets();
+    public function form_submissions()
+    {
+        if (isset($_POST['form-submitted']) && $_POST['form-submitted'] == 'true') {
+            if (isset($_POST['form-name'])) {
+                if ($_POST['form-name'] == md5(DWContetPilotPrefix . '_add_secrets')) {
+                    $this -> add_secrets();
+                }
             }
-            
         }
     }
 
-    public function render_page(){
+    public function render_page()
+    {
 
         $path = plugin_dir_path($this -> __FILE__);
 
@@ -118,8 +122,12 @@ class Secrets extends WPPage {
 
         $slug = explode('?', $_SERVER['REQUEST_URI'])[0] . '?';
 
-        if(isset($_GET)) foreach($_GET as $key => $value) {
-            if($key != 'tab') $slug .= $key.'='.$value.'&';
+        if (isset($_GET)) {
+            foreach ($_GET as $key => $value) {
+                if ($key != 'tab') {
+                    $slug .= $key.'='.$value.'&';
+                }
+            }
         }
 
         echo '<div class="wrap">';
@@ -128,83 +136,84 @@ class Secrets extends WPPage {
         echo '<hr class="wp-header-end">';
         echo settings_errors();
 
-        if(isset($_GET['tab'])) {
+        if (isset($_GET['tab'])) {
             $active_tab = $_GET['tab'];
         } else {
             $active_tab = 'view';
         }
 
-        if($active_tab == 'view') {
-
+        if ($active_tab == 'view') {
             $posts_per_page = 10;
             $results = $this -> view_secrets($posts_per_page);
             $posts = $results['tbody'];
             $args = $results['args'];
 
             return include_once $path . "/src/Pages/".'Tabs/secrets/view_secrets.php';
-        } else if($active_tab == 'modify')
+        } elseif ($active_tab == 'modify') {
             return include_once $path . "/src/Pages/".'Tabs/secrets/modify_secrets.php';
-        else if($active_tab == 'add')
+        } elseif ($active_tab == 'add') {
             return include_once $path . "/src/Pages/".'Tabs/secrets/add_secrets.php';
-        else
+        } else {
             print_r($_GET);
+        }
 
         echo '</div>';
     }
 
-    private function add_secrets(){
+    private function add_secrets()
+    {
 
         $notice = array(
-            'msg' => 'Adding Secrets Failed!!!', 
-            'type' => 'error', 
+            'msg' => 'Adding Secrets Failed!!!',
+            'type' => 'error',
             'domain' => 'add-secrets-dw-content-pilot'
         );
 
         $keys = array('secret_name', 'secret_key', 'secret_service', 'auth_key');
 
-        foreach($keys as $key) {
-            if(!isset($_POST[$key]) || !$_POST[$key]) {
+        foreach ($keys as $key) {
+            if (!isset($_POST[$key]) || !$_POST[$key]) {
                 $this -> store -> set('admin_notice', $notice);
-                return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
+                return add_action('admin_notices', array( $this -> store, 'admin_notice'));
             }
         }
 
         $auth_key = md5($this -> auth_key . '_' . $this -> get('menu_slug'));
 
-        if($auth_key != $_POST['auth_key']) {
+        if ($auth_key != $_POST['auth_key']) {
             $this -> store -> set('admin_notice', $notice);
-            return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
+            return add_action('admin_notices', array( $this -> store, 'admin_notice'));
         }
 
         $data = array(
-			'post_title' => $_POST['secret_name'],
+            'post_title' => $_POST['secret_name'],
             'post_name' => str_replace('%', '', urlencode($_POST['secret_name'])),
-			'post_content' => $_POST['secret_key'],
-			'post_status' => 'publish',
-			'post_type' => $this -> get('menu_slug')
-		);
+            'post_content' => $_POST['secret_key'],
+            'post_status' => 'publish',
+            'post_type' => $this -> get('menu_slug')
+        );
 
-        $post_id = wp_insert_post( $data );
+        $post_id = wp_insert_post($data);
 
-        if ( $post_id && !is_wp_error( $post_id ) ) {
-
+        if ($post_id && !is_wp_error($post_id)) {
             $categories = array($this -> category);
 
-            if(array_key_exists($_POST['secret_service'] , $this -> service)) {
+            if (array_key_exists($_POST['secret_service'], $this -> service)) {
                 array_push($categories, $this -> service[$_POST['secret_service']]);
             }
 
-            wp_set_post_categories( $post_id, $categories );
+            wp_set_post_categories($post_id, $categories);
 
             $notice['type'] = 'success';
             $notice['msg'] = 'New key was successfully added!';
-        } 
+        }
 
         $this -> store -> set('admin_notice', $notice);
-        return add_action( 'admin_notices', array( $this -> store, 'admin_notice') );
+        return add_action('admin_notices', array( $this -> store, 'admin_notice'));
     }
 
-    private function view_secrets($numberposts = 10, $post_status = array(), $orderby = 'date', $order = 'DESC') {
+    private function view_secrets($numberposts = 10, $post_status = array(), $orderby = 'date', $order = 'DESC')
+    {
 
         $args = array(
             'post_type' => $this -> get('menu_slug'),
@@ -216,11 +225,11 @@ class Secrets extends WPPage {
 
         $posts = array();
 
-        $_posts = get_posts( $args );
+        $_posts = get_posts($args);
 
         foreach ($_posts as $_post) {
             $post = $_post -> to_array();
-            $post['service'] = get_post_meta( $post['ID'], 'service', true );
+            $post['service'] = get_post_meta($post['ID'], 'service', true);
             array_push($posts, $post);
         }
 
@@ -230,30 +239,30 @@ class Secrets extends WPPage {
         );
     }
 
-    private function view_table_secrets($posts) {
+    private function view_table_secrets($posts)
+    {
 
         $html_template = IO:: read_asset_file($this -> __FILE__, 'secrets_table_view_row.html');
 
         $posts_html = "";
 
         foreach ($posts as $_post) {
-
             $_post_html = $html_template;
 
             $_post_html = str_replace('$post_id', $_post['ID'], $_post_html);
             $_post_html = str_replace('$post_title', $_post['post_title'], $_post_html);
 
             $category = '<span aria-hidden="true">—</span><span class="screen-reader-text">No categories</span>';
-            if(isset($_post['post_category']) && is_array($_post['post_category'])) {
+            if (isset($_post['post_category']) && is_array($_post['post_category'])) {
                 $category = "";
-                foreach ($_post['post_category'] as $_c){
+                foreach ($_post['post_category'] as $_c) {
                     $c = get_cat_name($_c);
 
                     $category .= ' <a href="#category_name='.$c.'">'.$c.'</a>,';
                 }
                 
-                $_post_html = str_replace('$service', get_cat_name( $_post['post_category'] ), $_post_html);
-            } 
+                $_post_html = str_replace('$service', get_cat_name($_post['post_category']), $_post_html);
+            }
             $category = trim($category, ',');
             $category = trim($category, ' ');
             $_post_html = str_replace('$post_category', $category, $_post_html);
@@ -266,8 +275,5 @@ class Secrets extends WPPage {
         }
 
         return $posts_html;
-
     }
-
 }
-
