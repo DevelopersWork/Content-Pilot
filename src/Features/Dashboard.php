@@ -4,28 +4,25 @@
  */
 namespace DW\ContentPilot\Features;
 
-use DW\ContentPilot\Core\Store;
 use DW\ContentPilot\Lib\WPPage;
 
 class Dashboard extends WPPage
 {
 
-    protected $store;
     private $parent;
     public $__FILE__;
     private $load_flag = true;
 
     function __construct($__FILE__ = 'DWContentPilot')
     {
+        
+        parent::__construct();
 
         $this -> __FILE__ = $__FILE__;
 
         $this -> parent = new Home();
 
-        $this -> store = new Store();
         $this -> store -> log(get_class($this).':__construct()', '{STARTED}');
-
-        parent::__construct();
 
         $class_name = explode('\\', get_class($this));
         $class_name = array_pop($class_name);

@@ -14,12 +14,14 @@ use DW\ContentPilot\Features\Jobs;
 class Service
 {
 
-    private $store, $services, $__FILE__;
+    private $store;
+    private $services;
+    private $file;
 
-    function __construct($__FILE__)
+    public function __construct($FILE)
     {
 
-        $this -> __FILE__ = $__FILE__;
+        $this -> file = $FILE;
 
         $this -> store = new Store();
 
@@ -45,17 +47,17 @@ class Service
             )
         );
 
-        // $this -> services = $this -> fetchServices($__FILE__);
+        // $this -> services = $this -> fetchServices($file);
         $this -> services = array();
     }
     
 
-    private function fetchServices($__FILE__)
+    private function fetchServices($file)
     {
 
         $this -> store -> log(get_class($this).':fetchServices()', '{STARTED}');
 
-        $plugin_path = plugin_dir_path($__FILE__);
+        $plugin_path = plugin_dir_path($file);
 
         $file = $plugin_path . 'assets/reference/services.json';
         
@@ -90,7 +92,7 @@ class Service
 
     private function instantiate($class)
     {
-        return new $class($this -> __FILE__);
+        return new $class($this -> file);
     }
 
     public function list()

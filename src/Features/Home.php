@@ -4,24 +4,21 @@
  */
 namespace DW\ContentPilot\Features;
 
-use DW\ContentPilot\Core\Store;
 use DW\ContentPilot\Lib\WPPage;
 
 class Home extends WPPage
 {
 
-    protected $store;
     private $load_flag = true;
 
     function __construct()
     {
 
-        $this -> store = new Store();
+        parent::__construct();
+        
         $this -> store -> log(get_class($this).':__construct()', '{STARTED}');
 
-        parent::__construct();
-
-        $_result = $this -> addPage(array(
+        $this -> addPage(array(
             'page_title' => dw_cp_plugin_name,
             'menu_title' => dw_cp_plugin_name,
             'capability' => 'manage_options',
@@ -30,8 +27,7 @@ class Home extends WPPage
             'position' => 22
         ));
 
-        if (!$_result) {
-            $this -> load_flag = false;
+        if ($this -> store -> get('_ERROR')) {
             return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
         }
     }
@@ -39,7 +35,7 @@ class Home extends WPPage
     public function register()
     {
 
-        if (!$this -> load_flag) {
+        if ($this -> store -> get('_ERROR')) {
             return false;
         }
             
@@ -51,7 +47,7 @@ class Home extends WPPage
     public function register_actions()
     {
 
-        if (!$this -> load_flag) {
+        if ($this -> store -> get('_ERROR')) {
             return false;
         }
 

@@ -28,8 +28,6 @@ class Secrets extends WPPage
         $categories = array('name' => 'Secret', 'value' => array('YouTube'));
 
         $this -> store -> set('categories', $categories);
-
-        $this -> api -> createCategories();
     }
 
     public function register()
@@ -118,7 +116,7 @@ class Secrets extends WPPage
         $class_name = explode('\\', get_class($this));
         $class_name = array_pop($class_name);
 
-        $auth_key = md5($this -> auth_key . '_' . $this -> get('menu_slug'));
+        $auth_key = md5($this -> store -> get('_AUTH_KEY') . '_' . $this -> get('menu_slug'));
 
         $slug = explode('?', $_SERVER['REQUEST_URI'])[0] . '?';
 
@@ -178,7 +176,7 @@ class Secrets extends WPPage
             }
         }
 
-        $auth_key = md5($this -> auth_key . '_' . $this -> get('menu_slug'));
+        $auth_key = md5($this -> store -> get('_AUTH_KEY') . '_' . $this -> get('menu_slug'));
 
         if ($auth_key != $_POST['auth_key']) {
             $this -> store -> set('admin_notice', $notice);

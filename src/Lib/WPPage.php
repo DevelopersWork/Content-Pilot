@@ -7,36 +7,21 @@ namespace DW\ContentPilot\Lib;
 use DW\ContentPilot\Core\Store;
 use DW\ContentPilot\Lib\API;
 
-class WPPage
+class WPPage extends API
 {
 
     private $page = array();
-    protected $auth_key = "";
-    protected $store;
-    protected $api;
 
     public function __construct($page = array())
     {
-
-        $this -> store = new Store();
-        $this -> api = new API();
-
-        $this -> api -> setStore($this -> store);
+        parent::__construct();
 
         $this -> page = $page;
-
-        $this -> auth_key = wp_get_session_token();
 
         if ($this -> page) {
             add_action(DWContetPilotPrefix.'register_menus', [$this, 'register_page']);
         }
-
-        $this -> store -> set('_ERROR', false);
-        $this -> store -> set('_AUTH_KEY', wp_get_session_token());
-
-        $categories = array('name' => '', 'value' => array());
-
-        $this -> store -> set('categories', $categories);
+        
     }
 
     protected function addPage(array $_page)
@@ -45,7 +30,7 @@ class WPPage
         $this -> page = $this -> createPage($_page);
 
         if (!$this -> page) {
-            return false;
+            $this -> store -> set('_ERROR', true);
         }
 
         return $this;
@@ -108,16 +93,6 @@ class WPPage
         }
 
         return $this;
-    }
-
-    public function get_slug()
-    {
-        
-        if (array_key_exists('menu_slug', $this -> page)) {
-            return $this -> page['menu_slug'];
-        }
-        
-        return '';
     }
 
     public function get($name)
