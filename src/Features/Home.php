@@ -9,14 +9,12 @@ use DW\ContentPilot\Lib\WPPage;
 class Home extends WPPage
 {
 
-    private $load_flag = true;
-
     function __construct()
     {
 
         parent::__construct();
         
-        $this -> store -> log(get_class($this).':__construct()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':__construct()', '{STARTED}');
 
         $this -> addPage(array(
             'page_title' => dw_cp_plugin_name,
@@ -28,7 +26,7 @@ class Home extends WPPage
         ));
 
         if ($this -> store -> get('_ERROR')) {
-            return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
+            return $this -> store -> log(get_class($this).':__construct()', '{FAILED}');
         }
     }
 
@@ -39,9 +37,9 @@ class Home extends WPPage
             return false;
         }
             
-        $this -> store -> log(get_class($this).':register()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':register()', '{STARTED}');
 
-        add_action(DWContetPilotPrefix.'register_actions', array( $this, 'register_actions'));
+        add_action(DWContetPilotPrefix . 'register_actions', array( $this, 'register_actions'));
     }
 
     public function register_actions()
@@ -51,6 +49,6 @@ class Home extends WPPage
             return false;
         }
 
-        add_action(DWContetPilotPrefix.'register_menus', array($this, 'register_page'));
+        add_action(DWContetPilotPrefix . 'register_menus', array($this, 'register_page'));
     }
 }

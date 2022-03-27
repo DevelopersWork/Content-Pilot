@@ -11,6 +11,7 @@ class WPPage extends API
 {
 
     private $page = array();
+    protected $auth_key = "";
 
     public function __construct($page = array())
     {
@@ -30,7 +31,7 @@ class WPPage extends API
         $this -> page = $this -> createPage($_page);
 
         if (!$this -> page) {
-            $this -> store -> set('_ERROR', true);
+            return $this -> store -> set('_ERROR', true);
         }
 
         return $this;
@@ -40,11 +41,11 @@ class WPPage extends API
     {
 
         if (!array_key_exists('parent_slug', $_page)) {
-            return false;
+            return $this -> store -> set('_ERROR', true);
         }
 
         if (!$this -> addPage($_page)) {
-            return false;
+            return $this -> store -> set('_ERROR', true);
         }
 
         $this -> page['parent_slug'] = sanitize_key($_page['parent_slug']);
@@ -84,6 +85,11 @@ class WPPage extends API
 
     public function register_page()
     {
+
+        $this -> auth_key = md5(
+            $this -> store -> get('_AUTH_KEY') . '_' . $this -> get('menu_slug')
+        );
+
         $page = $this -> page;
 
         if (!array_key_exists('parent_slug', $page)) {
@@ -91,6 +97,10 @@ class WPPage extends API
         } else {
             add_submenu_page($page['parent_slug'], $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['function']);
         }
+
+        $this -> createCategories();
+        $this -> createPostType();
+        $this -> parseRequest();
 
         return $this;
     }
@@ -107,21 +117,11 @@ class WPPage extends API
     public function render_page()
     {
 
-        $path = plugin_dir_path($this -> __FILE__);
+        echo '<div class="wrap">';
+        echo '<h1 class="wp-heading-inline">'.$this -> store -> get('name').'</h1>';
+        echo '<hr class="wp-header-end">';
+        echo settings_errors();
+        echo '</div>';
 
-        $class_name = explode('\\', get_class($this));
-        $class_name = array_pop($class_name);
-
-        $slug = explode('?', $_SERVER['REQUEST_URI'])[0] . '?';
-
-        if (isset($_GET)) {
-            foreach ($_GET as $key => $value) {
-                if ($key != 'tab') {
-                    $slug .= '&'.$key.'='.$value;
-                }
-            }
-        }
-
-        return include_once $path . "/src/Pages/".$class_name.".php";
     }
 }

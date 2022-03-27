@@ -4,10 +4,7 @@
  */
 namespace DW\ContentPilot\Features;
 
-use DW\ContentPilot\Core\Store;
-use DW\ContentPilot\Lib\WPPage;
-use DW\ContentPilot\Lib\IO;
-use DW\ContentPilot\Lib\API;
+use DW\ContentPilot\Lib\{ WPPage, IO };
 
 class Secrets extends WPPage
 {
@@ -18,16 +15,31 @@ class Secrets extends WPPage
 
     function __construct($__FILE__ = 'DWContentPilot')
     {
-
-        $this -> __FILE__ = $__FILE__;
-
         parent::__construct();
 
         $this -> store -> log(get_class($this).':__construct()', '{STARTED}');
 
-        $categories = array('name' => 'Secret', 'value' => array('YouTube'));
+        $class_name = explode('\\', get_class($this));
+        $class_name = array_pop($class_name);
+        $this -> store -> set('name', $class_name);
 
+        $categories = array('name' => 'Secret', 'value' => array('YouTube'));
         $this -> store -> set('categories', $categories);
+
+        $post_type = array(
+            'description' => 'API keys of the Content Pilot plugin',
+            'public' => false,
+            'has_archive' => true,
+            'can_export' => false,
+            'delete_with_user' => true,
+            'exclude_from_search' =>  false,
+            'show_in_rest' => true,
+            'capability_type' =>  array( 'post', 'page' ),
+            'taxonomies'  => array( 'category' ),
+            '__name' => $this -> store -> get('name')
+        );
+        $this -> store -> set('post_type', $post_type);
+
     }
 
     public function register()
@@ -42,32 +54,32 @@ class Secrets extends WPPage
         $class_name = explode('\\', get_class($this));
         $class_name = array_pop($class_name);
 
-        $parent_id = wp_create_category(strtoupper(DWContetPilotPrefix) . '_Secret');
-        if (!$parent_id) {
-            $this -> load_flag = false;
-            return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
-        }
-        $this -> category = $parent_id;
+        // $parent_id = wp_create_category(strtoupper(DWContetPilotPrefix) . '_Secret');
+        // if (!$parent_id) {
+        //     $this -> load_flag = false;
+        //     return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
+        // }
+        // $this -> category = $parent_id;
         
-        $youtube = wp_create_category(strtoupper(DWContetPilotPrefix) . '_YouTube', $parent_id);
-        if (!$youtube) {
-            $this -> load_flag = false;
-            return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
-        }
-        $this -> service['youtube'] = $youtube;
+        // $youtube = wp_create_category(strtoupper(DWContetPilotPrefix) . '_YouTube', $parent_id);
+        // if (!$youtube) {
+        //     $this -> load_flag = false;
+        //     return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
+        // }
+        // $this -> service['youtube'] = $youtube;
 
-        $args = array(
-            'description' => 'API keys of the Content Pilot plugin',
-            'public' => false,
-            'has_archive' => true,
-            'can_export' => false,
-            'delete_with_user' => true,
-            'exclude_from_search' =>  false,
-            'show_in_rest' => true,
-            'capability_type' =>  array( 'post', 'page' ),
-            'taxonomies'  => array( 'category' )
-        );
-        register_post_type(DWContetPilotPrefix .'_'. $class_name, $args);
+        // $args = array(
+        //     'description' => 'API keys of the Content Pilot plugin',
+        //     'public' => false,
+        //     'has_archive' => true,
+        //     'can_export' => false,
+        //     'delete_with_user' => true,
+        //     'exclude_from_search' =>  false,
+        //     'show_in_rest' => true,
+        //     'capability_type' =>  array( 'post', 'page' ),
+        //     'taxonomies'  => array( 'category' )
+        // );
+        // register_post_type(DWContetPilotPrefix .'_'. $class_name, $args);
 
         $_result = $this -> addSubPage(array(
             'parent_slug' => dw_cp_plugin_name,
@@ -110,23 +122,10 @@ class Secrets extends WPPage
 
     public function render_page()
     {
+        
+        $auth_key = $this -> auth_key;
 
-        $path = plugin_dir_path($this -> __FILE__);
-
-        $class_name = explode('\\', get_class($this));
-        $class_name = array_pop($class_name);
-
-        $auth_key = md5($this -> store -> get('_AUTH_KEY') . '_' . $this -> get('menu_slug'));
-
-        $slug = explode('?', $_SERVER['REQUEST_URI'])[0] . '?';
-
-        if (isset($_GET)) {
-            foreach ($_GET as $key => $value) {
-                if ($key != 'tab') {
-                    $slug .= $key.'='.$value.'&';
-                }
-            }
-        }
+        $slug = $this -> getURI();
 
         echo '<div class="wrap">';
         echo '<h1 class="wp-heading-inline">Secrets</h1>';
@@ -146,13 +145,13 @@ class Secrets extends WPPage
             $posts = $results['tbody'];
             $args = $results['args'];
 
-            return include_once $path . "/src/Pages/".'Tabs/secrets/view_secrets.php';
+            return include_once dw_cp_plugin_dir_path . "/src/Pages/".'Tabs/secrets/view_secrets.php';
         } elseif ($active_tab == 'modify') {
-            return include_once $path . "/src/Pages/".'Tabs/secrets/modify_secrets.php';
+            return include_once dw_cp_plugin_dir_path . "/src/Pages/".'Tabs/secrets/modify_secrets.php';
         } elseif ($active_tab == 'add') {
-            return include_once $path . "/src/Pages/".'Tabs/secrets/add_secrets.php';
+            return include_once dw_cp_plugin_dir_path . "/src/Pages/".'Tabs/secrets/add_secrets.php';
         } else {
-            print_r($_GET);
+            // print_r($_GET);
         }
 
         echo '</div>';
@@ -171,16 +170,16 @@ class Secrets extends WPPage
 
         foreach ($keys as $key) {
             if (!isset($_POST[$key]) || !$_POST[$key]) {
-                $this -> store -> set('admin_notice', $notice);
-                return add_action('admin_notices', array( $this -> store, 'admin_notice'));
+                $this -> store -> append('notices', $notice);
+                return add_action('admin_notices', array( $this -> store, 'adminNotice'));
             }
         }
 
         $auth_key = md5($this -> store -> get('_AUTH_KEY') . '_' . $this -> get('menu_slug'));
 
         if ($auth_key != $_POST['auth_key']) {
-            $this -> store -> set('admin_notice', $notice);
-            return add_action('admin_notices', array( $this -> store, 'admin_notice'));
+            $this -> store -> append('notices', $notice);
+            return add_action('admin_notices', array( $this -> store, 'adminNotice'));
         }
 
         $data = array(
@@ -206,8 +205,8 @@ class Secrets extends WPPage
             $notice['msg'] = 'New key was successfully added!';
         }
 
-        $this -> store -> set('admin_notice', $notice);
-        return add_action('admin_notices', array( $this -> store, 'admin_notice'));
+        $this -> store -> append('notices', $notice);
+        return add_action('admin_notices', array( $this -> store, 'adminNotice'));
     }
 
     private function view_secrets($numberposts = 10, $post_status = array(), $orderby = 'date', $order = 'DESC')
@@ -240,7 +239,7 @@ class Secrets extends WPPage
     private function view_table_secrets($posts)
     {
 
-        $html_template = IO:: read_asset_file($this -> __FILE__, 'secrets_table_view_row.html');
+        $html_template = IO:: read_asset_file('table_view/secrets_row.html');
 
         $posts_html = "";
 

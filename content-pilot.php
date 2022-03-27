@@ -33,6 +33,9 @@ else define('DWContetPilotPrefix', 'dw_cp');
 
 define( 'dw_cp_plugin_name', 'Content Pilot');
 define( 'dw_cp_plugin_version', '0.1.1');
+define( 'dw_cp_plugin_dir_path', plugin_dir_path(__FILE__));
+define( 'dw_cp_plugin_dir_url', plugin_dir_url(__FILE__));
+define( 'dw_cp_plugin_base_name', plugin_basename(__FILE__));
 
 class DWContentPilot {
 
@@ -40,13 +43,13 @@ class DWContentPilot {
 
     public function __construct() {
 
-        $_activate = new Activate(__FILE__);
+        $_activate = new Activate();
         register_activation_hook( __FILE__, array($_activate, 'activate') );
 
-        $_deactivate = new Deactivate(__FILE__);
+        $_deactivate = new Deactivate();
         register_deactivation_hook( __FILE__, array($_deactivate, 'deactivate') );
 
-        if ( !is_plugin_active( plugin_basename( __FILE__ ) ) ) {
+        if ( !is_plugin_active( dw_cp_plugin_base_name ) ) {
             return;
         }
 

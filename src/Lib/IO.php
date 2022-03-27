@@ -7,17 +7,13 @@ namespace DW\ContentPilot\Lib;
 class IO
 {
 
-    public static function read_asset_file($plugin, $file)
+    public static function read_asset_file( $file )
     {
-
-        $plugin_path = plugin_dir_path($plugin);
-        
-        $assets_path = $plugin_path . 'assets/';
 
         $extensions = explode('.', $file);
         $extension = end($extensions);
 
-        $path = $assets_path . $extension . '/' . $file;
+        $path = dw_cp_plugin_dir_path . 'assets/' . $extension . '/' . $file;
 
         $html = file_get_contents($path);
 

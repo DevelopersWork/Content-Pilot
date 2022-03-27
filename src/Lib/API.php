@@ -24,7 +24,7 @@ class API
         $this -> store -> set('categories', $categories);
     }
 
-    private function createCategories()
+    protected function createCategories()
     {
         $this -> store -> debug(get_class($this).':createCategories()', '{STARTED}');
         $categories = [];
@@ -63,13 +63,19 @@ class API
         return true;
     }
 
-    private function createPostType()
+    protected function createPostType()
     {
         $this -> store -> debug(get_class($this).':createPostType()', '{STARTED}');
 
         $_post_type = $this -> store -> get('post_type');
+        $name = $this -> store -> get('name');
 
-        $post_type = register_post_type(strtoupper(DWContetPilotPrefix) .'_'. $_post_type['__name'], $_post_type);
+        if (!$_post_type) {
+            $this -> store -> set('_POST_TYPE_ERROR', 'post_type');
+            return false;
+        }
+
+        $post_type = register_post_type(strtoupper(DWContetPilotPrefix) .'_'. $name, $_post_type);
 
         if(!$post_type) {
             $this -> store -> set('_POST_TYPE_ERROR', $_post_type);
@@ -81,7 +87,7 @@ class API
         return true;
     }
 
-    public function parseRequest($method)
+    protected function parseRequest(string $method = '')
     {
         $this -> store -> debug(get_class($this).':requestGET()', '{STARTED}');
 
@@ -90,9 +96,32 @@ class API
 
         if(strtolower($method) == 'get') {
             $this -> store -> set('_PARAMS', $_GET);
-        } else {
+        } else if(strtolower($method) == 'post') {
             $this -> store -> set('_PARAMS', $_POST);
+        } else {
+            $this -> store -> set('_PARAMS', $_REQUEST);
         }
         
+    }
+
+    public function getURI(array $params = array())
+    {
+        $slug = $this -> store -> get('_REQUEST_URI') . '?';
+
+        $_params = $this -> store -> get('_PARAMS');
+
+        $keys = array('page');
+
+        foreach ($keys as $key) {
+            if(isset($_params[$key])) 
+                $slug .= $key. '=' . $_params[$key] . '&';
+        }
+
+        if($params) 
+            foreach($params as $key => $value) {
+                $slug .= $key. '=' . $value . '&';
+            }
+
+        return $slug;
     }
 }

@@ -13,10 +13,9 @@ class Activate
     private $store;
     private $name;
 
-    public function __construct(string $__FILE__)
+    public function __construct()
     {
         $this -> store = new Store();
-        $this -> __FILE__ = $__FILE__;
     }
 
     public function activate()
@@ -37,9 +36,8 @@ class Activate
         $this -> store -> log(get_class($this).':createSQLTables()', '{STARTED}');
 
         $charset_collate = $wpdb->get_charset_collate();
-        $plugin_path = plugin_dir_path($this -> __FILE__);
 
-        $ddl_path = $plugin_path . 'assets/ddl/';
+        $ddl_path = dw_cp_plugin_dir_path . 'assets/ddl/';
         $ddls = array_diff(scandir($ddl_path), array('.', '..'));
 
         $regex = "/^.*\.(sql)$/i";
@@ -70,13 +68,13 @@ class Activate
 
         $this -> store -> log(get_class($this).':compatibilityCheck()', '{STARTED}');
 
-        $php_version_check = Validations::validate_php_version($this -> store, $this -> __FILE__);
+        $php_version_check = Validations::validate_php_version($this -> store);
 
         if (!$php_version_check) {
             return $php_version_check;
         }
 
-        $wp_version_check = Validations::validate_wp_version($this -> store, $this -> __FILE__);
+        $wp_version_check = Validations::validate_wp_version($this -> store);
 
         if (!$wp_version_check) {
             return $wp_version_check;
@@ -92,9 +90,8 @@ class Activate
         $this -> store -> log(get_class($this).':loadReferenceData()', '{STARTED}');
 
         $charset_collate = $wpdb->get_charset_collate();
-        $plugin_path = plugin_dir_path($this -> __FILE__);
 
-        $path = $plugin_path . 'assets/dml/';
+        $path = dw_cp_plugin_dir_path . 'assets/dml/';
         $dmls = array_diff(scandir($path), array('.', '..'));
 
         $regex = "/^.*\.(sql)$/i";

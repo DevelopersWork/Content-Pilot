@@ -26,16 +26,16 @@ class Main
         $this -> __FILE__ = $__FILE__;
         $this -> version = $version;
 
-        $this -> store -> log(get_class($this).':__construct()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':__construct()', '{STARTED}');
     }
 
     public function admin_menu()
     {
             
-        $this -> store -> log(get_class($this).':admin_menu()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':admin_menu()', '{STARTED}');
 
         if (!is_user_logged_in()) {
-            return $this -> store -> log(get_class($this).':admin_menu()', '{WP AUTH BROKEN}');
+            return $this -> store -> debug(get_class($this).':admin_menu()', '{WP AUTH BROKEN}');
         }
         
         $this -> register_scripts() -> register_styles() -> register_menus();
@@ -46,7 +46,7 @@ class Main
     public function init()
     {
 
-        $this -> store -> log(get_class($this).':init()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':init()', '{STARTED}');
 
         if (!$this -> compatibilityCheck()) {
             return;
@@ -67,19 +67,19 @@ class Main
     private function compatibilityCheck()
     {
 
-        $php_version_check = Validations::validate_php_version($this -> store, $this -> __FILE__);
+        $php_version_check = Validations::validate_php_version($this -> store);
 
         if (!$php_version_check) {
             return $php_version_check;
         }
 
-        $wp_version_check = Validations::validate_wp_version($this -> store, $this -> __FILE__);
+        $wp_version_check = Validations::validate_wp_version($this -> store);
 
         if (!$wp_version_check) {
             return $wp_version_check;
         }
 
-        $db_tables_check = Validations::checkSQLTables($this -> store, $this -> __FILE__);
+        $db_tables_check = Validations::checkSQLTables($this -> store);
 
         if (!$db_tables_check) {
             return $db_tables_check;
@@ -91,7 +91,7 @@ class Main
     private function register_actions()
     {
             
-        $this -> store -> log(get_class($this).':register_actions()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':register_actions()', '{STARTED}');
 
         add_action('admin_menu', array( $this, 'admin_menu' ));
 
@@ -103,7 +103,7 @@ class Main
     private function register_post_types()
     {
             
-        $this -> store -> log(get_class($this).':register_post_types()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':register_post_types()', '{STARTED}');
 
         do_action(DWContetPilotPrefix.'register_post_types');
 
@@ -113,9 +113,7 @@ class Main
     private function register_scripts()
     {
 
-        $this -> store -> log(get_class($this).':register_scripts()', '{STARTED}');
-
-        $PLUGIN_URL = plugin_dir_url($this -> __FILE__);
+        $this -> store -> debug(get_class($this).':register_scripts()', '{STARTED}');
 
         // jQuery v3.3.1
         wp_register_script(DWContetPilotPrefix . '-jquery3', 'https://code.jquery.com/jquery-3.3.1.min.js', array(), '3.3.1', true);
@@ -126,7 +124,7 @@ class Main
         wp_script_add_data(DWContetPilotPrefix . '-bootstrap.bundle.min', array( 'integrity', 'crossorigin' ), array( ));
         wp_enqueue_script(DWContetPilotPrefix . '-bootstrap.bundle.min');
         // Admin Script
-        wp_enqueue_script(DWContetPilotPrefix . '-script.admin', $PLUGIN_URL . 'assets/js/script.admin.js', array(), $this -> version, true);
+        wp_enqueue_script(DWContetPilotPrefix . '-script.admin', dw_cp_plugin_dir_url . 'assets/js/script.admin.js', array(), $this -> version, true);
 
         do_action(DWContetPilotPrefix.'register_scripts');
 
@@ -136,14 +134,12 @@ class Main
     private function register_styles()
     {
 
-        $this -> store -> log(get_class($this).':register_styles()', '{STARTED}');
-
-        $PLUGIN_URL = plugin_dir_url($this -> __FILE__);
+        $this -> store -> debug(get_class($this).':register_styles()', '{STARTED}');
 
         // Bootstrap v5.1.3
         wp_enqueue_style(DWContetPilotPrefix . '-bootstrap.min', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', array(), '5.1.3', 'all');
         // Admin Style
-        wp_enqueue_style(DWContetPilotPrefix . '-style.admin', $PLUGIN_URL . 'assets/css/style.admin.css', array(), $this->version, 'all');
+        wp_enqueue_style(DWContetPilotPrefix . '-style.admin', dw_cp_plugin_dir_url . 'assets/css/style.admin.css', array(), $this->version, 'all');
 
         do_action(DWContetPilotPrefix.'register_styles');
 
@@ -153,7 +149,7 @@ class Main
     private function register_filters()
     {
 
-        $this -> store -> log(get_class($this).':register_filters()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':register_filters()', '{STARTED}');
 
         add_filter('cron_schedules', array( $this, 'add_cron_triggers'));
 
@@ -165,7 +161,7 @@ class Main
     private function register_menus()
     {
 
-        $this -> store -> log(get_class($this).':register_menus()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':register_menus()', '{STARTED}');
 
         do_action(DWContetPilotPrefix.'register_menus');
     }
@@ -173,7 +169,7 @@ class Main
     public function add_cron_triggers($schedules)
     {
 
-        $this -> store -> log(get_class($this).':add_cron_jobs()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':add_cron_jobs()', '{STARTED}');
         
         global $wpdb;
 

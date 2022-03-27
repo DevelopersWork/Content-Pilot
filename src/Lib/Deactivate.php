@@ -13,10 +13,9 @@ class Deactivate
     private $store;
     private $name;
 
-    public function __construct(string $__FILE__)
+    public function __construct()
     {
         $this -> store = new Store();
-        $this -> name = $__FILE__;
     }
 
     public function deactivate()

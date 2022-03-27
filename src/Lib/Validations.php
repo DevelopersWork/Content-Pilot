@@ -7,7 +7,7 @@ namespace DW\ContentPilot\Lib;
 class Validations
 {
 
-    public static function validate_php_version($store, $__FILE__, $version = '7.4')
+    public static function validate_php_version($store, $__FILE__ = null, $version = '7.4')
     {
 
         $notice = array(
@@ -19,7 +19,7 @@ class Validations
         if (!defined('PHP_VERSION')) {
             $store -> set('admin_notice', $notice);
             
-            deactivate_plugins(plugin_basename($__FILE__));
+            deactivate_plugins(dw_cp_plugin_base_name);
 
             if (isset($_GET['activate'])) {
                 unset($_GET['activate']);
@@ -33,7 +33,7 @@ class Validations
         if (version_compare(PHP_VERSION, $version, '<=')) {
             $store -> set('admin_notice', $notice);
             
-            deactivate_plugins(plugin_basename($__FILE__));
+            deactivate_plugins(dw_cp_plugin_base_name);
             
             if (isset($_GET['activate'])) {
                 unset($_GET['activate']);
@@ -47,7 +47,7 @@ class Validations
         return PHP_VERSION;
     }
 
-    public static function validate_wp_version($store, $__FILE__, $version = '5.9')
+    public static function validate_wp_version($store, $__FILE__ = null, $version = '5.9')
     {
 
         $notice = array(
@@ -59,7 +59,7 @@ class Validations
         if (!isset($GLOBALS['wp_version'])) {
             $store -> set('admin_notice', $notice);
             
-            deactivate_plugins(plugin_basename($__FILE__));
+            deactivate_plugins(dw_cp_plugin_base_name);
 
             if (isset($_GET['activate'])) {
                 unset($_GET['activate']);
@@ -73,7 +73,7 @@ class Validations
         if (version_compare($GLOBALS['wp_version'], $version, '<')) {
             $store -> set('admin_notice', $notice);
             
-            deactivate_plugins(plugin_basename($__FILE__));
+            deactivate_plugins(dw_cp_plugin_base_name);
 
             if (isset($_GET['activate'])) {
                 unset($_GET['activate']);
@@ -87,7 +87,7 @@ class Validations
         return $GLOBALS['wp_version'];
     }
 
-    public static function checkSQLTables($store, $__FILE__)
+    public static function checkSQLTables($store, $__FILE__ = null)
     {
         global $wpdb;
 
@@ -104,7 +104,7 @@ class Validations
                     'domain' => 'sql-tables-dw-content-pilot'
                 ));
                 
-                deactivate_plugins(plugin_basename($__FILE__));
+                deactivate_plugins(dw_cp_plugin_base_name);
                 
                 if (isset($_GET['activate'])) {
                     unset($_GET['activate']);

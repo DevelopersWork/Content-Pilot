@@ -5,27 +5,22 @@
 namespace DW\ContentPilot\Core;
 
 use DW\ContentPilot\Core\Store;
-
-use DW\ContentPilot\Features\Dashboard;
-use DW\ContentPilot\Features\Secrets;
-use DW\ContentPilot\Features\Settings;
-use DW\ContentPilot\Features\Jobs;
+use DW\ContentPilot\Features\{ 
+    Dashboard, Secrets, Settings, Jobs
+};
 
 class Service
 {
 
     private $store;
     private $services;
-    private $file;
 
-    public function __construct($FILE)
+    public function __construct()
     {
-
-        $this -> file = $FILE;
 
         $this -> store = new Store();
 
-        $this -> store -> log(get_class($this).':__construct()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':__construct()', '{STARTED}');
 
         /*
         * 4-categories of services:
@@ -47,19 +42,17 @@ class Service
             )
         );
 
-        // $this -> services = $this -> fetchServices($file);
+        // $this -> services = $this -> fetchServices();
         $this -> services = array();
     }
     
 
-    private function fetchServices($file)
+    private function fetchServices()
     {
 
-        $this -> store -> log(get_class($this).':fetchServices()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':fetchServices()', '{STARTED}');
 
-        $plugin_path = plugin_dir_path($file);
-
-        $file = $plugin_path . 'assets/reference/services.json';
+        $file = dw_cp_plugin_dir_path . 'assets/reference/services.json';
         
         $content = file_get_contents($file);
         
@@ -74,7 +67,7 @@ class Service
     {
 
         foreach ($this -> features as $type => $classes) {
-            $this -> store -> log(get_class($this).':register()', '{REGISTERING} '.$type);
+            $this -> store -> debug(get_class($this).':register()', '{REGISTERING} '.$type);
             
             foreach ($classes as $FeatureClass) {
                 $feature = $this -> instantiate($FeatureClass);
@@ -92,7 +85,7 @@ class Service
 
     private function instantiate($class)
     {
-        return new $class($this -> file);
+        return new $class();
     }
 
     public function list()
