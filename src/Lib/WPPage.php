@@ -22,6 +22,8 @@ class WPPage extends API
 
     protected function addPage(array $_page)
     {
+
+        $this -> store -> debug(get_class($this).':addPage()', '{STARTED}');
         
         $this -> page = $this -> createPage($_page);
 
@@ -34,6 +36,8 @@ class WPPage extends API
 
     protected function addSubPage(array $_page)
     {
+
+        $this -> store -> debug(get_class($this).':addSubPage()', '{STARTED}');
 
         if (!array_key_exists('parent_slug', $_page)) {
             return $this -> store -> set('_ERROR', true);
@@ -50,6 +54,8 @@ class WPPage extends API
 
     private function createPage(array $_page)
     {
+
+        $this -> store -> debug(get_class($this).':createPage()', '{STARTED}');
 
         $page = array();
 
@@ -80,6 +86,7 @@ class WPPage extends API
 
     public function get($name)
     {
+        
         if (array_key_exists($name, $this -> page)) {
             return $this -> page[$name];
         }
@@ -89,6 +96,7 @@ class WPPage extends API
 
     public function render_page()
     {
+        $this -> store -> debug(get_class($this).':render_page()', '{STARTED}');
 
         echo '<div class="wrap">';
         echo '<h1 class="wp-heading-inline">'.$this -> store -> get('name').'</h1>';
@@ -113,6 +121,8 @@ class WPPage extends API
 
     public function register_menus()
     {
+
+        $this -> store -> debug(get_class($this).':register_menus()', '{STARTED}');
 
         $this -> auth_key = md5(
             $this -> store -> get('_AUTH_KEY') . '_' . $this -> get('menu_slug')
