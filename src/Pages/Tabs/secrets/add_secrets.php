@@ -7,7 +7,7 @@
 <div id="poststuff">
     <form action="" method="POST">
         <input type="hidden" name="f_submit" value="<?php echo md5(DWContetPilotPrefix . '_add_secrets');?>">
-        <input type="hidden" name="f_time" value="<?php echo $this -> auth_key; ?>">
+        <input type="hidden" name="f_key" value="<?php echo $this -> auth_key; ?>">
 
         <div id="dw_cp_metabox_add_secrets" class="postbox">
             <h3 class="hndle"><span>Adding new key</span></h3>
@@ -20,7 +20,9 @@
                         </th>
                         <td>
                             <input type="text" class="code widefat" name="secret_name" id="secret_name" value="">
-                            <p class="description"></p>
+                            <p class="description">
+                                A unqiue name for the key
+                            </p>
                         </td>
                     </tr></tbody>
 
@@ -30,7 +32,9 @@
                         </th>
                         <td>
                             <input type="text" class="code widefat" name="secret_key" id="secret_key" value="">
-                            <p class="description"></p>
+                            <p class="description">
+                                The secret key
+                            </p>
                         </td>
                     </tr></tbody>
 
@@ -46,7 +50,7 @@
                             </select>
                             <p class="description">Use default Ninja Forms styling conventions.</p>                                                                    </td>
                     </tr></tbody> -->
-                    <input type="hidden" name="secret_service" value="youtube">
+                    <input type="hidden" name="secret_service" value="YouTube">
                 
                 </table>
             </div>

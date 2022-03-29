@@ -79,12 +79,25 @@ class Secrets extends WPPage
 
     public function form_submissions()
     {
-        if (isset($_POST['f_submit'])) 
+
+        if ( isset($_POST['f_submit']) ) {
             if ($_POST['f_submit'] == md5(DWContetPilotPrefix . '_add_secrets')) {
-                if ($_POST['f_time'] == $this -> auth_key) $this -> add_secrets();
+                if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) 
+                    return $this -> add_secrets();
             } else if ($_POST['f_submit'] == md5(DWContetPilotPrefix . '_modify_secrets')) {
-                // if ($_POST['f_time'] == $this -> auth_key) $this -> modify_secrets();
+                if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) 
+                    return null; //$this -> modify_secrets();
             }
+
+            $notice = array(
+                'msg' => 'Internal-Error',
+                'type' => 'error',
+                'domain' => 'secrets-dw-content-pilot'
+            );
+
+            $this -> store -> append('notices', $notice);
+            add_action('admin_notices', array( $this -> store, 'adminNotice'));
+        }
     }
 
     private function add_secrets()
@@ -96,20 +109,13 @@ class Secrets extends WPPage
             'domain' => 'add-secrets-dw-content-pilot'
         );
 
-        $keys = array('secret_name', 'secret_key', 'secret_service', 'auth_key');
+        $keys = array('secret_name', 'secret_key', 'secret_service');
 
         foreach ($keys as $key) {
             if (!isset($_POST[$key]) || !$_POST[$key]) {
                 $this -> store -> append('notices', $notice);
                 return add_action('admin_notices', array( $this -> store, 'adminNotice'));
             }
-        }
-
-        $auth_key = md5($this -> store -> get('_AUTH_KEY') . '_' . $this -> get('menu_slug'));
-
-        if ($auth_key != $_POST['auth_key']) {
-            $this -> store -> append('notices', $notice);
-            return add_action('admin_notices', array( $this -> store, 'adminNotice'));
         }
 
         $data = array(
@@ -123,10 +129,15 @@ class Secrets extends WPPage
         $post_id = wp_insert_post($data);
 
         if ($post_id && !is_wp_error($post_id)) {
-            $categories = array($this -> category);
 
-            if (array_key_exists($_POST['secret_service'], $this -> service)) {
-                array_push($categories, $this -> service[$_POST['secret_service']]);
+            $category = $this -> store -> get('categories')['name'];
+            $categories = array($this -> store -> get('_categories')[$category]);
+
+            if (in_array($_POST['secret_service'], $this -> store -> get('categories')['value'])) {
+                array_push(
+                    $categories, 
+                    $this -> store -> get('_categories')[$_POST['secret_service']]
+                );
             }
 
             wp_set_post_categories($post_id, $categories);
