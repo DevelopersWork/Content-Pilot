@@ -5,12 +5,12 @@
 namespace DW\ContentPilot\Features;
 
 use DW\ContentPilot\Lib\WPPage;
+use DW\ContentPilot\Features\Home;
 
 class Dashboard extends WPPage
 {
 
     private $parent;
-    private $load_flag = true;
 
     function __construct()
     {
@@ -18,12 +18,6 @@ class Dashboard extends WPPage
         parent::__construct();
 
         $this -> parent = new Home();
-
-        $this -> store -> debug(get_class($this).':__construct()', '{STARTED}');
-
-        $class_name = explode('\\', get_class($this));
-        $class_name = array_pop($class_name);
-        $this -> store -> set('name', $class_name);
 
         $this -> addSubPage(array(
             'parent_slug' => dw_cp_plugin_name,
@@ -34,32 +28,14 @@ class Dashboard extends WPPage
             'function' => array( $this, 'render_page' )
         ));
 
-        if ($this -> store -> get('_ERROR')) {
-            return $this -> store -> log(get_class($this).':__construct()', '{FAILED}');
-        }
     }
 
     public function register()
     {
 
-        if ($this -> store -> get('_ERROR')) {
-            return false;
-        }
-            
-        $this -> store -> debug(get_class($this).':register()', '{STARTED}');
-
         $this -> parent -> register();
 
-        add_action(DWContetPilotPrefix.'register_actions', array( $this, 'register_actions'));
-    }
+        parent::register();
 
-    public function register_actions()
-    {
-
-        if ($this -> store -> get('_ERROR')) {
-            return false;
-        }
-
-        add_action(DWContetPilotPrefix.'register_menus', array($this, 'register_page'));
     }
 }

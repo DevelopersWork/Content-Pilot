@@ -6,6 +6,9 @@
 </h2> -->
 <div id="poststuff">
     <form action="" method="POST">
+        <input type="hidden" name="f_submit" value="<?php echo md5(DWContetPilotPrefix . '_add_secrets');?>">
+        <input type="hidden" name="f_time" value="<?php echo $this -> auth_key; ?>">
+
         <div id="dw_cp_metabox_add_secrets" class="postbox">
             <h3 class="hndle"><span>Adding new key</span></h3>
             <div class="inside" style="">
@@ -49,9 +52,7 @@
             </div>
         </div>
 
-        <input type="hidden" name="auth_key" value="<?php echo $auth_key; ?>">
-        <input type="hidden" name="form-submitted" value="true">
-        <input type="hidden" name="form-name" value="<?php echo md5(DWContetPilotPrefix . '_add_secrets');?>">
+        
         <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">
         <a href="<?php echo $slug; ?>&amp" target="" class="button">Cancel</a>
     </form>

@@ -11,11 +11,13 @@ class API
 
     public $store;
 
-    private $__FILE__;
-
     public function __construct()
     {
         $this -> store = new Store();
+
+        $class_name = explode('\\', get_class($this));
+        $class_name = array_pop($class_name);
+        $this -> store -> set('name', $class_name);
 
         $this -> store -> set('_ERROR', false);
         $this -> store -> set('_AUTH_KEY', wp_get_session_token());
@@ -124,4 +126,41 @@ class API
 
         return $slug;
     }
+
+    public function register() {
+        
+        $this -> store -> debug(get_class($this).':register()', '{STARTED}');
+
+        if ($this -> store -> get('_ERROR')) {
+            return false;
+        }
+
+        add_action(DWContetPilotPrefix.'register_actions', [$this, 'register_actions']);
+    }
+
+    public function register_actions()
+    {
+            
+        $this -> store -> debug(get_class($this).':register_actions()', '{STARTED}');
+
+        add_action(DWContetPilotPrefix.'register_post_types', [$this, 'register_post_types']);
+
+        add_action(DWContetPilotPrefix.'register_filters', array($this, 'register_filters'));
+
+        return $this;
+    }
+
+    public function register_post_types()
+    {        
+        $this -> store -> debug(get_class($this).':register_post_types()', '{STARTED}');
+
+        $this -> createPostType();
+        $this -> createCategories();
+    }
+
+    public function register_filters()
+    {
+        $this -> store -> debug(get_class($this).':register_filters()', '{STARTED}');
+    }
+
 }

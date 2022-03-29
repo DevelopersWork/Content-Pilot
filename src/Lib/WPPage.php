@@ -11,17 +11,12 @@ class WPPage extends API
 {
 
     private $page = array();
-    protected $auth_key = "";
 
     public function __construct($page = array())
     {
         parent::__construct();
 
         $this -> page = $page;
-
-        if ($this -> page) {
-            add_action(DWContetPilotPrefix.'register_menus', [$this, 'register_page']);
-        }
         
     }
 
@@ -83,28 +78,6 @@ class WPPage extends API
         return $page;
     }
 
-    public function register_page()
-    {
-
-        $this -> auth_key = md5(
-            $this -> store -> get('_AUTH_KEY') . '_' . $this -> get('menu_slug')
-        );
-
-        $page = $this -> page;
-
-        if (!array_key_exists('parent_slug', $page)) {
-            add_menu_page($page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['function'], $page['icon_url'], $page['position']);
-        } else {
-            add_submenu_page($page['parent_slug'], $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['function']);
-        }
-
-        $this -> createCategories();
-        $this -> createPostType();
-        $this -> parseRequest();
-
-        return $this;
-    }
-
     public function get($name)
     {
         if (array_key_exists($name, $this -> page)) {
@@ -123,5 +96,48 @@ class WPPage extends API
         echo settings_errors();
         echo '</div>';
 
+    }
+
+    public function register_actions()
+    {
+            
+        parent::register_actions();
+
+        add_action(DWContetPilotPrefix.'register_menus', [$this, 'register_menus']);
+
+        add_action(DWContetPilotPrefix.'register_scripts', array($this, 'register_scripts'));
+        add_action(DWContetPilotPrefix.'register_styles', array($this, 'register_styles'));
+
+        return $this;
+    }
+
+    public function register_menus()
+    {
+
+        $this -> auth_key = md5(
+            $this -> store -> get('_AUTH_KEY') . '_' . $this -> get('menu_slug')
+        );
+
+        $page = $this -> page;
+
+        if (!array_key_exists('parent_slug', $page)) {
+            add_menu_page($page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['function'], $page['icon_url'], $page['position']);
+        } else {
+            add_submenu_page($page['parent_slug'], $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['function']);
+        }
+
+        $this -> parseRequest();
+
+        return $this;
+    }
+
+    public function register_scripts()
+    {
+        $this -> store -> debug(get_class($this).':register_scripts()', '{STARTED}');
+    }
+
+    public function register_styles()
+    {
+        $this -> store -> debug(get_class($this).':register_styles()', '{STARTED}');
     }
 }

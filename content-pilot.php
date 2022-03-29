@@ -53,7 +53,7 @@ class DWContentPilot {
             return;
         }
 
-        $this -> main = new Main( dw_cp_plugin_version, __FILE__ );
+        $this -> main = new Main();
 
         add_action( 'plugins_loaded', array($this, 'plugins_loaded') );
     }

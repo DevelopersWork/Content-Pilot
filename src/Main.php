@@ -13,18 +13,16 @@ use DW\ContentPilot\Core\Service;
 class Main
 {
 
-    private $store, $version, $__FILE__;
+    private $store;
 
     private $service;
 
     private $menus = array();
 
-    function __construct($version = '1.0', $__FILE__ = 'DWContentPilot')
+    function __construct()
     {
 
         $this -> store = new Store();
-        $this -> __FILE__ = $__FILE__;
-        $this -> version = $version;
 
         $this -> store -> debug(get_class($this).':__construct()', '{STARTED}');
     }
@@ -40,7 +38,6 @@ class Main
         
         $this -> register_scripts() -> register_styles() -> register_menus();
         
-        // add_action('admin_menu', [$this, 'register_menus']);
     }
 
     public function init()
@@ -52,16 +49,21 @@ class Main
             return;
         }
 
-        $this -> service = new Service($this -> __FILE__);
+        $this -> service = new Service();
 
         if ($this -> service -> register()) {
-            add_action('wp_loaded', array($this, 'wp_loaded'));
+            
+            $this -> register_actions() -> register_filters() -> register_post_types();
+
+            add_action('admin_menu', array( $this, 'admin_menu' ));
+            
+            add_action('admin_init', array($this, 'admin_init'));
         }
     }
 
-    public function wp_loaded()
+    public function admin_init()
     {
-        $this -> register_actions() -> register_filters() -> register_post_types();
+        $this -> store -> debug(get_class($this).':admin_init()', '{STARTED}');
     }
 
     private function compatibilityCheck()
@@ -93,8 +95,6 @@ class Main
             
         $this -> store -> debug(get_class($this).':register_actions()', '{STARTED}');
 
-        add_action('admin_menu', array( $this, 'admin_menu' ));
-
         do_action(DWContetPilotPrefix.'register_actions');
 
         return $this;
@@ -115,17 +115,6 @@ class Main
 
         $this -> store -> debug(get_class($this).':register_scripts()', '{STARTED}');
 
-        // jQuery v3.3.1
-        wp_register_script(DWContetPilotPrefix . '-jquery3', 'https://code.jquery.com/jquery-3.3.1.min.js', array(), '3.3.1', true);
-        wp_script_add_data(DWContetPilotPrefix . '-jquery3', array( 'integrity', 'crossorigin' ), array( 'sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=', 'anonymous' ));
-        wp_enqueue_script(DWContetPilotPrefix . '-jquery3');
-        // Bootstrap v5.1.3
-        wp_register_script(DWContetPilotPrefix . '-bootstrap.bundle.min', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', array(), '5.1.3', true);
-        wp_script_add_data(DWContetPilotPrefix . '-bootstrap.bundle.min', array( 'integrity', 'crossorigin' ), array( ));
-        wp_enqueue_script(DWContetPilotPrefix . '-bootstrap.bundle.min');
-        // Admin Script
-        wp_enqueue_script(DWContetPilotPrefix . '-script.admin', dw_cp_plugin_dir_url . 'assets/js/script.admin.js', array(), $this -> version, true);
-
         do_action(DWContetPilotPrefix.'register_scripts');
 
         return $this;
@@ -135,11 +124,6 @@ class Main
     {
 
         $this -> store -> debug(get_class($this).':register_styles()', '{STARTED}');
-
-        // Bootstrap v5.1.3
-        wp_enqueue_style(DWContetPilotPrefix . '-bootstrap.min', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', array(), '5.1.3', 'all');
-        // Admin Style
-        wp_enqueue_style(DWContetPilotPrefix . '-style.admin', dw_cp_plugin_dir_url . 'assets/css/style.admin.css', array(), $this->version, 'all');
 
         do_action(DWContetPilotPrefix.'register_styles');
 

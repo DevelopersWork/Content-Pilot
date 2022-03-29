@@ -9,19 +9,18 @@ use DW\ContentPilot\Lib\{ WPPage, IO };
 class Secrets extends WPPage
 {
 
-    public $__FILE__;
-    private $load_flag = true;
-    private $category, $services = array();
-
-    function __construct($__FILE__ = 'DWContentPilot')
+    function __construct()
     {
         parent::__construct();
 
-        $this -> store -> log(get_class($this).':__construct()', '{STARTED}');
-
-        $class_name = explode('\\', get_class($this));
-        $class_name = array_pop($class_name);
-        $this -> store -> set('name', $class_name);
+        $this -> addSubPage(array(
+            'parent_slug' => dw_cp_plugin_name,
+            'page_title' => $this -> store -> get('name'),
+            'menu_title' => 'Secrets',
+            'capability' => 'manage_options',
+            'menu_slug' => DWContetPilotPrefix .'_'. $this -> store -> get('name'),
+            'function' => array( $this, 'render_page' )
+        ));
 
         $categories = array('name' => 'Secret', 'value' => array('YouTube'));
         $this -> store -> set('categories', $categories);
@@ -40,90 +39,11 @@ class Secrets extends WPPage
         );
         $this -> store -> set('post_type', $post_type);
 
-    }
-
-    public function register()
-    {
-
-        if (!$this -> load_flag) {
-            return false;
-        }
-            
-        $this -> store -> log(get_class($this).':register()', '{STARTED}');
-
-        $class_name = explode('\\', get_class($this));
-        $class_name = array_pop($class_name);
-
-        // $parent_id = wp_create_category(strtoupper(DWContetPilotPrefix) . '_Secret');
-        // if (!$parent_id) {
-        //     $this -> load_flag = false;
-        //     return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
-        // }
-        // $this -> category = $parent_id;
-        
-        // $youtube = wp_create_category(strtoupper(DWContetPilotPrefix) . '_YouTube', $parent_id);
-        // if (!$youtube) {
-        //     $this -> load_flag = false;
-        //     return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
-        // }
-        // $this -> service['youtube'] = $youtube;
-
-        // $args = array(
-        //     'description' => 'API keys of the Content Pilot plugin',
-        //     'public' => false,
-        //     'has_archive' => true,
-        //     'can_export' => false,
-        //     'delete_with_user' => true,
-        //     'exclude_from_search' =>  false,
-        //     'show_in_rest' => true,
-        //     'capability_type' =>  array( 'post', 'page' ),
-        //     'taxonomies'  => array( 'category' )
-        // );
-        // register_post_type(DWContetPilotPrefix .'_'. $class_name, $args);
-
-        $_result = $this -> addSubPage(array(
-            'parent_slug' => dw_cp_plugin_name,
-            'page_title' => $class_name,
-            'menu_title' => 'Secrets',
-            'capability' => 'manage_options',
-            'menu_slug' => DWContetPilotPrefix .'_'. $class_name,
-            'function' => array( $this, 'render_page' )
-        ));
-
-        if (!$_result) {
-            $this -> load_flag = false;
-            return $this -> store -> debug(get_class($this).':__construct()', '{FAILED}');
-        }
-
-        add_action(DWContetPilotPrefix.'register_actions', array( $this, 'register_actions'));
-    }
-
-    public function register_actions()
-    {
-
-        if (!$this -> load_flag) {
-            return false;
-        }
-
-        add_action(DWContetPilotPrefix.'register_menus', array($this, 'register_page'));
-        add_action(DWContetPilotPrefix.'register_menus', array($this, 'form_submissions'));
-    }
-
-    public function form_submissions()
-    {
-        if (isset($_POST['form-submitted']) && $_POST['form-submitted'] == 'true') {
-            if (isset($_POST['form-name'])) {
-                if ($_POST['form-name'] == md5(DWContetPilotPrefix . '_add_secrets')) {
-                    $this -> add_secrets();
-                }
-            }
-        }
+        add_action('admin_init', array($this, 'form_submissions'));
     }
 
     public function render_page()
     {
-        
-        $auth_key = $this -> auth_key;
 
         $slug = $this -> getURI();
 
@@ -155,6 +75,16 @@ class Secrets extends WPPage
         }
 
         echo '</div>';
+    }
+
+    public function form_submissions()
+    {
+        if (isset($_POST['f_submit'])) 
+            if ($_POST['f_submit'] == md5(DWContetPilotPrefix . '_add_secrets')) {
+                if ($_POST['f_time'] == $this -> auth_key) $this -> add_secrets();
+            } else if ($_POST['f_submit'] == md5(DWContetPilotPrefix . '_modify_secrets')) {
+                // if ($_POST['f_time'] == $this -> auth_key) $this -> modify_secrets();
+            }
     }
 
     private function add_secrets()
