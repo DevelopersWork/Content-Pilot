@@ -16,13 +16,13 @@ class Secrets extends WPPage
         $this -> addSubPage(array(
             'parent_slug' => dw_cp_plugin_name,
             'page_title' => $this -> store -> get('name'),
-            'menu_title' => 'Secrets',
+            'menu_title' => $this -> store -> get('name'),
             'capability' => 'manage_options',
             'menu_slug' => DWContetPilotPrefix .'_'. $this -> store -> get('name'),
             'function' => array( $this, 'render_page' )
         ));
 
-        $categories = array('name' => 'Secret', 'value' => array('YouTube'));
+        $categories = array('name' => $this -> store -> get('name'), 'value' => array('YouTube'));
         $this -> store -> set('categories', $categories);
 
         $post_type = array(
@@ -32,59 +32,29 @@ class Secrets extends WPPage
             'can_export' => false,
             'delete_with_user' => true,
             'exclude_from_search' =>  false,
-            'show_in_rest' => true,
+            'show_in_rest' => false,
             'capability_type' =>  array( 'post', 'page' ),
             'taxonomies'  => array( 'category' ),
             '__name' => $this -> store -> get('name')
         );
         $this -> store -> set('post_type', $post_type);
 
-        add_action('admin_init', array($this, 'form_submissions'));
+        $this -> store -> set('tabs', array('create', 'view', 'edit'));
+
+        add_action('admin_init', array($this, 'handleRequest'));
     }
 
-    public function render_page()
-    {
-
-        $slug = $this -> getURI();
-
-        echo '<div class="wrap">';
-        echo '<h1 class="wp-heading-inline">Secrets</h1>';
-        echo '<a href="'.$slug.'tab=add" class="page-title-action">Add New</a>';
-        echo '<hr class="wp-header-end">';
-        echo settings_errors();
-
-        if (isset($_GET['tab'])) {
-            $active_tab = $_GET['tab'];
-        } else {
-            $active_tab = 'view';
-        }
-
-        if ($active_tab == 'view') {
-            $posts_per_page = 10;
-            $results = $this -> view_secrets($posts_per_page);
-            $posts = $results['tbody'];
-            $args = $results['args'];
-
-            return include_once dw_cp_plugin_dir_path . "/src/Pages/".'Tabs/secrets/view_secrets.php';
-        } elseif ($active_tab == 'modify') {
-            return include_once dw_cp_plugin_dir_path . "/src/Pages/".'Tabs/secrets/modify_secrets.php';
-        } elseif ($active_tab == 'add') {
-            return include_once dw_cp_plugin_dir_path . "/src/Pages/".'Tabs/secrets/add_secrets.php';
-        } else {
-            // print_r($_GET);
-        }
-
-        echo '</div>';
-    }
-
-    public function form_submissions()
+    public function handleRequest()
     {
 
         if ( isset($_POST['f_submit']) ) {
-            if ($_POST['f_submit'] == md5(DWContetPilotPrefix . '_add_secrets')) {
+            
+            $this -> store -> log(get_class($this).':handleRequest()', '{STARTING}');
+
+            if ($_POST['f_submit'] == md5(DWContetPilotPrefix . '_add_secret')) {
                 if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) 
-                    return $this -> add_secrets();
-            } else if ($_POST['f_submit'] == md5(DWContetPilotPrefix . '_modify_secrets')) {
+                    return $this -> add();
+            } else if ($_POST['f_submit'] == md5(DWContetPilotPrefix . '_edit_secret')) {
                 if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) 
                     return null; //$this -> modify_secrets();
             }
@@ -100,11 +70,11 @@ class Secrets extends WPPage
         }
     }
 
-    private function add_secrets()
+    private function add()
     {
 
         $notice = array(
-            'msg' => 'Adding Secrets Failed!!!',
+            'msg' => 'Adding Secret Failed!!!',
             'type' => 'error',
             'domain' => 'add-secrets-dw-content-pilot'
         );
@@ -150,35 +120,12 @@ class Secrets extends WPPage
         return add_action('admin_notices', array( $this -> store, 'adminNotice'));
     }
 
-    private function view_secrets($numberposts = 10, $post_status = array(), $orderby = 'date', $order = 'DESC')
+    public function view()
     {
 
-        $args = array(
-            'post_type' => $this -> get('menu_slug'),
-            'numberposts' => $numberposts,
-            'orderby' => $orderby,
-            'order' => $order,
-            'post_status' => $post_status
-        );
-
-        $posts = array();
-
-        $_posts = get_posts($args);
-
-        foreach ($_posts as $_post) {
-            $post = $_post -> to_array();
-            $post['service'] = get_post_meta($post['ID'], 'service', true);
-            array_push($posts, $post);
-        }
-
-        return array(
-            'tbody' => $this -> view_table_secrets($posts),
-            'args' => $args
-        );
-    }
-
-    private function view_table_secrets($posts)
-    {
+        $results = $this -> fetchPosts();
+        $posts = $results['posts'];
+        $args = $results['args'];
 
         $html_template = IO:: read_asset_file('table_view/secrets_row.html');
 
@@ -212,6 +159,6 @@ class Secrets extends WPPage
             $posts_html .= $_post_html;
         }
 
-        return $posts_html;
+        return array('tbody' => $posts_html, 'args' => $args);
     }
 }

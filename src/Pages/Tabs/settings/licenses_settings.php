@@ -1,13 +1,13 @@
 <h2 class="nav-tab-wrapper">
     <a href="<?php echo $this -> getURI(); ?>&amp;tab=general" target="" class="nav-tab">General</a>
-    <span class="nav-tab nav-tab-active">About</span>
-    <a href="<?php echo $this -> getURI(); ?>&amp;tab=licenses" target="" class="nav-tab">License</a>
+    <a href="<?php echo $this -> getURI(); ?>&amp;tab=about" target="" class="nav-tab">About</a>
+    <span class="nav-tab nav-tab-active">License</span>
 </h2>
 
 <div id="poststuff">
     <form action="" method="POST">
         <div id="dw_cp_metabox_general_settings" class="postbox">
-            <h3 class="hndle"><span>Plugin Information</span></h3>
+            <h3 class="hndle"><span>License Information</span></h3>
             <div class="inside" style="">
                 <table class="form-table">
                     

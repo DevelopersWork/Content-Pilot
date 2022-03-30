@@ -26,6 +26,34 @@ class API
         $this -> store -> set('categories', $categories);
     }
 
+    protected function fetchPosts($post_status = array(), $orderby = 'date', $order = 'DESC')
+    {
+
+        $args = array(
+            'post_type' => $this -> get('menu_slug'),
+            'numberposts' => $this -> store -> get('posts_per_page'),
+            'orderby' => $orderby,
+            'order' => $order,
+            'post_status' => $post_status,
+            'author' => get_current_user_id()
+        );
+
+        $posts = array();
+
+        $_posts = get_posts($args);
+
+        foreach ($_posts as $_post) {
+            $post = $_post -> to_array();
+            $post['service'] = get_post_meta($post['ID'], 'service', true);
+            array_push($posts, $post);
+        }
+
+        return array(
+            'posts' => $posts,
+            'args' => $args
+        );
+    }
+
     protected function createCategories()
     {
         $this -> store -> debug(get_class($this).':createCategories()', '{STARTED}');

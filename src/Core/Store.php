@@ -99,6 +99,13 @@ class Store
             $class = 'notice notice-' . $type . ($dismissible ? ' is-dismissible' : '');
             $message = __($msg, $domain);
 
+            if($type == 'error')
+                $this -> error($domain, $message);
+            else if($type == 'warning')
+                $this -> log($domain, $message);
+            else if($type == 'success')
+                $this -> debug($domain, $message);
+
             printf($NOTICE, esc_attr($class), esc_attr(ucfirst($type)), esc_html($message));
         
         }

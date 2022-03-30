@@ -35,10 +35,11 @@ class Service
             'public' => array(),
             'private' => array(
                 Dashboard::class,
-                Secrets::class
+                Jobs::class,
+                Secrets::class,
             ),
             'protected' => array(
-                // Settings::class
+                Settings::class
             )
         );
     }

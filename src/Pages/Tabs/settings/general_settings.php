@@ -1,7 +1,8 @@
 
 <h2 class="nav-tab-wrapper">
     <span class="nav-tab nav-tab-active">General</span>
-    <a href="<?php echo $slug; ?>&amp;tab=about" target="" class="nav-tab">About</a>
+    <a href="<?php echo $this -> getURI(); ?>&amp;tab=about" target="" class="nav-tab">About</a>
+    <a href="<?php echo $this -> getURI(); ?>&amp;tab=licenses" target="" class="nav-tab">License</a>
 </h2>
 
 <div id="poststuff">

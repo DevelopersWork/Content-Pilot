@@ -17,6 +17,13 @@ class WPPage extends API
         parent::__construct();
 
         $this -> page = $page;
+
+        $posts_per_page = 10;
+        if(isset($_GET['posts_per_page']) && is_int($_GET['posts_per_page'])) 
+            $posts_per_page = $_GET['posts_per_page'];
+        $this -> store -> set('posts_per_page', $posts_per_page);
+
+        $this -> store -> set('tabs', array());
         
     }
 
@@ -100,10 +107,33 @@ class WPPage extends API
 
         echo '<div class="wrap">';
         echo '<h1 class="wp-heading-inline">'.$this -> store -> get('name').'</h1>';
+        echo '<a href="'.$this -> getURI().'tab=create" class="page-title-action">Add New</a>';
         echo '<hr class="wp-header-end">';
         echo settings_errors();
+
+        if (isset($_GET['tab'])) {
+            $active_tab = strtolower($_GET['tab']);
+        } else {
+            $active_tab = 'view';
+        }
+
+        if ( in_array( $active_tab, $this -> store -> get('tabs') ) ) {
+            $this -> store -> debug(get_class($this).':render_page()', '{RENDERING-'.$active_tab.'}');
+            include_once dw_cp_plugin_dir_path.'/src/Pages/'.$this -> store -> get('name').'/'.$active_tab.'.php';
+        }
+        else
+            include_once dw_cp_plugin_dir_path.'/src/Pages/404.php';
+        
+
         echo '</div>';
 
+    }
+
+    public function render_page_path()
+    {
+        $this -> store -> debug(get_class($this).':render_page_path()', '{STARTED}');
+
+        include_once dw_cp_plugin_dir_path . '/src/Pages/' . $this -> store -> get('name') . '.php';
     }
 
     public function register_actions()
