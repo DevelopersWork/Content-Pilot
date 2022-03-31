@@ -26,11 +26,11 @@ class API
         $this -> store -> set('categories', $categories);
     }
 
-    protected function fetchPosts($post_status = array(), $orderby = 'date', $order = 'DESC')
+    protected function fetchPosts($post_meta = array(), $orderby = 'date', $order = 'DESC', $post_type = '', $post_status = array())
     {
 
         $args = array(
-            'post_type' => $this -> get('menu_slug'),
+            'post_type' => $post_type ? $post_type : $this -> get('menu_slug'),
             'numberposts' => $this -> store -> get('posts_per_page'),
             'orderby' => $orderby,
             'order' => $order,
@@ -44,7 +44,9 @@ class API
 
         foreach ($_posts as $_post) {
             $post = $_post -> to_array();
-            $post['service'] = get_post_meta($post['ID'], 'service', true);
+            foreach($post_meta as $meta) {
+                $post[$meta] = get_post_meta($post['ID'], $meta, true);    
+            }
             array_push($posts, $post);
         }
 

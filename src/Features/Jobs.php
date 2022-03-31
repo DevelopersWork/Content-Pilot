@@ -43,17 +43,21 @@ class Jobs extends WPPage
     public function handleRequest()
     {
 
-        if ( isset($_POST['f_submit']) ) {
+        if ( isset($_POST['f_submit']) && preg_match("/job$/i", $_POST['f_submit']) ) {
             
             $this -> store -> log(get_class($this).':handleRequest()', '{STARTING}');
 
-            if ($_POST['f_submit'] == md5(DWContetPilotPrefix . '_add_job')) {
+            if ($_POST['f_submit'] == (md5(DWContetPilotPrefix . '_add_job') . '_job')) {
+
                 if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) 
                     return $this -> add();
-            } else if ($_POST['f_submit'] == md5(DWContetPilotPrefix . '_edit_job')) {
+
+            } else if ($_POST['f_submit'] == (md5(DWContetPilotPrefix . '_edit_job') . '_job')) {
+
                 if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) 
                     return null; //$this -> modify_secrets();
-            }
+                    
+            } 
 
             $notice = array(
                 'msg' => 'Internal-Error',
@@ -75,7 +79,7 @@ class Jobs extends WPPage
             'domain' => 'add-secrets-dw-content-pilot'
         );
 
-        $keys = array('job_name', 'secret_id', 'job_type', 'job_status', 'job_interval');
+        $keys = array('job_name', 'job_interval', 'job_service');
 
         foreach ($keys as $key) {
             if (!isset($_POST[$key]) || !$_POST[$key]) {
@@ -84,10 +88,24 @@ class Jobs extends WPPage
             }
         }
 
+        if($_POST['job_service'] == 'YouTube') {
+            
+            $keys = array('job_secret', 'yt_channel', 'yt_keyword');
+
+            if (!isset($_POST[$key]) || !$_POST[$key]) {
+                $this -> store -> append('notices', $notice);
+                return add_action('admin_notices', array( $this -> store, 'adminNotice'));
+            }
+        }
+
+        $content = 'Service='.$_POST['job_service'];
+        $content .= md5(DWContetPilotPrefix);
+        $content .= 'Interval='.$_POST['job_interval'];
+
         $data = array(
             'post_title' => $_POST['job_name'],
             'post_name' => str_replace('%', '', urlencode($_POST['job_name'])),
-            'post_content' => $_POST['secret_key'],
+            'post_content' => $content,
             'post_status' => 'publish',
             'post_type' => $this -> get('menu_slug')
         );
@@ -96,20 +114,19 @@ class Jobs extends WPPage
 
         if ($post_id && !is_wp_error($post_id)) {
 
-            $category = $this -> store -> get('categories')['name'];
-            $categories = array($this -> store -> get('_categories')[$category]);
+            add_post_meta($post_id, 'service', $_POST['job_service']);
+            add_post_meta($post_id, 'interval', $_POST['job_interval']);
 
-            if (in_array($_POST['secret_service'], $this -> store -> get('categories')['value'])) {
-                array_push(
-                    $categories, 
-                    $this -> store -> get('_categories')[$_POST['secret_service']]
-                );
+            if($_POST['job_service'] == 'YouTube') {
+
+                add_post_meta($post_id, 'secret', $_POST['job_secret']);
+                add_post_meta($post_id, 'yt_channel', $_POST['yt_channel']);
+                add_post_meta($post_id, 'yt_keyword', $_POST['yt_keyword']);
+            
             }
 
-            wp_set_post_categories($post_id, $categories);
-
             $notice['type'] = 'success';
-            $notice['msg'] = 'New key was successfully added!';
+            $notice['msg'] = 'Job was successfully created!';
         }
 
         $this -> store -> append('notices', $notice);
@@ -119,11 +136,11 @@ class Jobs extends WPPage
     public function view()
     {
 
-        $results = $this -> fetchPosts();
+        $results = $this -> fetchPosts(array('service', 'interval', 'secret', 'yt_channel', 'yt_keyword'));
         $posts = $results['posts'];
         $args = $results['args'];
 
-        $html_template = IO:: read_asset_file('table_view/secrets_row.html');
+        $html_template = IO:: read_asset_file('table_view/jobs_row.html');
 
         $posts_html = "";
 
@@ -133,21 +150,6 @@ class Jobs extends WPPage
             $_post_html = str_replace('$post_id', $_post['ID'], $_post_html);
             $_post_html = str_replace('$post_title', $_post['post_title'], $_post_html);
 
-            $category = '<span aria-hidden="true">—</span><span class="screen-reader-text">No categories</span>';
-            if (isset($_post['post_category']) && is_array($_post['post_category'])) {
-                $category = "";
-                foreach ($_post['post_category'] as $_c) {
-                    $c = get_cat_name($_c);
-
-                    $category .= ' <a href="#category_name='.$c.'">'.$c.'</a>,';
-                }
-                
-                $_post_html = str_replace('$service', get_cat_name($_post['post_category']), $_post_html);
-            }
-            $category = trim($category, ',');
-            $category = trim($category, ' ');
-            $_post_html = str_replace('$post_category', $category, $_post_html);
-
             $_post_html = str_replace('$post_author_id', $_post['post_author'], $_post_html);
             $_post_html = str_replace('$post_modified_gmt', $_post['post_modified_gmt'], $_post_html);
             $_post_html = str_replace('$post_author', get_the_author_meta('display_name', $_post['post_author']), $_post_html);
@@ -156,5 +158,27 @@ class Jobs extends WPPage
         }
 
         return array('tbody' => $posts_html, 'args' => $args);
+    }
+
+    public function fetchIntervals(){
+        global $wpdb;
+
+        $table_prefix = $wpdb -> base_prefix . esc_attr(DWContetPilotPrefix);
+        $query = 'SELECT id, type FROM '.$table_prefix.'_triggers where disabled <> 1 and deleted <> 1';
+
+        $result = $wpdb -> get_results("$query", 'ARRAY_A' );
+
+        return $result;
+    }
+
+    public function fetchSecrets(){
+        global $wpdb;
+
+        $table_prefix = $wpdb -> base_prefix;
+        $query = "SELECT distinct id, post_title as name FROM ".$table_prefix."posts where post_type = 'dw_cp_secrets' and post_author = '".get_current_user_id()."'";
+
+        $result = $wpdb -> get_results("$query", 'ARRAY_A' );
+
+        return $result;
     }
 }

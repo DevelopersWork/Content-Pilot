@@ -1,6 +1,6 @@
 <div id="poststuff">
     <form action="" method="POST">
-        <input type="hidden" name="f_submit" value="<?php echo md5(DWContetPilotPrefix . '_add_secret');?>">
+        <input type="hidden" name="f_submit" value="<?php echo md5(DWContetPilotPrefix . '_add_secret');?>_secret">
         <input type="hidden" name="f_key" value="<?php echo $this -> auth_key; ?>">
 
         <div id="dw_cp_metabox_add_secrets" class="postbox">

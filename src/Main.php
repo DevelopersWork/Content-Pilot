@@ -4,11 +4,12 @@
  */
 namespace DW\ContentPilot;
 
-use DW\ContentPilot\Lib\Validations;
-use DW\ContentPilot\Lib\Activate;
-use DW\ContentPilot\Lib\Deactivate;
-use DW\ContentPilot\Core\Store;
-use DW\ContentPilot\Core\Service;
+use DW\ContentPilot\Lib\{
+    Activate, Deactivate, Validations
+};
+use DW\ContentPilot\Core\{
+    Store, Service, CronJob
+};
 
 class Main
 {
@@ -16,6 +17,8 @@ class Main
     private $store;
 
     private $service;
+
+    private $cronJob;
 
     private $menus = array();
 
@@ -50,8 +53,9 @@ class Main
         }
 
         $this -> service = new Service();
+        $this -> cronJob = new CronJob();
 
-        if ($this -> service -> register()) {
+        if ($this -> service -> register() && $this -> cronJob -> register()) {
             
             $this -> register_actions() -> register_filters() -> register_post_types();
 

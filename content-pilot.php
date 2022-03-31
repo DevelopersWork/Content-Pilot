@@ -53,9 +53,12 @@ class DWContentPilot {
             return;
         }
 
-        $this -> main = new Main();
-
-        add_action( 'plugins_loaded', array($this, 'plugins_loaded') );
+        if(isset($_REQUEST[DWContetPilotPrefix.'_API'])) {
+            
+        } else {
+            $this -> main = new Main();
+            add_action( 'plugins_loaded', array($this, 'plugins_loaded') );
+        }
     }
 
     public function plugins_loaded() {

@@ -92,7 +92,6 @@
                 </th>
                 <th scope="col" id="post_id" class="manage-column column-post_id">ID</th>
                 <th scope="col" id="author" class="manage-column column-author">Author</th>
-                <th scope="col" id="categories" class="manage-column column-categories">Categories</th>
                 <!-- <th scope="col" id="tags" class="manage-column column-tags">Service</th> -->
                 <!-- <th scope="col" id="comments" class="manage-column column-comments num sortable desc">
             <a href="http://localhost/wp-admin/edit.php?orderby=comment_count&amp;order=asc">
@@ -131,7 +130,6 @@
                 </th>
                 <th scope="col" class="manage-column column-post_id">ID</th>
                 <th scope="col" class="manage-column column-author">Author</th>
-                <th scope="col" class="manage-column column-categories">Categories</th>
                 <!-- <th scope="col" class="manage-column column-tags">Service</th> -->
                 <!-- <th scope="col" class="manage-column column-comments num sortable desc">
             <a href="http://localhost/wp-admin/edit.php?orderby=comment_count&amp;order=asc">
