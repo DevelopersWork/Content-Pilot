@@ -79,6 +79,12 @@ class DWContentPilot {
 
 if ( class_exists('DWContentPilot') && $error == FALSE ) {
 
+    $classes = array(
+        'Google_Client' => Google_Client:: class,
+        'Google_Service_YouTube' => Google_Service_YouTube:: class
+    );
+    define( 'dw_cp_classes', $classes);
+
     new DWContentPilot();
 
 }

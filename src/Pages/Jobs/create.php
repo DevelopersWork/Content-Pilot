@@ -89,19 +89,19 @@
                                 <label for="yt_channel">YouTube Channel (Optional)</label>
                             </th>
                             <td>
-                                <textarea placeholder="" type="text" class="code widefat" name="yt_channel"
-                                    id="yt_channel"></textarea>
+                                <textarea placeholder="Provide only one Channel Id/Name" type="text"
+                                    class="code widefat" name="yt_channel" id="yt_channel"></textarea>
                                 <p class="description">Example: UCNLm0XtW8zWuzmhD5BqXagw, Intrests,
-                                    UCUEhqlSd2qvU2_HFMV7nRnQ, ENGILIPISU</p>
+                                    UCUEhqlSd2qvU2_HFMV7nRnQ, ENGILIPISU, UCA99nItLBFj_cOVeOuiT_aQ</p>
                             </td>
                         </tr>
                         <tr id="row_yt_keyword" hidden>
                             <th scope="row">
-                                <label for="yt_keyword">YouTube Keyword (Optional)</label>
+                                <label for="yt_keyword">YouTube Keywords (Optional)</label>
                             </th>
                             <td>
-                                <textarea placeholder="" type="text" class="code widefat" name="yt_keyword"
-                                    id="yt_keyword"></textarea>
+                                <textarea placeholder="*YouTube Fails* Try avoiding complex keywords" type="text"
+                                    class="code widefat" name="yt_keyword" id="yt_keyword"></textarea>
                                 <p class="description">Example: developerswork, gaming, valorant, hypixel skyblock</p>
                             </td>
                         </tr>
