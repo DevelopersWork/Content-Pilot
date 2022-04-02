@@ -25,7 +25,7 @@
     "scripts": {
         "pre-autoload-dump": "Google\\Task\\Composer::cleanup",
         "lint": "phplint --no-cache src/",
-        "phpcs": "phpcs --standard=PSR2 src/",
+        "phpcs": "phpcs --standard=PSR2 --no-cache --warning-severity=8 --error-severity=1 src/",
         "phpcbf": "phpcbf --standard=PSR2 src/"
     },
     "extra": {

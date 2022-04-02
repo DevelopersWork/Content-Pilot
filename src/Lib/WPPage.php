@@ -119,7 +119,12 @@ class WPPage extends API
 
         if (in_array($active_tab, $this -> store -> get('tabs'))) {
             $this -> store -> debug(get_class($this).':renderPage()', '{RENDERING-'.$active_tab.'}');
-            include_once dw_cp_plugin_dir_path.'/src/Pages/'.$this -> store -> get('name').'/'.$active_tab.'.php';
+            
+            $path = dw_cp_plugin_dir_path . '/src/Pages/';
+            $path .= $this -> store -> get('name') . '/';
+            $path .= $active_tab . '.php';
+
+            include_once $path;
         } else {
             include_once dw_cp_plugin_dir_path.'/src/Pages/404.php';
         }
