@@ -21,13 +21,14 @@ class YouTube
         $this -> store = new Store();
 
         $this -> store -> debug(get_class($this).':__construct()', '{STARTED}');
-
     }
 
-    public static function getVideos(array $params) {
+    public static function getVideos(array $params)
+    {
         $yt = new YouTube();
-        if(!isset($params['secret']))
+        if (!isset($params['secret'])) {
             return null;
+        }
         $yt -> setKey($params['secret']);
 
         $queryParams = array();
@@ -36,29 +37,37 @@ class YouTube
         $queryParams['order'] = 'date';
         $queryParams['eventType'] = 'live';
 
-        if($params['yt_channel']) $queryParams['channelId'] = $params['yt_channel'];
-        if($params['yt_video']) $queryParams['relatedToVideoId'] = $params['yt_video'];
+        if ($params['yt_channel']) {
+            $queryParams['channelId'] = $params['yt_channel'];
+        }
+        if ($params['yt_video']) {
+            $queryParams['relatedToVideoId'] = $params['yt_video'];
+        }
 
         $events = array('live', 'completed', 'upcoming');
         $eventType = $params['yt_video_type'];
-        if($eventType) $queryParams['eventType'] = in_array($eventType, $events) ? $eventType : 'live';
+        if ($eventType) {
+            $queryParams['eventType'] = in_array($eventType, $events) ? $eventType : 'live';
+        }
 
         return $yt -> search($params['yt_keyword'], $queryParams);
     }
 
-    public function search(string $q, array $queryParams = array(), string $key = "") {
+    public function search(string $q, array $queryParams = array(), string $key = "")
+    {
         
         $this -> store -> debug(get_class($this).':search()', '{STARTED}');
 
         $service = $this -> createYouTubeService($key);
 
-        if($q)
+        if ($q) {
             $queryParams['q'] = $q;
+        }
 
         $this -> store -> log(get_class($this).':search()', json_encode($queryParams));
 
         try {
-	        $result = $service -> search -> listSearch('id, snippet', $queryParams);
+            $result = $service -> search -> listSearch('id, snippet', $queryParams);
 
             return $result;
         } catch (Exception $ex) {
@@ -94,13 +103,13 @@ class YouTube
     }
 
     private function createYouTubeService(string $_api_key = "")
-    { 
+    {
 
         $this -> store -> debug(get_class($this).':createYouTubeService()', '{STARTED}');
 
-        if (! $this -> store -> get('client') ) {
+        if (! $this -> store -> get('client')) {
             $this -> createClient($_api_key);
-        }        
+        }
 
         /*
         * Google_Service_YouTube:: Class to make requests to the YouTube Data API
@@ -109,22 +118,23 @@ class YouTube
         $service = new $Google_Service_YouTube($this -> store -> get('client'));
 
         return $service;
-
     }
 
-    public function setKey(string $key) {
+    public function setKey(string $key)
+    {
         
         $result = API:: getSecret($key);
 
-        if(count($result) < 1)
+        if (count($result) < 1) {
             return null;
+        }
 
         $row = $result[0];
 
-        if(isset($row['post_content']))
+        if (isset($row['post_content'])) {
             $this -> store -> set('key', $row['post_content']);
-        else
+        } else {
             $this -> store -> set('key', '');
+        }
     }
-
 }

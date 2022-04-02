@@ -31,11 +31,11 @@
                                     <?php
                                         $result = $this -> fetchIntervals();
 
-                                        foreach($result as $row){
-                                            echo '<option value="'.$row['id'].'">';
-                                            echo str_replace('_', ' ', $row['type']);
-                                            echo '</option>';
-                                        }
+                                    foreach ($result as $row) {
+                                        echo '<option value="'.$row['id'].'">';
+                                        echo str_replace('_', ' ', $row['type']);
+                                        echo '</option>';
+                                    }
                                     ?>
                                 </select>
                                 <p class="description">How frequent the job should be triggered!</p>

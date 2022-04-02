@@ -6,7 +6,7 @@ namespace DW\ContentPilot\Lib;
 
 class IO
 {
-    public static function read_asset_file( $file )
+    public static function readAssetFile($file)
     {
 
         $extensions = explode('.', $file);

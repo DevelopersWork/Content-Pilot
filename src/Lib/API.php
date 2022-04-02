@@ -44,8 +44,8 @@ class API
 
         foreach ($_posts as $_post) {
             $post = $_post -> to_array();
-            foreach($post_meta as $meta) {
-                $post[$meta] = get_post_meta($post['ID'], $meta, true);    
+            foreach ($post_meta as $meta) {
+                $post[$meta] = get_post_meta($post['ID'], $meta, true);
             }
             array_push($posts, $post);
         }
@@ -88,7 +88,9 @@ class API
             }
         }
 
-        if($category_error) $this -> store -> set('_CATEGORY_ERROR', $category_error);
+        if ($category_error) {
+            $this -> store -> set('_CATEGORY_ERROR', $category_error);
+        }
 
         $this -> store -> set('_categories', $categories);
 
@@ -109,7 +111,7 @@ class API
 
         $post_type = register_post_type(strtoupper(DWContetPilotPrefix) .'_'. $name, $_post_type);
 
-        if(!$post_type) {
+        if (!$post_type) {
             $this -> store -> set('_POST_TYPE_ERROR', $_post_type);
             return false;
         }
@@ -126,14 +128,13 @@ class API
         $slug = explode('?', $_SERVER['REQUEST_URI'])[0];
         $this -> store -> set('_REQUEST_URI', $slug);
 
-        if(strtolower($method) == 'get') {
+        if (strtolower($method) == 'get') {
             $this -> store -> set('_PARAMS', $_GET);
-        } else if(strtolower($method) == 'post') {
+        } elseif (strtolower($method) == 'post') {
             $this -> store -> set('_PARAMS', $_POST);
         } else {
             $this -> store -> set('_PARAMS', $_REQUEST);
         }
-        
     }
 
     public function getURI(array $params = array())
@@ -145,19 +146,22 @@ class API
         $keys = array('page');
 
         foreach ($keys as $key) {
-            if(isset($_params[$key])) 
+            if (isset($_params[$key])) {
                 $slug .= $key. '=' . $_params[$key] . '&';
+            }
         }
 
-        if($params) 
-            foreach($params as $key => $value) {
+        if ($params) {
+            foreach ($params as $key => $value) {
                 $slug .= $key. '=' . $value . '&';
             }
+        }
 
         return $slug;
     }
 
-    public function register() {
+    public function register()
+    {
         
         $this -> store -> debug(get_class($this).':register()', '{STARTED}');
 
@@ -165,35 +169,36 @@ class API
             return false;
         }
 
-        add_action(DWContetPilotPrefix.'register_actions', [$this, 'register_actions']);
+        add_action(DWContetPilotPrefix.'register_actions', [$this, 'registerActions']);
     }
 
-    public function register_actions()
+    public function registerActions()
     {
             
-        $this -> store -> debug(get_class($this).':register_actions()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':registerActions()', '{STARTED}');
 
-        add_action(DWContetPilotPrefix.'register_post_types', [$this, 'register_post_types']);
+        add_action(DWContetPilotPrefix.'register_post_types', [$this, 'registerPostTypes']);
 
-        add_action(DWContetPilotPrefix.'register_filters', array($this, 'register_filters'));
+        add_action(DWContetPilotPrefix.'register_filters', array($this, 'registerFilters'));
 
         return $this;
     }
 
-    public function register_post_types()
-    {        
-        $this -> store -> debug(get_class($this).':register_post_types()', '{STARTED}');
+    public function registerPostTypes()
+    {
+        $this -> store -> debug(get_class($this).':registerPostTypes()', '{STARTED}');
 
         $this -> createPostType();
         $this -> createCategories();
     }
 
-    public function register_filters()
+    public function registerFilters()
     {
-        $this -> store -> debug(get_class($this).':register_filters()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':registerFilters()', '{STARTED}');
     }
 
-    public function fetchSecrets(){
+    public function fetchSecrets()
+    {
         global $wpdb;
 
         $this -> store -> log(get_class($this).':fetchSecrets()', '{STARTED}');
@@ -205,31 +210,32 @@ class API
 
         $this -> store -> log(get_class($this).':fetchSecrets()', $query);
 
-        $result = $wpdb -> get_results("$query", 'ARRAY_A' );
+        $result = $wpdb -> get_results("$query", 'ARRAY_A');
 
         return $result;
     }
 
-    public static function getSecret($id) {
+    public static function getSecret($id)
+    {
         global $wpdb;
 
         $table_prefix = $wpdb -> base_prefix;
         $query = "SELECT * FROM ".$table_prefix."posts where post_type = 'dw_cp_secrets' and post_author = '".get_current_user_id()."' and id='".$id."' and post_status = 'publish'";
 
-        $result = $wpdb -> get_results("$query", 'ARRAY_A' );
+        $result = $wpdb -> get_results("$query", 'ARRAY_A');
 
         return $result;
     }
 
-    public function fetchIntervals(){
+    public function fetchIntervals()
+    {
         global $wpdb;
 
         $table_prefix = $wpdb -> base_prefix . esc_attr(DWContetPilotPrefix);
         $query = 'SELECT id, type FROM '.$table_prefix.'_triggers where disabled <> 1 and deleted <> 1';
 
-        $result = $wpdb -> get_results("$query", 'ARRAY_A' );
+        $result = $wpdb -> get_results("$query", 'ARRAY_A');
 
         return $result;
     }
-
 }

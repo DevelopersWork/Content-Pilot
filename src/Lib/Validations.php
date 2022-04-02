@@ -7,7 +7,7 @@ namespace DW\ContentPilot\Lib;
 class Validations
 {
 
-    public static function validate_php_version($store, $__FILE__ = null, $version = '7.4')
+    public static function validatePHPVersion($store, $__FILE__ = null, $version = '7.4')
     {
 
         $notice = array(
@@ -47,7 +47,7 @@ class Validations
         return PHP_VERSION;
     }
 
-    public static function validate_wp_version($store, $__FILE__ = null, $version = '5.9')
+    public static function validateWPVersion($store, $__FILE__ = null, $version = '5.9')
     {
 
         $notice = array(

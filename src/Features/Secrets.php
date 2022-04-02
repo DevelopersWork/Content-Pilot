@@ -4,12 +4,13 @@
  */
 namespace DW\ContentPilot\Features;
 
-use DW\ContentPilot\Lib\{ WPPage, IO };
+use DW\ContentPilot\Lib\WPPage;
+use DW\ContentPilot\Lib\IO;
 
 class Secrets extends WPPage
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
 
@@ -19,7 +20,7 @@ class Secrets extends WPPage
             'menu_title' => $this -> store -> get('name'),
             'capability' => 'manage_options',
             'menu_slug' => DWContetPilotPrefix .'_'. $this -> store -> get('name'),
-            'function' => array( $this, 'render_page' )
+            'function' => array( $this, 'renderPage' )
         ));
 
         $categories = array('name' => $this -> store -> get('name'), 'value' => array('YouTube'));
@@ -47,20 +48,17 @@ class Secrets extends WPPage
     public function handleRequest()
     {
         
-        if ( isset($_POST['f_submit']) && preg_match("/secret$/i", $_POST['f_submit']) ) {
-
+        if (isset($_POST['f_submit']) && preg_match("/secret$/i", $_POST['f_submit'])) {
             $this -> store -> log(get_class($this).':handleRequest()', '{STARTING}');
 
             if ($_POST['f_submit'] == (md5(DWContetPilotPrefix . '_add_secret') . '_secret')) {
-
-                if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) 
+                if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) {
                     return $this -> add();
-
-            } else if ($_POST['f_submit'] == (md5(DWContetPilotPrefix . '_edit_secret') . '_secret')) {
-
-                if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) 
+                }
+            } elseif ($_POST['f_submit'] == (md5(DWContetPilotPrefix . '_edit_secret') . '_secret')) {
+                if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) {
                     return null; //$this -> modify_secrets();
-                    
+                }
             }
 
             $notice = array(
@@ -103,13 +101,12 @@ class Secrets extends WPPage
         $post_id = wp_insert_post($data);
 
         if ($post_id && !is_wp_error($post_id)) {
-
             $category = $this -> store -> get('categories')['name'];
             $categories = array($this -> store -> get('_categories')[$category]);
 
             if (in_array($_POST['secret_service'], $this -> store -> get('categories')['value'])) {
                 array_push(
-                    $categories, 
+                    $categories,
                     $this -> store -> get('_categories')[$_POST['secret_service']]
                 );
             }
@@ -133,7 +130,7 @@ class Secrets extends WPPage
         $posts = $results['posts'];
         $args = $results['args'];
 
-        $html_template = IO:: read_asset_file('table_view/secrets_row.html');
+        $html_template = IO:: readAssetFile('table_view/secrets_row.html');
 
         $posts_html = "";
 

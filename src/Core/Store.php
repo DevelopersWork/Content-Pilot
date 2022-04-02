@@ -16,7 +16,6 @@ class Store
         $this->MEMORY = array(
             'notices' => array()
         );
-
     }
 
     public function set(string $name, $value)
@@ -28,7 +27,7 @@ class Store
 
     public function get(string $name)
     {
-        if(array_key_exists($name, $this->MEMORY)) {
+        if (array_key_exists($name, $this->MEMORY)) {
             return $this->MEMORY[$name];
         }
         return null;
@@ -52,7 +51,9 @@ class Store
     public function debug(string $trace, string $message)
     {
 
-        if(!$this -> debug) return null;
+        if (!$this -> debug) {
+            return null;
+        }
 
         $line = $trace . '<:> ' . $message . PHP_EOL;
         
@@ -75,7 +76,7 @@ class Store
         file_put_contents('php://stderr', print_r($line, true));
     }
 
-    /* 
+    /*
     * @usage add_action( 'admin_notices', array( $this -> store, 'adminNotice') );
     */
     public function adminNotice()
@@ -89,8 +90,7 @@ class Store
 
         $notices = $this -> MEMORY['notices'];
 
-        foreach($notices as $notice){
-
+        foreach ($notices as $notice) {
             $type = isset($notice['type']) ? $notice['type'] : 'info';
             $msg = isset($notice['msg']) ? $notice['msg'] : 'No message';
             $domain = isset($notice['domain']) ? $notice['domain'] : 'dw-content-pilot';
@@ -99,15 +99,15 @@ class Store
             $class = 'notice notice-' . $type . ($dismissible ? ' is-dismissible' : '');
             $message = __($msg, $domain);
 
-            if($type == 'error')
+            if ($type == 'error') {
                 $this -> error($domain, $message);
-            else if($type == 'warning')
+            } elseif ($type == 'warning') {
                 $this -> log($domain, $message);
-            else if($type == 'success')
+            } elseif ($type == 'success') {
                 $this -> debug($domain, $message);
+            }
 
             printf($NOTICE, esc_attr($class), esc_attr(ucfirst($type)), esc_html($message));
-        
         }
         
         $this -> MEMORY['notices'] = null;

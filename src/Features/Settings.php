@@ -20,8 +20,7 @@ class Settings extends WPPage
             'menu_title' => $this -> store -> get('name'),
             'capability' => 'manage_options',
             'menu_slug' => DWContetPilotPrefix .'_'. $this -> store -> get('name'),
-            'function' => array( $this, 'render_page_path' )
+            'function' => array( $this, 'renderPagePath' )
         ));
     }
-    
 }

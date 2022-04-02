@@ -9,7 +9,7 @@ use DW\ContentPilot\Lib\WPPage;
 class Home extends WPPage
 {
 
-    function __construct()
+    public function __construct()
     {
 
         parent::__construct();

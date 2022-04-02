@@ -12,7 +12,7 @@ class Dashboard extends WPPage
 
     private $parent;
 
-    function __construct()
+    public function __construct()
     {
         
         parent::__construct();
@@ -25,9 +25,8 @@ class Dashboard extends WPPage
             'menu_title' => $this -> store -> get('name'),
             'capability' => 'manage_options',
             'menu_slug' => dw_cp_plugin_name,
-            'function' => array( $this, 'render_page' )
+            'function' => array( $this, 'renderPage' )
         ));
-
     }
 
     public function register()
@@ -36,6 +35,5 @@ class Dashboard extends WPPage
         $this -> parent -> register();
 
         parent::register();
-
     }
 }

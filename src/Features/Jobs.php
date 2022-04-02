@@ -4,12 +4,14 @@
  */
 namespace DW\ContentPilot\Features;
 
-use DW\ContentPilot\Lib\{ WPPage, IO, YouTube };
+use DW\ContentPilot\Lib\WPPage;
+use DW\ContentPilot\Lib\IO;
+use DW\ContentPilot\Lib\YouTube;
 
 class Jobs extends WPPage
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
 
@@ -19,7 +21,7 @@ class Jobs extends WPPage
             'menu_title' => $this -> store -> get('name'),
             'capability' => 'manage_options',
             'menu_slug' => DWContetPilotPrefix .'_'. $this -> store -> get('name'),
-            'function' => array( $this, 'render_page' )
+            'function' => array( $this, 'renderPage' )
         ));
 
         $post_type = array(
@@ -43,21 +45,18 @@ class Jobs extends WPPage
     public function handleRequest()
     {
 
-        if ( isset($_POST['f_submit']) && preg_match("/job$/i", $_POST['f_submit']) ) {
-            
+        if (isset($_POST['f_submit']) && preg_match("/job$/i", $_POST['f_submit'])) {
             $this -> store -> debug(get_class($this).':handleRequest()', '{STARTING}');
 
             if ($_POST['f_submit'] == (md5(DWContetPilotPrefix . '_add_job') . '_job')) {
-
-                if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) 
+                if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) {
                     return $this -> add();
-
-            } else if ($_POST['f_submit'] == (md5(DWContetPilotPrefix . '_edit_job') . '_job')) {
-
-                if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) 
+                }
+            } elseif ($_POST['f_submit'] == (md5(DWContetPilotPrefix . '_edit_job') . '_job')) {
+                if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) {
                     return null; //$this -> modify_secrets();
-                    
-            } 
+                }
+            }
 
             $notice = array(
                 'msg' => 'Internal-Error',
@@ -92,9 +91,9 @@ class Jobs extends WPPage
         }
         
         $secret = array();
-        if(isset($_POST['job_secret']) && $_POST['job_secret'] != ""){
+        if (isset($_POST['job_secret']) && $_POST['job_secret'] != "") {
             $secret = $this -> getSecret($_POST['job_secret']);
-            if(count($secret) < 1){
+            if (count($secret) < 1) {
                 $this -> store -> log(get_class($this).':add()', json_encode(array('job_secret', $_POST)));
                 $this -> store -> append('notices', $notice);
                 return add_action('admin_notices', array( $this -> store, 'adminNotice'));
@@ -102,16 +101,16 @@ class Jobs extends WPPage
             $secret = $secret[0];
         }
 
-        if($_POST['job_service'] == 'YouTube') {
-            
+        if ($_POST['job_service'] == 'YouTube') {
             $keys = array('yt_channel', 'yt_keyword', 'yt_video', 'yt_video_type');
 
-            foreach ($keys as $key)
+            foreach ($keys as $key) {
                 if (!isset($_POST[$key])) {
                     $this -> store -> log(get_class($this).':add()', json_encode(array($keys, $_POST)));
                     $this -> store -> append('notices', $notice);
                     return add_action('admin_notices', array( $this -> store, 'adminNotice'));
                 }
+            }
         }
 
         $content = 'Service='.$_POST['job_service'];
@@ -129,12 +128,10 @@ class Jobs extends WPPage
         $post_id = wp_insert_post($data);
 
         if ($post_id && !is_wp_error($post_id)) {
-
             add_post_meta($post_id, 'service', $_POST['job_service']);
             add_post_meta($post_id, 'interval', $_POST['job_interval']);
 
-            if($_POST['job_service'] == 'YouTube') {
-
+            if ($_POST['job_service'] == 'YouTube') {
                 add_post_meta($post_id, 'secret', $secret['ID']);
 
                 $yt = new YouTube();
@@ -143,14 +140,14 @@ class Jobs extends WPPage
                 $channel = explode(' ', $channel)[0];
                 $channel = explode(',', $channel)[0];
 
-                if($channel){
-                    $channel = $yt -> search( 
-                        $channel, 
+                if ($channel) {
+                    $channel = $yt -> search(
+                        $channel,
                         array('type' => 'channel'),
                         $secret['post_content']
                     );
 
-                    if(!$channel || !isset($channel['items']) || !is_array($channel['items']) || count($channel['items']) < 1){
+                    if (!$channel || !isset($channel['items']) || !is_array($channel['items']) || count($channel['items']) < 1) {
                         $notice['msg'] = 'YouTube Channel -> "'.$_POST['yt_channel'].'"/API Key is invalid';
                         $this -> store -> append('notices', $notice);
                         return add_action('admin_notices', array( $this -> store, 'adminNotice'));
@@ -159,21 +156,23 @@ class Jobs extends WPPage
                     $yt_channel = $channel['items'][0];
 
                     add_post_meta($post_id, 'yt_channel', $yt_channel['id']['channelId']);
-                } else add_post_meta($post_id, 'yt_channel', "");
+                } else {
+                    add_post_meta($post_id, 'yt_channel', "");
+                }
                 
 
                 $video = trim($_POST['yt_video']);
                 $video = explode(' ', $video)[0];
                 $video = explode(',', $video)[0];
 
-                if($video){
-                    $video = $yt -> search( 
-                        $video, 
+                if ($video) {
+                    $video = $yt -> search(
+                        $video,
                         array('type' => 'video'),
                         $secret['post_content']
                     );
 
-                    if(!$video || !isset($video['items']) || !is_array($video['items']) || count($video['items']) < 1){
+                    if (!$video || !isset($video['items']) || !is_array($video['items']) || count($video['items']) < 1) {
                         $notice['msg'] = 'YouTube Video -> "'.$_POST['yt_video'].'"/API Key is invalid';
                         $this -> store -> append('notices', $notice);
                         return add_action('admin_notices', array( $this -> store, 'adminNotice'));
@@ -182,11 +181,12 @@ class Jobs extends WPPage
                     $yt_channel = $video['items'][0];
                     
                     add_post_meta($post_id, 'yt_video', $yt_channel['id']['videoId']);
-                } else add_post_meta($post_id, 'yt_video', "");
+                } else {
+                    add_post_meta($post_id, 'yt_video', "");
+                }
                 
                 add_post_meta($post_id, 'yt_keyword', $_POST['yt_keyword']);
                 add_post_meta($post_id, 'yt_video_type', $_POST['yt_video_type']);
-            
             }
 
             $notice['type'] = 'success';
@@ -204,7 +204,7 @@ class Jobs extends WPPage
         $posts = $results['posts'];
         $args = $results['args'];
 
-        $html_template = IO:: read_asset_file('table_view/jobs_row.html');
+        $html_template = IO:: readAssetFile('table_view/jobs_row.html');
 
         $posts_html = "";
 

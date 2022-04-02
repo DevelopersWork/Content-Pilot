@@ -4,12 +4,12 @@
  */
 namespace DW\ContentPilot;
 
-use DW\ContentPilot\Lib\{
-    Activate, Deactivate, Validations
-};
-use DW\ContentPilot\Core\{
-    Store, Service, CronJob
-};
+use DW\ContentPilot\Lib\Activate;
+use DW\ContentPilot\Lib\Deactivate;
+use DW\ContentPilot\Lib\Validations;
+use DW\ContentPilot\Core\Store;
+use DW\ContentPilot\Core\Service;
+use DW\ContentPilot\Core\CronJob;
 
 class Main
 {
@@ -22,7 +22,7 @@ class Main
 
     private $menus = array();
 
-    function __construct()
+    public function __construct()
     {
 
         $this -> store = new Store();
@@ -30,17 +30,16 @@ class Main
         $this -> store -> debug(get_class($this).':__construct()', '{STARTED}');
     }
 
-    public function admin_menu()
+    public function adminMenu()
     {
             
-        $this -> store -> debug(get_class($this).':admin_menu()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':adminMenu()', '{STARTED}');
 
         if (!is_user_logged_in()) {
-            return $this -> store -> debug(get_class($this).':admin_menu()', '{WP AUTH BROKEN}');
+            return $this -> store -> debug(get_class($this).':adminMenu()', '{WP AUTH BROKEN}');
         }
         
-        $this -> register_scripts() -> register_styles() -> register_menus();
-        
+        $this -> registerScripts() -> registerStyles() -> registerMenus();
     }
 
     public function init()
@@ -56,30 +55,29 @@ class Main
         $this -> cronJob = new CronJob();
 
         if ($this -> service -> register() && $this -> cronJob -> register()) {
-            
-            $this -> register_actions() -> register_filters() -> register_post_types();
+            $this -> registerActions() -> registerFilters() -> registerPostTypes();
 
-            add_action('admin_menu', array( $this, 'admin_menu' ));
+            add_action('admin_menu', array( $this, 'adminMenu' ));
             
-            add_action('admin_init', array($this, 'admin_init'));
+            add_action('admin_init', array($this, 'adminInit'));
         }
     }
 
-    public function admin_init()
+    public function adminInit()
     {
-        $this -> store -> debug(get_class($this).':admin_init()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':adminInit()', '{STARTED}');
     }
 
     private function compatibilityCheck()
     {
 
-        $php_version_check = Validations::validate_php_version($this -> store);
+        $php_version_check = Validations::validatePHPVersion($this -> store);
 
         if (!$php_version_check) {
             return $php_version_check;
         }
 
-        $wp_version_check = Validations::validate_wp_version($this -> store);
+        $wp_version_check = Validations::validateWPVersion($this -> store);
 
         if (!$wp_version_check) {
             return $wp_version_check;
@@ -94,70 +92,70 @@ class Main
         return $this;
     }
 
-    private function register_actions()
+    private function registerActions()
     {
             
-        $this -> store -> debug(get_class($this).':register_actions()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':registerActions()', '{STARTED}');
 
         do_action(DWContetPilotPrefix.'register_actions');
 
         return $this;
     }
 
-    private function register_post_types()
+    private function registerPostTypes()
     {
             
-        $this -> store -> debug(get_class($this).':register_post_types()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':registerPostTypes()', '{STARTED}');
 
         do_action(DWContetPilotPrefix.'register_post_types');
 
         return $this;
     }
 
-    private function register_scripts()
+    private function registerScripts()
     {
 
-        $this -> store -> debug(get_class($this).':register_scripts()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':registerScripts()', '{STARTED}');
 
         do_action(DWContetPilotPrefix.'register_scripts');
 
         return $this;
     }
 
-    private function register_styles()
+    private function registerStyles()
     {
 
-        $this -> store -> debug(get_class($this).':register_styles()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':registerStyles()', '{STARTED}');
 
         do_action(DWContetPilotPrefix.'register_styles');
 
         return $this;
     }
 
-    private function register_filters()
+    private function registerFilters()
     {
 
-        $this -> store -> debug(get_class($this).':register_filters()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':registerFilters()', '{STARTED}');
 
-        add_filter('cron_schedules', array( $this, 'add_cron_triggers'));
+        add_filter('cron_schedules', array( $this, 'addCronTriggers'));
 
         do_action(DWContetPilotPrefix.'register_filters');
 
         return $this;
     }
 
-    private function register_menus()
+    private function registerMenus()
     {
 
-        $this -> store -> debug(get_class($this).':register_menus()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':registerMenus()', '{STARTED}');
 
         do_action(DWContetPilotPrefix.'register_menus');
     }
 
-    public function add_cron_triggers($schedules)
+    public function addCronTriggers($schedules)
     {
 
-        $this -> store -> debug(get_class($this).':add_cron_jobs()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':addCronTriggers()', '{STARTED}');
         
         global $wpdb;
 

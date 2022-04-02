@@ -19,12 +19,12 @@ class WPPage extends API
         $this -> page = $page;
 
         $posts_per_page = 10;
-        if(isset($_GET['posts_per_page']) && is_int($_GET['posts_per_page'])) 
+        if (isset($_GET['posts_per_page']) && is_int($_GET['posts_per_page'])) {
             $posts_per_page = $_GET['posts_per_page'];
+        }
         $this -> store -> set('posts_per_page', $posts_per_page);
 
         $this -> store -> set('tabs', array());
-        
     }
 
     protected function addPage(array $_page)
@@ -101,9 +101,9 @@ class WPPage extends API
         return '';
     }
 
-    public function render_page()
+    public function renderPage()
     {
-        $this -> store -> debug(get_class($this).':render_page()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':renderPage()', '{STARTED}');
 
         echo '<div class="wrap">';
         echo '<h1 class="wp-heading-inline">'.$this -> store -> get('name').'</h1>';
@@ -117,42 +117,41 @@ class WPPage extends API
             $active_tab = 'view';
         }
 
-        if ( in_array( $active_tab, $this -> store -> get('tabs') ) ) {
-            $this -> store -> debug(get_class($this).':render_page()', '{RENDERING-'.$active_tab.'}');
+        if (in_array($active_tab, $this -> store -> get('tabs'))) {
+            $this -> store -> debug(get_class($this).':renderPage()', '{RENDERING-'.$active_tab.'}');
             include_once dw_cp_plugin_dir_path.'/src/Pages/'.$this -> store -> get('name').'/'.$active_tab.'.php';
-        }
-        else
+        } else {
             include_once dw_cp_plugin_dir_path.'/src/Pages/404.php';
+        }
         
 
         echo '</div>';
-
     }
 
-    public function render_page_path()
+    public function renderPagePath()
     {
-        $this -> store -> debug(get_class($this).':render_page_path()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':renderPagePath()', '{STARTED}');
 
         include_once dw_cp_plugin_dir_path . '/src/Pages/' . $this -> store -> get('name') . '.php';
     }
 
-    public function register_actions()
+    public function registerActions()
     {
             
-        parent::register_actions();
+        parent::registerActions();
 
-        add_action(DWContetPilotPrefix.'register_menus', [$this, 'register_menus']);
+        add_action(DWContetPilotPrefix.'register_menus', [$this, 'registerMenus']);
 
-        add_action(DWContetPilotPrefix.'register_scripts', array($this, 'register_scripts'));
-        add_action(DWContetPilotPrefix.'register_styles', array($this, 'register_styles'));
+        add_action(DWContetPilotPrefix.'register_scripts', array($this, 'registerScripts'));
+        add_action(DWContetPilotPrefix.'register_styles', array($this, 'registerStyles'));
 
         return $this;
     }
 
-    public function register_menus()
+    public function registerMenus()
     {
 
-        $this -> store -> debug(get_class($this).':register_menus()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':registerMenus()', '{STARTED}');
 
         $this -> auth_key = md5(
             $this -> store -> get('_AUTH_KEY') . '_' . $this -> get('menu_slug')
@@ -171,13 +170,13 @@ class WPPage extends API
         return $this;
     }
 
-    public function register_scripts()
+    public function registerScripts()
     {
-        $this -> store -> debug(get_class($this).':register_scripts()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':registerScripts()', '{STARTED}');
     }
 
-    public function register_styles()
+    public function registerStyles()
     {
-        $this -> store -> debug(get_class($this).':register_styles()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':registerStyles()', '{STARTED}');
     }
 }

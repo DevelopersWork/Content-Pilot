@@ -68,13 +68,13 @@ class Activate
 
         $this -> store -> log(get_class($this).':compatibilityCheck()', '{STARTED}');
 
-        $php_version_check = Validations::validate_php_version($this -> store);
+        $php_version_check = Validations::validatePHPVersion($this -> store);
 
         if (!$php_version_check) {
             return $php_version_check;
         }
 
-        $wp_version_check = Validations::validate_wp_version($this -> store);
+        $wp_version_check = Validations::validateWPVersion($this -> store);
 
         if (!$wp_version_check) {
             return $wp_version_check;
