@@ -85,7 +85,7 @@ class Jobs extends WPPage
 
         foreach ($keys as $key) {
             if (!isset($_POST[$key]) || !$_POST[$key]) {
-                $this -> store -> log(get_class($this).':add()', json_encode($_POST));
+                $this -> store -> log(get_class($this).':add()', json_encode(array($keys, $_POST)));
                 $this -> store -> append('notices', $notice);
                 return add_action('admin_notices', array( $this -> store, 'adminNotice'));
             }
@@ -95,7 +95,7 @@ class Jobs extends WPPage
         if(isset($_POST['job_secret']) && $_POST['job_secret'] != ""){
             $secret = $this -> getSecret($_POST['job_secret']);
             if(count($secret) < 1){
-                $this -> store -> log(get_class($this).':add()', json_encode($_POST));
+                $this -> store -> log(get_class($this).':add()', json_encode(array('job_secret', $_POST)));
                 $this -> store -> append('notices', $notice);
                 return add_action('admin_notices', array( $this -> store, 'adminNotice'));
             }
@@ -104,11 +104,11 @@ class Jobs extends WPPage
 
         if($_POST['job_service'] == 'YouTube') {
             
-            $keys = array('job_secret', 'yt_channel', 'yt_keyword');
+            $keys = array('yt_channel', 'yt_keyword', 'yt_video', 'yt_video_type');
 
             foreach ($keys as $key)
-                if (!isset($_POST[$key]) || !$_POST[$key]) {
-                    $this -> store -> log(get_class($this).':add()', json_encode($_POST));
+                if (!isset($_POST[$key])) {
+                    $this -> store -> log(get_class($this).':add()', json_encode(array($keys, $_POST)));
                     $this -> store -> append('notices', $notice);
                     return add_action('admin_notices', array( $this -> store, 'adminNotice'));
                 }
@@ -135,29 +135,57 @@ class Jobs extends WPPage
 
             if($_POST['job_service'] == 'YouTube') {
 
-                $yt = new YouTube();
+                add_post_meta($post_id, 'secret', $secret['ID']);
 
+                $yt = new YouTube();
+                
                 $channel = trim($_POST['yt_channel']);
                 $channel = explode(' ', $channel)[0];
                 $channel = explode(',', $channel)[0];
 
-                $channel = $yt -> search( 
-                    $channel, 
-                    array('type' => 'channel'),
-                    $secret['post_content']
-                );
+                if($channel){
+                    $channel = $yt -> search( 
+                        $channel, 
+                        array('type' => 'channel'),
+                        $secret['post_content']
+                    );
 
-                if(!$channel || !isset($channel['items']) || !is_array($channel['items']) || count($channel['items']) < 1){
-                    $notice['msg'] = 'YouTube Channel -> "'.$_POST['yt_channel'].'"/API Key is invalid';
-                    $this -> store -> append('notices', $notice);
-                    return add_action('admin_notices', array( $this -> store, 'adminNotice'));
-                }
+                    if(!$channel || !isset($channel['items']) || !is_array($channel['items']) || count($channel['items']) < 1){
+                        $notice['msg'] = 'YouTube Channel -> "'.$_POST['yt_channel'].'"/API Key is invalid';
+                        $this -> store -> append('notices', $notice);
+                        return add_action('admin_notices', array( $this -> store, 'adminNotice'));
+                    }
+                
+                    $yt_channel = $channel['items'][0];
 
-                $yt_channel = $channel['items'][0];
+                    add_post_meta($post_id, 'yt_channel', $yt_channel['id']['channelId']);
+                } else add_post_meta($post_id, 'yt_channel', "");
+                
 
-                add_post_meta($post_id, 'secret', $secret['id']);
-                add_post_meta($post_id, 'yt_channel', $yt_channel['id']['channelId']);
+                $video = trim($_POST['yt_video']);
+                $video = explode(' ', $video)[0];
+                $video = explode(',', $video)[0];
+
+                if($video){
+                    $video = $yt -> search( 
+                        $video, 
+                        array('type' => 'video'),
+                        $secret['post_content']
+                    );
+
+                    if(!$video || !isset($video['items']) || !is_array($video['items']) || count($video['items']) < 1){
+                        $notice['msg'] = 'YouTube Video -> "'.$_POST['yt_video'].'"/API Key is invalid';
+                        $this -> store -> append('notices', $notice);
+                        return add_action('admin_notices', array( $this -> store, 'adminNotice'));
+                    }
+                
+                    $yt_channel = $video['items'][0];
+                    
+                    add_post_meta($post_id, 'yt_video', $yt_channel['id']['videoId']);
+                } else add_post_meta($post_id, 'yt_video', "");
+                
                 add_post_meta($post_id, 'yt_keyword', $_POST['yt_keyword']);
+                add_post_meta($post_id, 'yt_video_type', $_POST['yt_video_type']);
             
             }
 
@@ -194,38 +222,5 @@ class Jobs extends WPPage
         }
 
         return array('tbody' => $posts_html, 'args' => $args);
-    }
-
-    public function fetchIntervals(){
-        global $wpdb;
-
-        $table_prefix = $wpdb -> base_prefix . esc_attr(DWContetPilotPrefix);
-        $query = 'SELECT id, type FROM '.$table_prefix.'_triggers where disabled <> 1 and deleted <> 1';
-
-        $result = $wpdb -> get_results("$query", 'ARRAY_A' );
-
-        return $result;
-    }
-
-    public function fetchSecrets(){
-        global $wpdb;
-
-        $table_prefix = $wpdb -> base_prefix;
-        $query = "SELECT distinct id, post_title as name FROM ".$table_prefix."posts where post_type = 'dw_cp_secrets' and post_author = '".get_current_user_id()."'";
-
-        $result = $wpdb -> get_results("$query", 'ARRAY_A' );
-
-        return $result;
-    }
-
-    private function getSecret($id) {
-        global $wpdb;
-
-        $table_prefix = $wpdb -> base_prefix;
-        $query = "SELECT * FROM ".$table_prefix."posts where post_type = 'dw_cp_secrets' and post_author = '".get_current_user_id()."' and id='".$id."'";
-
-        $result = $wpdb -> get_results("$query", 'ARRAY_A' );
-
-        return $result;
     }
 }

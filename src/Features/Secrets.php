@@ -116,8 +116,10 @@ class Secrets extends WPPage
 
             wp_set_post_categories($post_id, $categories);
 
+            add_post_meta($post_id, 'service', trim($_POST['secret_service']));
+
             $notice['type'] = 'success';
-            $notice['msg'] = 'New key was successfully added!';
+            $notice['msg'] = 'Key was successfully added';
         }
 
         $this -> store -> append('notices', $notice);

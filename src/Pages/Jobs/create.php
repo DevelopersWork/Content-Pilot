@@ -56,10 +56,45 @@
                         </tr>
                         <script>
                         function serviceUpdate(event) {
+
+                            document.getElementById('row_job_secret').hidden = true;
+                            document.getElementById('row_yt_channel').hidden = true;
+                            document.getElementById('row_yt_video').hidden = true;
+                            document.getElementById('row_yt_keyword').hidden = true;
+                            document.getElementById('row_job_hint').hidden = true;
+                            document.getElementById('row_yt_video_type').hidden = true;
+
                             if (event.value == 'YouTube') {
+
+                                let secrets = <?php echo json_encode($this -> fetchSecrets())?>;
+
+                                let option = document.createElement('option');
+                                option.value = "";
+                                option.innerHTML = "None";
+                                option.selected = true
+
+                                document.getElementById('job_secret').innerHTML = "";
+                                document.getElementById('job_secret').add(option);
+
+                                for (let i in secrets) {
+                                    let secret = secrets[i];
+
+                                    if (secret['service'] != event.value)
+                                        continue;
+
+                                    let option = document.createElement('option');
+                                    option.value = secret['id'];
+                                    option.innerHTML = secret['name'];
+
+                                    document.getElementById('job_secret').add(option);
+                                }
+
                                 document.getElementById('row_job_secret').hidden = false;
                                 document.getElementById('row_yt_channel').hidden = false;
+                                document.getElementById('row_yt_video').hidden = false;
                                 document.getElementById('row_yt_keyword').hidden = false;
+                                document.getElementById('row_job_hint').hidden = false;
+                                document.getElementById('row_yt_video_type').hidden = false;
                             }
                         }
                         </script>
@@ -71,38 +106,60 @@
                             <td>
                                 <select name="job_secret" id="job_secret">
                                     <option value="" selected>None</option>
-                                    <?php
-                                        $result = $this -> fetchSecrets();
-
-                                        foreach($result as $row){
-                                            echo '<option value="'.$row['id'].'">';
-                                            echo str_replace('_', ' ', $row['name']);
-                                            echo '</option>';
-                                        }
-                                    ?>
                                 </select>
                                 <p class="description">Select the Secret key for the Job</p>
                             </td>
                         </tr>
-                        <tr id="row_yt_channel" hidden>
+                        <tr id="row_yt_video_type" hidden>
                             <th scope="row">
-                                <label for="yt_channel">YouTube Channel (Optional)</label>
+                                <label for="yt_video_type">Video Type</label>
                             </th>
                             <td>
-                                <textarea placeholder="Provide only one Channel Id/Name" type="text"
-                                    class="code widefat" name="yt_channel" id="yt_channel"></textarea>
+                                <select name="yt_video_type" id="yt_video_type">
+                                    <option value="completed">Archieved Live</option>
+                                    <option value="live" selected>Currently Live</option>
+                                    <option value="upcoming">Scheduled Live</option>
+                                </select>
+                                <p class="description"></p>
+                            </td>
+                        </tr>
+                        <tr id="row_job_hint" hidden>
+                            <th scope="row">
+
+                            </th>
+                            <td>
+                                <strong>Provide any one of the below</strong>
+                            </td>
+                        </tr>
+                        <tr id="row_yt_channel" hidden>
+                            <th scope="row">
+                                <label for="yt_channel">YouTube Channel (Optional) *Only 1*</label>
+                            </th>
+                            <td>
+                                <input placeholder="Channel Id/Name" type="text" class="code widefat" name="yt_channel"
+                                    id="yt_channel" />
                                 <p class="description">Example: UCNLm0XtW8zWuzmhD5BqXagw, Intrests,
                                     UCUEhqlSd2qvU2_HFMV7nRnQ, ENGILIPISU, UCA99nItLBFj_cOVeOuiT_aQ</p>
                             </td>
                         </tr>
-                        <tr id="row_yt_keyword" hidden>
+                        <tr id="row_yt_video" hidden>
                             <th scope="row">
-                                <label for="yt_keyword">YouTube Keywords (Optional)</label>
+                                <label for="yt_video">YouTube Similar VideoID (Optional) *Only 1*</label>
                             </th>
                             <td>
-                                <textarea placeholder="*YouTube Fails* Try avoiding complex keywords" type="text"
+                                <input placeholder="Video Id" type="text" class="code widefat" name="yt_video"
+                                    id="yt_video" />
+                                <p class="description">Example: oI8sRtEyoOA, WEjCUmCoxSY</p>
+                            </td>
+                        </tr>
+                        <tr id="row_yt_keyword" hidden>
+                            <th scope="row">
+                                <label for="yt_keyword">YouTube Query (Optional)</label>
+                            </th>
+                            <td>
+                                <textarea placeholder="Make the query simple and generic for better results" type="text"
                                     class="code widefat" name="yt_keyword" id="yt_keyword"></textarea>
-                                <p class="description">Example: developerswork, gaming, valorant, hypixel skyblock</p>
+                                <p class="description">Ex: Minecraft + Hypixel Skyblock + Dungeons</p>
                             </td>
                         </tr>
                     </tbody>

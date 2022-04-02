@@ -5,6 +5,7 @@
 namespace DW\ContentPilot\Lib;
 
 use DW\ContentPilot\Core\Store;
+use DW\ContentPilot\Lib\API;
 
 use \Exception as Exception;
 
@@ -23,33 +24,36 @@ class YouTube
 
     }
 
-    public function fetchLatestVideoIds(string $key, string $query = null, array $queryParams = array())
-    {
-        $this -> store -> debug(get_class($this).':fetchVideoIds()', '{STARTED}');
+    public static function getVideos(array $params) {
+        $yt = new YouTube();
+        if(!isset($params['secret']))
+            return null;
+        $yt -> setKey($params['secret']);
 
-        $service = $this -> createYouTubeService($key);
+        $queryParams = array();
 
-        $queryParams['order'] = 'date';
         $queryParams['type'] = 'video';
+        $queryParams['order'] = 'date';
+        $queryParams['eventType'] = 'live';
 
-        if(!array_key_exists('maxResults', $queryParams) || !$queryParams['maxResults']) 
-            $queryParams['maxResults'] = 25;
+        if($params['yt_channel']) $queryParams['channelId'] = $params['yt_channel'];
+        if($params['yt_video']) $queryParams['relatedToVideoId'] = $params['yt_video'];
 
-        if(!array_key_exists('q', $queryParams) || !$queryParams['q']) 
-            $queryParams['q'] = 'DevelopersWork';
+        $events = array('live', 'completed', 'upcoming');
+        $eventType = $params['yt_video_type'];
+        if($eventType) $queryParams['eventType'] = in_array($eventType, $events) ? $eventType : 'live';
 
-        $this -> store -> log(get_class($this).':search()', json_encode($queryParams));
-
-        return $service -> search -> listSearch('id', $queryParams);
+        return $yt -> search($params['yt_keyword'], $queryParams);
     }
 
-    public function search(string $q, array $queryParams = array(), string $key) {
+    public function search(string $q, array $queryParams = array(), string $key = "") {
         
         $this -> store -> debug(get_class($this).':search()', '{STARTED}');
 
         $service = $this -> createYouTubeService($key);
 
-        $queryParams['q'] = $q;
+        if($q)
+            $queryParams['q'] = $q;
 
         $this -> store -> log(get_class($this).':search()', json_encode($queryParams));
 
@@ -109,7 +113,18 @@ class YouTube
     }
 
     public function setKey(string $key) {
-        $this -> store -> set('key', $key);
+        
+        $result = API:: getSecret($key);
+
+        if(count($result) < 1)
+            return null;
+
+        $row = $result[0];
+
+        if(isset($row['post_content']))
+            $this -> store -> set('key', $row['post_content']);
+        else
+            $this -> store -> set('key', '');
     }
 
 }

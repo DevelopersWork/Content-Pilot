@@ -193,4 +193,43 @@ class API
         $this -> store -> debug(get_class($this).':register_filters()', '{STARTED}');
     }
 
+    public function fetchSecrets(){
+        global $wpdb;
+
+        $this -> store -> log(get_class($this).':fetchSecrets()', '{STARTED}');
+
+        $table_prefix = $wpdb -> base_prefix;
+        $query_1 = "SELECT distinct id, post_title as name FROM ".$table_prefix."posts where post_type = 'dw_cp_secrets' and post_author = '".get_current_user_id()."' and post_status = 'publish'";
+
+        $query = "select sm.meta_value as service, s.* from ".$table_prefix."postmeta sm join (".$query_1.") s on s.id = sm.post_id and lower(sm.meta_key) like 'service'";
+
+        $this -> store -> log(get_class($this).':fetchSecrets()', $query);
+
+        $result = $wpdb -> get_results("$query", 'ARRAY_A' );
+
+        return $result;
+    }
+
+    public static function getSecret($id) {
+        global $wpdb;
+
+        $table_prefix = $wpdb -> base_prefix;
+        $query = "SELECT * FROM ".$table_prefix."posts where post_type = 'dw_cp_secrets' and post_author = '".get_current_user_id()."' and id='".$id."' and post_status = 'publish'";
+
+        $result = $wpdb -> get_results("$query", 'ARRAY_A' );
+
+        return $result;
+    }
+
+    public function fetchIntervals(){
+        global $wpdb;
+
+        $table_prefix = $wpdb -> base_prefix . esc_attr(DWContetPilotPrefix);
+        $query = 'SELECT id, type FROM '.$table_prefix.'_triggers where disabled <> 1 and deleted <> 1';
+
+        $result = $wpdb -> get_results("$query", 'ARRAY_A' );
+
+        return $result;
+    }
+
 }
