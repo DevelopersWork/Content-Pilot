@@ -49,7 +49,7 @@ class Secrets extends WPPage
     {
         
         if (isset($_POST['f_submit']) && preg_match("/secret$/i", $_POST['f_submit'])) {
-            $this -> store -> log(get_class($this).':handleRequest()', '{STARTING}');
+            $this -> store -> debug(get_class($this).':handleRequest()', '{STARTING}');
 
             if ($_POST['f_submit'] == (md5(DWContetPilotPrefix . '_add_secret') . '_secret')) {
                 if (isset($_POST['f_key']) && $_POST['f_key'] == $this -> auth_key) {

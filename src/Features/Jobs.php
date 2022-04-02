@@ -73,6 +73,7 @@ class Jobs extends WPPage
     {
 
         $this -> store -> debug(get_class($this).':add()', '{STARTING}');
+        $this -> store -> debug(get_class($this).':add()', json_encode($_POST));
 
         $notice = array(
             'msg' => 'Adding Job Failed!!!',
@@ -84,7 +85,6 @@ class Jobs extends WPPage
 
         foreach ($keys as $key) {
             if (!isset($_POST[$key]) || !$_POST[$key]) {
-                $this -> store -> log(get_class($this).':add()', json_encode(array($keys, $_POST)));
                 $this -> store -> append('notices', $notice);
                 return add_action('admin_notices', array( $this -> store, 'adminNotice'));
             }
@@ -94,7 +94,6 @@ class Jobs extends WPPage
         if (isset($_POST['job_secret']) && $_POST['job_secret'] != "") {
             $secret = $this -> getSecret($_POST['job_secret']);
             if (count($secret) < 1) {
-                $this -> store -> log(get_class($this).':add()', json_encode(array('job_secret', $_POST)));
                 $this -> store -> append('notices', $notice);
                 return add_action('admin_notices', array( $this -> store, 'adminNotice'));
             }
@@ -106,7 +105,6 @@ class Jobs extends WPPage
 
             foreach ($keys as $key) {
                 if (!isset($_POST[$key])) {
-                    $this -> store -> log(get_class($this).':add()', json_encode(array($keys, $_POST)));
                     $this -> store -> append('notices', $notice);
                     return add_action('admin_notices', array( $this -> store, 'adminNotice'));
                 }

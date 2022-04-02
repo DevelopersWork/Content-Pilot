@@ -20,7 +20,7 @@ class Deactivate
 
     public function deactivate()
     {
-        $this -> store -> log(get_class($this).':deactivate()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':deactivate()', '{STARTED}');
 
         flush_rewrite_rules();
 

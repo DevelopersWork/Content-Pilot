@@ -20,7 +20,7 @@ class Activate
 
     public function activate()
     {
-        $this -> store -> log(get_class($this).':activate()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':activate()', '{STARTED}');
 
         $this -> compatibilityCheck();
         $this -> createSQLTables();
@@ -33,7 +33,7 @@ class Activate
     {
         global $wpdb;
 
-        $this -> store -> log(get_class($this).':createSQLTables()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':createSQLTables()', '{STARTED}');
 
         $charset_collate = $wpdb->get_charset_collate();
 
@@ -66,7 +66,7 @@ class Activate
     private function compatibilityCheck()
     {
 
-        $this -> store -> log(get_class($this).':compatibilityCheck()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':compatibilityCheck()', '{STARTED}');
 
         $php_version_check = Validations::validatePHPVersion($this -> store);
 
@@ -80,14 +80,14 @@ class Activate
             return $wp_version_check;
         }
 
-        return $this -> store -> log(get_class($this).':compatibilityCheck()', 'PHP v'.$php_version_check.', Wordpress v'.$wp_version_check);
+        return $this -> store -> debug(get_class($this).':compatibilityCheck()', 'PHP v'.$php_version_check.', Wordpress v'.$wp_version_check);
     }
 
     private function loadReferenceData()
     {
         global $wpdb;
 
-        $this -> store -> log(get_class($this).':loadReferenceData()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':loadReferenceData()', '{STARTED}');
 
         $charset_collate = $wpdb->get_charset_collate();
 
