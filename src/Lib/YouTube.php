@@ -26,8 +26,8 @@ class YouTube
     public static function getVideos(array $params)
     {
         $yt = new YouTube();
-        if (isset($params['secret'])) {
-            $yt -> setKey($params['secret']);
+        if (isset($params['secret']) && isset($params['author'])) {
+            $yt -> setKey($params['secret'], $params['author']);
         }
 
         $queryParams = array();
@@ -61,8 +61,8 @@ class YouTube
     {
         $yt = new YouTube();
 
-        if (isset($params['secret'])) {
-            $yt -> setKey($params['secret']);
+        if (isset($params['secret']) && isset($params['author'])) {
+            $yt -> setKey($params['secret'], $params['author']);
         }
 
         $queryParams = array();
@@ -79,7 +79,7 @@ class YouTube
         if ($id) {
             $post_content = str_replace("%video_id%", $id['videoId'], $post_content);
             
-            $title = isset($snippet['videoId']) ? $snippet['videoId'] : '';
+            $title = isset($id['videoId']) ? $id['videoId'] : '';
         }
 
         if ($snippet) {
@@ -223,10 +223,10 @@ class YouTube
         return $service;
     }
 
-    public function setKey(string $key)
+    public function setKey(string $key, string $author)
     {
         
-        $result = API:: getSecret($key);
+        $result = API:: getSecret($key, $author);
 
         if (count($result) < 1) {
             return null;

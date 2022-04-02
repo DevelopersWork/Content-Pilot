@@ -88,20 +88,21 @@ class CronJob
         return $result;
     }
 
+
     public function run(string $job_hash)
     {
         global $wpdb;
         
-        $this -> store -> debug(get_class($this).':run()', $job_hash);
+        $this -> store -> log(get_class($this).':run()', $job_hash);
 
         $query_1 = "select meta_key, meta_value, post_id from ".$wpdb -> base_prefix."postmeta where md5(post_id) = '".$job_hash."'";
 
-        $query = "select pm.meta_key, pm.meta_value, p.post_content, pm.post_id from ".$wpdb -> base_prefix."posts as p join (".$query_1.") pm on p.id = pm.post_id";
+        $query = "select pm.meta_key, pm.meta_value, p.post_content, pm.post_id, p.post_author from ".$wpdb -> base_prefix."posts as p join (".$query_1.") pm on p.id = pm.post_id";
 
         $result = $wpdb -> get_results("$query", 'ARRAY_A');
 
         if (count($result) < 1) {
-            return $this -> store -> error(get_class($this).':run('.$job_hash.')', 'Job was corrupted');
+            return $this -> store -> error(get_class($this).':run('.$job_hash.')', '{JOB NOT FOUND}');
         }
 
         $post_id = $result[0]['post_id'];
@@ -112,7 +113,7 @@ class CronJob
         if (count($service) > 1) {
             $service = $service[1];
         } else {
-            return $this -> store -> error(get_class($this).':run('.$post_id.')', 'Job was corrupted');
+            return $this -> store -> error(get_class($this).':run('.$post_id.')', '{JOB NOT FOUND}');
         }
 
         if (strtolower($service) == 'youtube') {
@@ -126,6 +127,7 @@ class CronJob
 
             $meta = array(
                 'secret' => '',
+                'author' => $result[0]['post_author'],
                 'yt_channel' => '',
                 'yt_video' => '',
                 'yt_keyword' => '',
@@ -136,16 +138,14 @@ class CronJob
                 $meta[$row['meta_key']] = $row['meta_value'];
             }
 
-            $this -> store -> log(get_class($this).':run('.$post_id.')', json_encode($meta));
-
             if (!$meta['secret']) {
-                return $this -> store -> error(get_class($this).':run('.$post_id.')', 'API Key corrupted');
+                return $this -> store -> error(get_class($this).':run('.$post_id.')', '{API KEY NOT FOUND}');
             }
 
             $results = YouTube:: getVideos($meta);
 
             if (!$results || !isset($results['items'])) {
-                return $this -> store -> error(get_class($this).':run('.$post_id.')', 'No videos discovered');
+                return $this -> store -> error(get_class($this).':run('.$post_id.')', '{NO NEW VIDEOS FOUND}');
             }
 
             $length = ($results['pageInfo']['resultsPerPage'] % 17) + 1;
@@ -161,10 +161,8 @@ class CronJob
 
             $results = YouTube:: fetchVideo($ids, $meta);
 
-            $this -> store -> log(get_class($this).':run('.$post_id.')', $results);
-
             if (!$results || !isset($results['kind']) || !isset($results['item'])) {
-                return $this -> store -> error(get_class($this).':run('.$post_id.')', 'YouTube API kicked out');
+                return $this -> store -> error(get_class($this).':run('.$post_id.')', '{YouTube API FAILED}');
             }
 
             foreach ($results['items'] as $item) {
@@ -182,8 +180,7 @@ class CronJob
 
                 YouTube:: makePost($id, $snippet, $statistics);
             }
-                
-            // $this -> store -> log(get_class($this).':run()', json_encode($results));
+
         }
 
         return $result;
