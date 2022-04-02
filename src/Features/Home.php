@@ -22,5 +22,8 @@ class Home extends WPPage
             'icon_url' => 'dashicons-hammer',
             'position' => 22
         ));
+
+        $categories = array('name' => 'Posts', 'value' => array('Default'));
+        $this -> store -> set('categories', $categories);
     }
 }

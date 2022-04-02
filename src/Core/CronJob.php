@@ -81,6 +81,8 @@ class CronJob
             if (!wp_next_scheduled($name, $args)) {
                 wp_schedule_event(time() + 3, DWContetPilotPrefix .'_'. $row['type'], $name, $args);
             }
+
+            // $this -> run($row['job_hash']);
         }
 
         return $result;
@@ -99,8 +101,10 @@ class CronJob
         $result = $wpdb -> get_results("$query", 'ARRAY_A');
 
         if (count($result) < 1) {
-            return null;
+            return $this -> store -> error(get_class($this).':run('.$job_hash.')', 'Job was corrupted');
         }
+
+        $post_id = $result[0]['post_id'];
 
         $service = explode(md5(DWContetPilotPrefix), $result[0]['post_content'])[0];
         $service = explode('=', $service);
@@ -108,30 +112,78 @@ class CronJob
         if (count($service) > 1) {
             $service = $service[1];
         } else {
-            return null;
+            return $this -> store -> error(get_class($this).':run('.$post_id.')', 'Job was corrupted');
         }
 
         if (strtolower($service) == 'youtube') {
+            $query = "select max(meta_value) as published from ".$wpdb -> base_prefix."postmeta where meta_key like '".$result[0]['post_id']."_yt_published_after'";
+            $_result = $wpdb -> get_results("$query", 'ARRAY_A');
+
+            $last_insert = "";
+            if (count($_result) > 1) {
+                $last_insert = $_result[0]['published'];
+            }
+
             $meta = array(
                 'secret' => '',
                 'yt_channel' => '',
                 'yt_video' => '',
                 'yt_keyword' => '',
-                'yt_video_type' => ''
+                'yt_video_type' => '',
+                'yt_published_after' => $last_insert ? $last_insert : '1970-01-01T00:00:00Z'
             );
             foreach ($result as $_ => $row) {
                 $meta[$row['meta_key']] = $row['meta_value'];
             }
 
-            $this -> store -> log(get_class($this).':run()', json_encode($meta));
+            $this -> store -> log(get_class($this).':run('.$post_id.')', json_encode($meta));
 
             if (!$meta['secret']) {
-                return null;
+                return $this -> store -> error(get_class($this).':run('.$post_id.')', 'API Key corrupted');
             }
 
             $results = YouTube:: getVideos($meta);
 
-            $this -> store -> log(get_class($this).':run()', json_encode($results));
+            if (!$results || !isset($results['items'])) {
+                return $this -> store -> error(get_class($this).':run('.$post_id.')', 'No videos discovered');
+            }
+
+            $length = ($results['pageInfo']['resultsPerPage'] % 17) + 1;
+            $ids = array();
+
+            for ($i=0; $i < $length; $i++) {
+                $item = $results['items'][$i];
+
+                if (isset($item['id'])) {
+                    array_push($ids, $item['id']['videoId']);
+                }
+            }
+
+            $results = YouTube:: fetchVideo($ids, $meta);
+
+            $this -> store -> log(get_class($this).':run('.$post_id.')', $results);
+
+            if (!$results || !isset($results['kind']) || !isset($results['item'])) {
+                return $this -> store -> error(get_class($this).':run('.$post_id.')', 'YouTube API kicked out');
+            }
+
+            foreach ($results['items'] as $item) {
+                if (isset($item['id'])) {
+                    $id = $item['id'];
+                }
+
+                if (isset($item['snippet'])) {
+                    $snippet = $item['snippet'];
+                }
+
+                if (isset($item['statistics'])) {
+                    $statistics = $item['statistics'];
+                }
+
+                YouTube:: makePost($id, $snippet, $statistics);
+            }
+                
+            // $this -> store -> log(get_class($this).':run()', json_encode($results));
         }
 
         return $result;

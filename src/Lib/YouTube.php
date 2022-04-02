@@ -26,22 +26,26 @@ class YouTube
     public static function getVideos(array $params)
     {
         $yt = new YouTube();
-        if (!isset($params['secret'])) {
-            return null;
+        if (isset($params['secret'])) {
+            $yt -> setKey($params['secret']);
         }
-        $yt -> setKey($params['secret']);
 
         $queryParams = array();
 
         $queryParams['type'] = 'video';
         $queryParams['order'] = 'date';
         $queryParams['eventType'] = 'live';
+        $queryParams['maxResults'] = '50';
 
         if ($params['yt_channel']) {
             $queryParams['channelId'] = $params['yt_channel'];
         }
         if ($params['yt_video']) {
             $queryParams['relatedToVideoId'] = $params['yt_video'];
+        }
+
+        if ($params['yt_published_after']) {
+            $queryParams['publishedAfter'] = $params['yt_published_after'];
         }
 
         $events = array('live', 'completed', 'upcoming');
@@ -53,7 +57,70 @@ class YouTube
         return $yt -> search($params['yt_keyword'], $queryParams);
     }
 
-    public function search(string $q, array $queryParams = array(), string $key = "")
+    public static function fetchVideo(array $ids, array $params = array())
+    {
+        $yt = new YouTube();
+
+        if (isset($params['secret'])) {
+            $yt -> setKey($params['secret']);
+        }
+
+        $queryParams = array();
+
+        return $yt -> video($ids, $queryParams);
+    }
+
+    public static function makePost($id = array(), $snippet = array(), $statistics = array(), $category = array())
+    {
+        $post_content = IO:: readAssetFile('youtube_live_post.html');
+
+        $title = '';
+        
+        if ($id) {
+            $post_content = str_replace("%video_id%", $id['videoId'], $post_content);
+            
+            $title = isset($snippet['videoId']) ? $snippet['videoId'] : '';
+        }
+
+        if ($snippet) {
+            $title = isset($snippet['title']) ? $snippet['title'] : '';
+            $tags = isset($snippet['tags']) ? $snippet['tags'] : '';
+            
+            $desc = str_replace('\n', '<br/>', $snippet['description']);
+            $post_content = str_replace("%description%", $desc, $post_content);
+            
+            $post_content = str_replace("%channel_id%", $snippet['channelId'], $post_content);
+            
+            $post_content = str_replace("%channel_name%", $snippet['channelTitle'], $post_content);
+        }
+
+        if ($statistics) {
+            $post_content = str_replace("%viewCount%", $statistics['viewCount'] || 0, $post_content);
+            
+            $post_content = str_replace("%likeCount%", $statistics['likeCount'] || 0, $post_content);
+            
+            $post_content = str_replace("%commentCount%", $statistics['commentCount'] || 0, $post_content);
+        }
+
+        $data = array(
+            'post_title' => $title,
+            'post_name' => str_replace('%', '', urlencode($title)),
+            'post_content' => $post_content,
+            'post_category' => $category ? $category : array(),
+            'tags_input' => $tags,
+            'post_status' => 'publish',
+            'post_type' => 'post'
+        );
+
+        $post_id = wp_insert_post($data);
+
+        if ($post_id && !is_wp_error($post_id)) {
+            // add_post_meta($post_id, 'service', $_POST['job_service']);
+            // add_post_meta($post_id, 'interval', $_POST['job_interval']);
+        }
+    }
+
+    public function search(string $q, array $queryParams = array(), string $scope = "", string $key = "")
     {
         
         $this -> store -> debug(get_class($this).':search()', '{STARTED}');
@@ -63,11 +130,47 @@ class YouTube
         if ($q) {
             $queryParams['q'] = $q;
         }
-
+        
         $this -> store -> log(get_class($this).':search()', json_encode($queryParams));
 
         try {
-            $result = $service -> search -> listSearch('id, snippet', $queryParams);
+            if ($scope) {
+                $result = $service -> search -> listSearch($scope, $queryParams);
+            } else {
+                $result = $service -> search -> listSearch('id, snippet', $queryParams);
+            }
+
+            return $result;
+        } catch (Exception $ex) {
+            $this -> store -> set('_ERROR', $ex);
+            $this -> store -> error(get_class($this).':search()', $ex -> getMessage());
+        }
+
+        return false;
+    }
+
+    public function video(array $ids, array $queryParams = array(), string $scope = "", string $key = "")
+    {
+        
+        $this -> store -> debug(get_class($this).':video()', '{STARTED}');
+
+        $service = $this -> createYouTubeService($key);
+
+        if ($ids) {
+            $queryParams['id'] = join(",", $ids);
+        }
+        
+        $this -> store -> log(get_class($this).':video()', json_encode($queryParams));
+
+        try {
+            if ($scope) {
+                $result = $service -> videos -> listSearch($scope, $queryParams);
+            } else {
+                $result = $service -> videos -> listVideos(
+                    'id,snippet,contentDetails,statistics,liveStreamingDetails,recordingDetails,status,topicDetails',
+                    $queryParams
+                );
+            }
 
             return $result;
         } catch (Exception $ex) {
