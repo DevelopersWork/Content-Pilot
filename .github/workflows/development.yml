@@ -1,4 +1,4 @@
-on: 
+on:
   pull_request:
     types: [closed]
     branches:
@@ -16,7 +16,7 @@ jobs:
     steps:
     - name: 🚚 Get latest code
       uses: actions/checkout@v2
-    
+
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@4.2.0
       with:
@@ -52,7 +52,7 @@ jobs:
 
     - name: 🤬 Install dependencies
       uses: php-actions/composer@v6
-    
+
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@4.2.0
       with:

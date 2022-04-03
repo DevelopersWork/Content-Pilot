@@ -1,85 +1,60 @@
 <?php
-/** 
- * @package DevWPContentAutopilot
+/**
+ * @package DWContentPilot
  */
-namespace Dev\WpContentAutopilot\Features;
+namespace DW\ContentPilot\Features;
 
-use Dev\WpContentAutopilot\Features\Manager;
+use DW\ContentPilot\Lib\WPPage;
+use DW\ContentPilot\Features\Home;
 
-class Dashboard extends Manager {
+class Dashboard extends WPPage
+{
 
-    function __construct( $store ) {
+    private $parent;
 
-        parent::__construct( $store, 'Dashboard' );
-
-        $this -> setPage ( 'manage_options', array( $this, 'renderPage' ), PLUGIN_SLUG, null, 'dashicons-hammer', 110, TRUE, PLUGIN_NAME);
-
-        $overview_section = $this -> createSection ( 'Overview', array( $this, 'renderSection' ), null, FALSE );
-        $overview_setting_table = $this -> setSetting ( $overview_section, 'table');
-        $this -> setField ( '', $overview_setting_table, $overview_section, array( $this, 'renderOverViewTable' ) );
-    
-    }
-
-    public function renderOverViewTable( array $args ){
+    public function __construct()
+    {
         
-        $html = '
-            <table class="table table-striped border">
-                <thead><tr>
-                    <th scope="col">Job</th><th scope="col">Service</th><th scope="col">Trigger</th><th scope="col">Meta</th><th scope="col">API</th>
-                    <th scope="col">Status</th><th scope="col">Runs</th>
-                </tr></thead>
-                <tbody>
-        ';
+        parent::__construct();
 
-        global $wpdb;
-      
-        $query = "
-            SELECT 
-                jobs.name AS job_name, jobs.hash as job_hash,
-                services.name AS service_name,
-                triggers.type AS trigger_name,
-                metas.name AS meta_name, metas.data AS meta_data,
-                secrets.name AS secret_name,
-                case when ref.is_success is null then 3 else ref.is_success end as is_success, count(*) as count_is_success
-            FROM 
-                " . PLUGIN_PREFIX . "_jobs_services_secrets_map AS ref
-            LEFT JOIN 
-                " . PLUGIN_PREFIX . "_jobs AS jobs ON jobs.id = ref.job_id
-            LEFT JOIN 
-                " . PLUGIN_PREFIX . "_services AS services ON services.id = ref.service_id
-            LEFT JOIN 
-                " . PLUGIN_PREFIX . "_triggers AS triggers ON triggers.id = ref.trigger_id
-            LEFT JOIN 
-                " . PLUGIN_PREFIX . "_metas AS metas ON metas.id = ref.meta_id
-            LEFT JOIN 
-                " . PLUGIN_PREFIX . "_secrets AS secrets ON secrets.id = ref.secret_id
-            GROUP BY jobs.name, jobs.hash, services.name, triggers.type, metas.name, metas.data, ref.is_success, secrets.name
-        ";
+        $this -> parent = new Home();
 
-        $_result = $wpdb->get_results( $query, 'ARRAY_A' );
+        $this -> addSubPage(array(
+            'parent_slug' => dw_cp_plugin_name,
+            'page_title' => $this -> store -> get('name'),
+            'menu_title' => $this -> store -> get('name'),
+            'capability' => 'manage_options',
+            'menu_slug' => dw_cp_plugin_name,
+            'function' => array( $this, 'renderPage' )
+        ));
 
-        foreach($_result as $_ => $row) {
-            $html .= "<tr>";
-            $html .= "<td>".$row['job_name']."</td>";
-            $html .= "<td>".$row['service_name']."</td>";
-            $html .= "<td>".str_replace("_", ' ', $row['trigger_name'])."</td>";
-            $html .= "<td>".$row['meta_data']."</td>";
-            $html .= "<td>".$row['secret_name']."</td>";
-            $html .= "<td>".($row['is_success'] == 1 ? 'SUCCESS' : ($row['is_success'] == 0 ? 'FAILED' : 'NA'))."</td>";
-            $html .= "<td>".(($row['is_success'] == 1 || $row['is_success'] == 0) ? $row['count_is_success'] : '0')."</td>";
-            // $html .= "<td>";
-            //     $html .= "<form method='POST'>";
-            //         $html .= "<input type='hidden' name='form_name' value='job_run'/>";
-            //         $html .= "<input type='hidden' name='job_hash' value='".$row['job_hash']."'/>";
-            //         $html .= "<button type='submit' class='btn btn-primary'>RUN NOW</button>";
-            //     $html .= "</form>";
-            // $html .= "</td>";
-            $html .= "</tr>";
-        }
-          
-        $html .= '</tbody></table>';
-        return $html;
+        $post_type = array(
+            'description' => 'Logs of the Content Pilot plugin',
+            'public' => false,
+            'has_archive' => true,
+            'can_export' => false,
+            'delete_with_user' => true,
+            'exclude_from_search' =>  false,
+            'show_in_rest' => false,
+            'capability_type' =>  array( 'post', 'page' ),
+            '__name' => dw_cp_plugin_name
+        );
+        $this -> store -> set('post_type', $post_type);
+
+        $this -> store -> set('tabs', array('view'));
     }
 
-}
+    public function register()
+    {
 
+        $this -> parent -> register();
+
+        parent::register();
+    }
+
+    public function view()
+    {
+
+        return array('tbody' => '', 'args' => '');
+    }
+}

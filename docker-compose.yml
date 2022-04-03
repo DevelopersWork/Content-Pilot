@@ -12,7 +12,7 @@ services:
       MYSQL_DATABASE: $WORDPRESS_DB_NAME
       MYSQL_USER: $WORDPRESS_DB_USER
       MYSQL_PASSWORD: $WORDPRESS_DB_PASSWORD
-    
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     restart: always
