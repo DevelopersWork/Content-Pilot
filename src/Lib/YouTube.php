@@ -77,9 +77,9 @@ class YouTube
         $title = '';
         
         if ($id) {
-            $post_content = str_replace("%video_id%", $id['videoId'], $post_content);
+            $post_content = str_replace("%video_id%", $id, $post_content);
             
-            $title = isset($id['videoId']) ? $id['videoId'] : '';
+            $title = isset($id) ? $id : '';
         }
 
         if ($snippet) {

@@ -107,7 +107,9 @@ class WPPage extends API
 
         echo '<div class="wrap">';
         echo '<h1 class="wp-heading-inline">'.$this -> store -> get('name').'</h1>';
-        echo '<a href="'.$this -> getURI().'tab=create" class="page-title-action">Add New</a>';
+        if (in_array('create', $this -> store -> get('tabs'))) {
+            echo '<a href="'.$this -> getURI().'tab=create" class="page-title-action">Add New</a>';
+        }
         echo '<hr class="wp-header-end">';
         echo settings_errors();
 
@@ -124,11 +126,11 @@ class WPPage extends API
 
             $tab = $this -> store -> get('tabs')[$index];
             
-            $path = dw_cp_plugin_dir_path .'/src/Pages/'. $this -> store -> get('name') .'/'. $tab .'.php';
+            $path = dw_cp_plugin_dir_path .'src/Pages/'. $this -> store -> get('name') .'/'. $tab .'.php';
 
             include_once $path;
         } else {
-            include_once dw_cp_plugin_dir_path.'/src/Pages/404.php';
+            include_once dw_cp_plugin_dir_path.'src/Pages/404.php';
         }
         
 

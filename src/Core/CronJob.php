@@ -161,7 +161,7 @@ class CronJob
 
             $results = YouTube:: fetchVideo($ids, $meta);
 
-            if (!$results || !isset($results['kind']) || !isset($results['item'])) {
+            if (!$results || !isset($results['kind']) || !isset($results['items'])) {
                 return $this -> store -> error(get_class($this).':run('.$post_id.')', '{YouTube API FAILED}');
             }
 
@@ -180,7 +180,6 @@ class CronJob
 
                 YouTube:: makePost($id, $snippet, $statistics);
             }
-
         }
 
         return $result;

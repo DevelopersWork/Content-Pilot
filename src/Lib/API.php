@@ -236,4 +236,8 @@ class API
 
         return $result;
     }
+
+    public function handleRequest()
+    {
+    }
 }
