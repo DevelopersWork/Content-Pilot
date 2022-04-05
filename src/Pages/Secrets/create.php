@@ -20,9 +20,6 @@
                                 </p>
                             </td>
                         </tr>
-                    </tbody>
-
-                    <tbody>
                         <tr id="row_secret_key">
                             <th scope="row">
                                 <label for="secret_key">Key</label>
@@ -34,23 +31,20 @@
                                 </p>
                             </td>
                         </tr>
-                    </tbody>
-
-                    <tbody hidden>
                         <tr id="row_secret_service">
                             <th scope="row">
                                 <label for="secret_service">Service</label>
                             </th>
                             <td>
                                 <select name="secret_service" id="secret_service">
-                                    <option value="">None</option>
-                                    <option value="YouTube" selected="selected">YouTube</option>
+                                    <option value="" selected>None</option>
+                                    <option value="YouTube">YouTube</option>
+                                    <option value="RSS">RSS Feed</option>
                                 </select>
                                 <p class="description">Which service key can be used!</p>
                             </td>
                         </tr>
                     </tbody>
-
                 </table>
             </div>
         </div>
