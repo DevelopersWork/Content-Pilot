@@ -78,9 +78,9 @@ class CronJob
 
             add_action($name, array($this, 'run'));
             
-            // if (!wp_next_scheduled($name, $args)) {
-            //     wp_schedule_event(time() + 3, DWContetPilotPrefix .'_'. $row['type'], $name, $args);
-            // }
+            if (!wp_next_scheduled($name, $args)) {
+                wp_schedule_event(time() + 3, DWContetPilotPrefix .'_'. $row['type'], $name, $args);
+            }
 
             // $this -> run($row['job_hash']);
         }
