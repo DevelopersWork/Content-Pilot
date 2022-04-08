@@ -9,6 +9,9 @@ use DW\ContentPilot\Lib\API;
 
 use \Exception as Exception;
 
+// https://news.google.com/rss/search?q=gaming
+// http://www.google.com/search?q=gaming
+
 class RSS
 {
 
@@ -29,6 +32,9 @@ class RSS
 
         global $wpdb;
         $rss = new self();
+        $store = new Store();
+
+        $store -> log(__METHOD__, '{STARTED}');
         
         $query = "select max(meta_value) as published from ".$wpdb -> base_prefix."postmeta where meta_key like '".$params[0]['post_id']."_rss_published_after'";
         $_result = $wpdb -> get_results("$query", 'ARRAY_A');
@@ -86,28 +92,43 @@ class RSS
     public function getFeed(string $url, array $queryParams = array())
     {
         
-        $this -> store -> debug(get_class($this).':feed()', '{STARTED}');
+        $this -> store -> debug(get_class($this).':getFeed()', '{STARTED}');
 
         $xml = $this -> xml($url);
         
-        $this -> store -> log(get_class($this).':feed()', json_encode($queryParams));
+        $this -> store -> log(get_class($this).':getFeed()', json_encode($queryParams));
 
         $total = 0;
         if(isset($queryParams['maxResults'])) {
             $total = $queryParams['maxResults'];
         }
 
-        $items = [];
+        $items = [];        
 
-        foreach($xml -> channel -> item as $item){
+        foreach($xml -> channel -> item as $item) {
 
-            $total -= 1;
-
-            if($total < 1) break;
+            if(!$item -> link) continue;
 
             if(isset($queryParams['rss_published_after']) && strtotime($queryParams['rss_published_after']) >= strtotime($item -> pubDate)){
                 continue;
             }
+
+            $content = "";
+
+            $response = file_get_contents($item -> link);
+            if(!$response) continue;
+
+            $PHPHtmlParser = dw_cp_classes['PHPHtmlParser'];
+            $dom = new $PHPHtmlParser();
+            $dom->loadStr($response);
+
+            $articles = $dom -> find('artice');
+            
+            foreach($articles as $article){
+                $content .= $article -> innertext;
+            }
+
+            if(!$content) $content = $item -> description;
 
             array_push($items, [
                 'title' => $item -> title,
@@ -115,8 +136,14 @@ class RSS
                 'description' => $item -> description,
                 'pubDate' => $item -> pubDate,
                 'guid' => $item -> guid,
-                'content' => file_get_contents($item -> link)
+                'content' => $content
             ]);
+
+            $total -= 1;
+
+            if($total < 1) break;
+
+            break;
         }
 
         return $items;

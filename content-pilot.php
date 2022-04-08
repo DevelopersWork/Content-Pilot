@@ -71,8 +71,6 @@ class DWContentPilot {
 
     public function wp_loaded() {
 
-        
-
     }
 
 }
@@ -81,7 +79,8 @@ if ( class_exists('DWContentPilot') && $error == FALSE ) {
 
     $classes = array(
         'Google_Client' => Google_Client:: class,
-        'Google_Service_YouTube' => Google_Service_YouTube:: class
+        'Google_Service_YouTube' => Google_Service_YouTube:: class,
+        'PHPHtmlParser' => PHPHtmlParser\Dom:: class
     );
     define( 'dw_cp_classes', $classes);
 

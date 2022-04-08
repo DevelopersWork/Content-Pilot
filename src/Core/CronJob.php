@@ -93,7 +93,7 @@ class CronJob
     {
         global $wpdb;
         
-        $this -> store -> log(get_class($this).':run()', $job_hash);
+        $this -> store -> log(get_class($this).':run('.$job_hash.')', '{STARTED}');
 
         $query_1 = "select meta_key, meta_value, post_id from ".$wpdb -> base_prefix."postmeta where md5(post_id) = '".$job_hash."'";
 

@@ -147,7 +147,7 @@
                                 <input placeholder="" type="text" class="code widefat" name="rss_feed_url"
                                     id="rss_feed_url" value="">
                                 <p class="description">
-                                    RSS Feed url to fetch the data from.
+                                    Example: https://news.google.com/rss/search?q=gaming
                                 </p>
                             </td>
                         </tr>
