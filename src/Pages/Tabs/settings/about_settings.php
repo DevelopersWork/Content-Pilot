@@ -76,7 +76,8 @@
                                         <label>Version</label>
                                     </th>
                                     <td>
-                                        <?php global $wp_version; echo $wp_version; ?>
+                                        <?php global $wp_version;
+                                        echo $wp_version; ?>
                                         <p class="description"></p>
                                     </td>
                                 </tr>
@@ -86,7 +87,8 @@
                                         <label>Required PHP</label>
                                     </th>
                                     <td>
-                                        <?php global $required_php_version; echo $required_php_version; ?>
+                                        <?php global $required_php_version;
+                                        echo $required_php_version; ?>
                                         <p class="description"></p>
                                     </td>
                                 </tr>
@@ -96,7 +98,8 @@
                                         <label>Required MySQL</label>
                                     </th>
                                     <td>
-                                        <?php global $required_mysql_version; echo $required_mysql_version; ?>
+                                        <?php global $required_mysql_version;
+                                        echo $required_mysql_version; ?>
                                         <p class="description"></p>
                                     </td>
                                 </tr>
@@ -107,9 +110,10 @@
                                     </th>
                                     <td>
                                         <?php
-                                foreach (get_plugins() as $plugin) 
-                                    echo $plugin['Name'] . ' ' . $plugin['Version'] . '<br>';
-                            ?>
+                                        foreach (get_plugins() as $plugin) {
+                                            echo $plugin['Name'] . ' ' . $plugin['Version'] . '<br>';
+                                        }
+                                        ?>
                                         <p class="description"></p>
                                     </td>
                                 </tr>

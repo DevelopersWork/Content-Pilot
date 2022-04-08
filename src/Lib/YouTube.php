@@ -180,7 +180,8 @@ class YouTube
         return false;
     }
 
-    public static function run($params) {
+    public static function run($params)
+    {
         
         global $wpdb;
 

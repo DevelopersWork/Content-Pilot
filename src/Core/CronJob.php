@@ -5,7 +5,8 @@
 namespace DW\ContentPilot\Core;
 
 use DW\ContentPilot\Core\Store;
-use DW\ContentPilot\Lib\{YouTube, RSS};
+use DW\ContentPilot\Lib\YouTube;
+use DW\ContentPilot\Lib\RSS;
 
 class CronJob
 {
@@ -118,7 +119,7 @@ class CronJob
 
         if (strtolower($service) == 'youtube') {
             YouTube:: run($result);
-        } else if (strtolower($service) == 'rss') {
+        } elseif (strtolower($service) == 'rss') {
             RSS:: run($result);
         }
 

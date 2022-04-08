@@ -101,10 +101,11 @@ class Jobs extends WPPage
         }
 
         $keys = array();
-        if ($_POST['job_service'] == 'YouTube') 
+        if ($_POST['job_service'] == 'YouTube') {
             $keys = array('yt_channel', 'yt_keyword', 'yt_video', 'yt_video_type');
-        else if ($_POST['job_service'] == 'RSS')
+        } elseif ($_POST['job_service'] == 'RSS') {
             $keys = array('rss_feed_url');
+        }
 
         foreach ($keys as $key) {
             if (!isset($_POST[$key])) {
@@ -131,8 +132,9 @@ class Jobs extends WPPage
             add_post_meta($post_id, 'service', $_POST['job_service']);
             add_post_meta($post_id, 'interval', $_POST['job_interval']);
 
-            if($secret && isset($secret['ID']))
+            if ($secret && isset($secret['ID'])) {
                 add_post_meta($post_id, 'secret', $secret['ID']);
+            }
 
             if ($_POST['job_service'] == 'YouTube') {
                 $yt = new YouTube();
@@ -188,7 +190,7 @@ class Jobs extends WPPage
                 
                 add_post_meta($post_id, 'yt_keyword', $_POST['yt_keyword']);
                 add_post_meta($post_id, 'yt_video_type', $_POST['yt_video_type']);
-            } else if($_POST['job_service'] == 'RSS') {
+            } elseif ($_POST['job_service'] == 'RSS') {
                 add_post_meta($post_id, 'feed_url', $_POST['rss_feed_url']);
             }
 

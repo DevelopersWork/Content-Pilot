@@ -28,7 +28,8 @@ class RSS
         $this -> store -> debug(get_class($this).':__construct()', '{STARTED}');
     }
 
-    public static function run($params) {
+    public static function run($params)
+    {
 
         global $wpdb;
         $rss = new self();
@@ -54,14 +55,15 @@ class RSS
             $meta[$row['meta_key']] = $row['meta_value'];
         }
         
-        $results = $rss -> getFeed ($meta['feed_url'], $meta);
+        $results = $rss -> getFeed($meta['feed_url'], $meta);
 
-        foreach($results as $item){
+        foreach ($results as $item) {
             $rss -> makePost($item['title'], $item['content']);
         }
     }
 
-    public function makePost($title, $content) {
+    public function makePost($title, $content)
+    {
 
         $post_content = IO:: readAssetFile('youtube_live_post.html');
         
@@ -70,10 +72,8 @@ class RSS
         }
 
         if ($content) {
-            
             $desc = str_replace('\n', '<br/>', $content);
             $post_content = str_replace("%description%", $desc, $post_content);
-
         }
 
         $data = array(
@@ -99,24 +99,27 @@ class RSS
         $this -> store -> log(get_class($this).':getFeed()', json_encode($queryParams));
 
         $total = 0;
-        if(isset($queryParams['maxResults'])) {
+        if (isset($queryParams['maxResults'])) {
             $total = $queryParams['maxResults'];
         }
 
-        $items = [];        
+        $items = [];
 
-        foreach($xml -> channel -> item as $item) {
+        foreach ($xml -> channel -> item as $item) {
+            if (!$item -> link) {
+                continue;
+            }
 
-            if(!$item -> link) continue;
-
-            if(isset($queryParams['rss_published_after']) && strtotime($queryParams['rss_published_after']) >= strtotime($item -> pubDate)){
+            if (isset($queryParams['rss_published_after']) && strtotime($queryParams['rss_published_after']) >= strtotime($item -> pubDate)) {
                 continue;
             }
 
             $content = "";
 
             $response = file_get_contents($item -> link);
-            if(!$response) continue;
+            if (!$response) {
+                continue;
+            }
 
             $PHPHtmlParser = dw_cp_classes['PHPHtmlParser'];
             $dom = new $PHPHtmlParser();
@@ -124,11 +127,13 @@ class RSS
 
             $articles = $dom -> find('artice');
             
-            foreach($articles as $article){
+            foreach ($articles as $article) {
                 $content .= $article -> innertext;
             }
 
-            if(!$content) $content = $item -> description;
+            if (!$content) {
+                $content = $item -> description;
+            }
 
             array_push($items, [
                 'title' => $item -> title,
@@ -141,7 +146,9 @@ class RSS
 
             $total -= 1;
 
-            if($total < 1) break;
+            if ($total < 1) {
+                break;
+            }
 
             break;
         }
@@ -154,19 +161,18 @@ class RSS
 
         $this -> store -> debug(get_class($this).':xml()', '{STARTED}');
 
-        if(!preg_match("/^http:\/\//i", $url) && !preg_match("/^https:\/\//i", $url))
+        if (!preg_match("/^http:\/\//i", $url) && !preg_match("/^https:\/\//i", $url)) {
             return this;
+        }
 
         $xml = file_get_contents($url);
 
-        try{
-            
+        try {
             $xml = simplexml_load_string($xml);
 
             $this -> store -> set('xml', $xml);
 
             return $xml;
-
         } catch (Exception $ex) {
             $this -> store -> set('_ERROR', $ex);
             $this -> store -> error(get_class($this).':xml()', $ex -> getMessage());
