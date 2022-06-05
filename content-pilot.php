@@ -5,10 +5,10 @@
 
 /*
     Plugin Name: Content Pilot
-    Description: This plugin is worst
+    Description: Crawls internet to create automated posts
     Version: 0.1.1
     Author: Developers@Work
-    Author URI: https://developerswork.online
+    Author URI: https://thedevelopers.work
     License: GPLv2 or later
     Text Domain: dw-content-pilot
 */
