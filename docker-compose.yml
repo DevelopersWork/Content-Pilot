@@ -16,12 +16,14 @@ services:
     restart: 'on-failure:3'
 
   php_composer:
-    image: 'composer:2.3.5'
+    image: 'composer:2.3.7'
     container_name: 'php-composer'
     volumes:
       - '.:/content-pilot:rw'
     working_dir: /content-pilot
-    command: 'composer install'
+    command: 'composer --no-cache --no-scripts update'
+    environment:
+      COMPOSER_PROCESS_TIMEOUT: 2000
     restart: 'no'
 
   wordpress:
@@ -29,7 +31,7 @@ services:
       - mysql
     depends_on:
       - php_composer
-    image: 'wordpress:6.0.0-php7.4-apache'
+    image: 'wordpress:6.0.0-php8.1-apache'
     container_name: 'wp-wordpress'
     ports:
       - '$WORDPRESS_PORT:80'
