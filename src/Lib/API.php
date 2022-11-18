@@ -213,9 +213,11 @@ class API
         return $result;
     }
 
-    public static function getSecret(string $id, string $author_id)
+    public static function getSecret(string $id, string $author_id = NULL)
     {
         global $wpdb;
+
+        if(!$author_id) $author_id = get_current_user_id();
 
         $table_prefix = $wpdb -> base_prefix;
         $query = "SELECT * FROM ".$table_prefix."posts where post_type = 'dw_cp_secrets' and post_author = '".$author_id."' and id='".$id."' and post_status = 'publish'";
