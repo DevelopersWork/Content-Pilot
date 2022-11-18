@@ -1,4 +1,7 @@
 node_modules/**
+vendor/**
+
 *.log
-.env*
-tmp/mysql*
+
+composer.lock
+.env

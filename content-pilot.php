@@ -5,10 +5,10 @@
 
 /*
     Plugin Name: Content Pilot
-    Description: This plugin is worst
+    Description: Crawls internet to create automated posts
     Version: 0.1.1
     Author: Developers@Work
-    Author URI: https://developerswork.online
+    Author URI: https://thedevelopers.work
     License: GPLv2 or later
     Text Domain: dw-content-pilot
 */
@@ -71,8 +71,6 @@ class DWContentPilot {
 
     public function wp_loaded() {
 
-        
-
     }
 
 }
@@ -81,7 +79,8 @@ if ( class_exists('DWContentPilot') && $error == FALSE ) {
 
     $classes = array(
         'Google_Client' => Google_Client:: class,
-        'Google_Service_YouTube' => Google_Service_YouTube:: class
+        'Google_Service_YouTube' => Google_Service_YouTube:: class,
+        'PHPHtmlParser' => PHPHtmlParser\Dom:: class
     );
     define( 'dw_cp_classes', $classes);
 

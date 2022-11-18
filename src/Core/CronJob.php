@@ -6,6 +6,7 @@ namespace DW\ContentPilot\Core;
 
 use DW\ContentPilot\Core\Store;
 use DW\ContentPilot\Lib\YouTube;
+use DW\ContentPilot\Lib\RSS;
 
 class CronJob
 {
@@ -93,7 +94,7 @@ class CronJob
     {
         global $wpdb;
         
-        $this -> store -> log(get_class($this).':run()', $job_hash);
+        $this -> store -> log(get_class($this).':run('.$job_hash.')', '{STARTED}');
 
         $query_1 = "select meta_key, meta_value, post_id from ".$wpdb -> base_prefix."postmeta where md5(post_id) = '".$job_hash."'";
 
@@ -117,69 +118,9 @@ class CronJob
         }
 
         if (strtolower($service) == 'youtube') {
-            $query = "select max(meta_value) as published from ".$wpdb -> base_prefix."postmeta where meta_key like '".$result[0]['post_id']."_yt_published_after'";
-            $_result = $wpdb -> get_results("$query", 'ARRAY_A');
-
-            $last_insert = "";
-            if (count($_result) > 1) {
-                $last_insert = $_result[0]['published'];
-            }
-
-            $meta = array(
-                'secret' => '',
-                'author' => $result[0]['post_author'],
-                'yt_channel' => '',
-                'yt_video' => '',
-                'yt_keyword' => '',
-                'yt_video_type' => '',
-                'yt_published_after' => $last_insert ? $last_insert : '1970-01-01T00:00:00Z'
-            );
-            foreach ($result as $_ => $row) {
-                $meta[$row['meta_key']] = $row['meta_value'];
-            }
-
-            if (!$meta['secret']) {
-                return $this -> store -> error(get_class($this).':run('.$post_id.')', '{API KEY NOT FOUND}');
-            }
-
-            $results = YouTube:: getVideos($meta);
-
-            if (!$results || !isset($results['items'])) {
-                return $this -> store -> error(get_class($this).':run('.$post_id.')', '{NO NEW VIDEOS FOUND}');
-            }
-
-            $length = ($results['pageInfo']['resultsPerPage'] % 17) + 1;
-            $ids = array();
-
-            for ($i=0; $i < $length; $i++) {
-                $item = $results['items'][$i];
-
-                if (isset($item['id'])) {
-                    array_push($ids, $item['id']['videoId']);
-                }
-            }
-
-            $results = YouTube:: fetchVideo($ids, $meta);
-
-            if (!$results || !isset($results['kind']) || !isset($results['items'])) {
-                return $this -> store -> error(get_class($this).':run('.$post_id.')', '{YouTube API FAILED}');
-            }
-
-            foreach ($results['items'] as $item) {
-                if (isset($item['id'])) {
-                    $id = $item['id'];
-                }
-
-                if (isset($item['snippet'])) {
-                    $snippet = $item['snippet'];
-                }
-
-                if (isset($item['statistics'])) {
-                    $statistics = $item['statistics'];
-                }
-
-                YouTube:: makePost($id, $snippet, $statistics);
-            }
+            YouTube:: run($result);
+        } elseif (strtolower($service) == 'rss') {
+            RSS:: run($result);
         }
 
         return $result;

@@ -23,11 +23,11 @@ class YouTube
         $this -> store -> debug(get_class($this).':__construct()', '{STARTED}');
     }
 
-    public static function getVideos(array $params)
+    public function getVideos(array $params)
     {
-        $yt = new YouTube();
+
         if (isset($params['secret']) && isset($params['author'])) {
-            $yt -> setKey($params['secret'], $params['author']);
+            $this -> setKey($params['secret'], $params['author']);
         }
 
         $queryParams = array();
@@ -54,23 +54,22 @@ class YouTube
             $queryParams['eventType'] = in_array($eventType, $events) ? $eventType : 'live';
         }
 
-        return $yt -> search($params['yt_keyword'], $queryParams);
+        return $this -> search($params['yt_keyword'], $queryParams);
     }
 
-    public static function fetchVideo(array $ids, array $params = array())
+    public function fetchVideo(array $ids, array $params = array())
     {
-        $yt = new YouTube();
-
+        
         if (isset($params['secret']) && isset($params['author'])) {
-            $yt -> setKey($params['secret'], $params['author']);
+            $this -> setKey($params['secret'], $params['author']);
         }
 
         $queryParams = array();
 
-        return $yt -> video($ids, $queryParams);
+        return $this -> video($ids, $queryParams);
     }
 
-    public static function makePost($id = array(), $snippet = array(), $statistics = array(), $category = array())
+    private function makePost($id = array(), $snippet = array(), $statistics = array(), $category = array())
     {
         $post_content = IO:: readAssetFile('youtube_live_post.html');
 
@@ -179,6 +178,78 @@ class YouTube
         }
 
         return false;
+    }
+
+    public static function run($params)
+    {
+        
+        global $wpdb;
+
+        $yt = new self();
+        
+        $query = "select max(meta_value) as published from ".$wpdb -> base_prefix."postmeta where meta_key like '".$params[0]['post_id']."_yt_published_after'";
+        $_result = $wpdb -> get_results("$query", 'ARRAY_A');
+
+        $last_insert = "";
+        if (count($_result) > 1) {
+            $last_insert = $_result[0]['published'];
+        }
+
+        $meta = array(
+            'secret' => '',
+            'author' => $params[0]['post_author'],
+            'yt_channel' => '',
+            'yt_video' => '',
+            'yt_keyword' => '',
+            'yt_video_type' => '',
+            'yt_published_after' => $last_insert ? $last_insert : '1970-01-01T00:00:00Z'
+        );
+        foreach ($params as $_ => $row) {
+            $meta[$row['meta_key']] = $row['meta_value'];
+        }
+
+        if (!$meta['secret']) {
+            return $yt -> store -> error(get_class($yt).':run('.$post_id.')', '{API KEY NOT FOUND}');
+        }
+
+        $results = $yt -> getVideos($meta);
+
+        if (!$results || !isset($results['items'])) {
+            return $yt -> store -> error(get_class($yt).':run('.$post_id.')', '{NO NEW VIDEOS FOUND}');
+        }
+
+        $length = ($results['pageInfo']['resultsPerPage'] % 17) + 1;
+        $ids = array();
+
+        for ($i=0; $i < $length; $i++) {
+            $item = $results['items'][$i];
+
+            if (isset($item['id'])) {
+                array_push($ids, $item['id']['videoId']);
+            }
+        }
+
+        $results = $yt -> fetchVideo($ids, $meta);
+
+        if (!$results || !isset($results['kind']) || !isset($results['items'])) {
+            return $yt -> store -> error(get_class($yt).':run('.$post_id.')', '{YouTube API FAILED}');
+        }
+
+        foreach ($results['items'] as $item) {
+            if (isset($item['id'])) {
+                $id = $item['id'];
+            }
+
+            if (isset($item['snippet'])) {
+                $snippet = $item['snippet'];
+            }
+
+            if (isset($item['statistics'])) {
+                $statistics = $item['statistics'];
+            }
+
+            $yt -> makePost($id, $snippet, $statistics);
+        }
     }
 
     private function createClient(string $_api_key = "")

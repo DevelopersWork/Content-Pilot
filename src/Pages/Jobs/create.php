@@ -49,7 +49,7 @@
                                 <select name="job_service" id="job_service" onChange="serviceUpdate(this)">
                                     <option value="" selected>None</option>
                                     <option value="YouTube">YouTube</option>
-                                    <!-- <option value="RSS">RSS Feed</option> -->
+                                    <option value="RSS">RSS Feed</option>
                                 </select>
                                 <p class="description">What kind of Service Job will perform!</p>
                             </td>
@@ -63,6 +63,7 @@
                             document.getElementById('row_yt_keyword').hidden = true;
                             document.getElementById('row_job_hint').hidden = true;
                             document.getElementById('row_yt_video_type').hidden = true;
+                            document.getElementById('row_rss_feed_url').hidden = true;
 
                             if (event.value == 'YouTube') {
 
@@ -96,6 +97,33 @@
                                 document.getElementById('row_job_hint').hidden = false;
                                 document.getElementById('row_yt_video_type').hidden = false;
                             }
+                            if (event.value == 'RSS') {
+
+                                let secrets = <?php echo json_encode($this -> fetchSecrets())?>;
+
+                                let option = document.createElement('option');
+                                option.value = "";
+                                option.innerHTML = "None";
+                                option.selected = true
+
+                                document.getElementById('job_secret').innerHTML = "";
+                                document.getElementById('job_secret').add(option);
+
+                                for (let i in secrets) {
+                                    let secret = secrets[i];
+
+                                    if (secret['service'] != event.value)
+                                        continue;
+
+                                    let option = document.createElement('option');
+                                    option.value = secret['id'];
+                                    option.innerHTML = secret['name'];
+
+                                    document.getElementById('job_secret').add(option);
+                                }
+
+                                document.getElementById('row_rss_feed_url').hidden = false;
+                            }
                         }
                         </script>
 
@@ -110,6 +138,20 @@
                                 <p class="description">Select the Secret key for the Job</p>
                             </td>
                         </tr>
+
+                        <tr id="row_rss_feed_url" hidden>
+                            <th scope="row">
+                                <label for="rss_feed_url">Feed Url</label>
+                            </th>
+                            <td>
+                                <input placeholder="" type="text" class="code widefat" name="rss_feed_url"
+                                    id="rss_feed_url" value="">
+                                <p class="description">
+                                    Example: https://news.google.com/rss/search?q=gaming
+                                </p>
+                            </td>
+                        </tr>
+
                         <tr id="row_yt_video_type" hidden>
                             <th scope="row">
                                 <label for="yt_video_type">Video Type</label>

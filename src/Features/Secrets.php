@@ -23,9 +23,6 @@ class Secrets extends WPPage
             'function' => array( $this, 'renderPage' )
         ));
 
-        $categories = array('name' => $this -> store -> get('name'), 'value' => array('YouTube'));
-        $this -> store -> set('categories', $categories);
-
         $post_type = array(
             'description' => 'API keys of the Content Pilot plugin',
             'public' => false,
@@ -39,6 +36,9 @@ class Secrets extends WPPage
             '__name' => $this -> store -> get('name')
         );
         $this -> store -> set('post_type', $post_type);
+
+        $categories = array('name' => $this -> store -> get('name'), 'value' => array('YouTube', 'RSS'));
+        $this -> store -> set('categories', $categories);
 
         $this -> store -> set('tabs', array('create', 'view', 'edit'));
 
