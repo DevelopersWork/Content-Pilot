@@ -1,17 +1,26 @@
 <?php
-/** 
- * @package DWContentPilot
+/**
+ * Plugin Name
+ *
+ * @package           DWContentPilot
+ * @author            DevelopersWork
+ * @copyright         2022 DevelopersWork
+ * @license           GPL-2.0-or-later
+ *
+ * @wordpress-plugin
+ * Plugin Name:       Content Pilot
+ * Plugin URI:        https://example.com/plugin-name
+ * Description:       Crawls internet to create automated posts.
+ * Version:           0.1.1
+ * Requires at least: 5.2
+ * Requires PHP:      7.2
+ * Author:            DevelopersWork
+ * Author URI:        https://thedevelopers.work
+ * Text Domain:       plugin-slug
+ * License:           GPL v2 or later
+ * License URI:       https://raw.githubusercontent.com/DevelopersWork/Content-Pilot/release/master/license.txt
+ * Update URI:        https://github.com/DevelopersWork/Content-Pilot/tags
  */
-
-/*
-    Plugin Name: Content Pilot
-    Description: Crawls internet to create automated posts
-    Version: 0.1.1
-    Author: Developers@Work
-    Author URI: https://thedevelopers.work
-    License: GPLv2 or later
-    Text Domain: dw-content-pilot
-*/
 
 $error = false;
 
