@@ -1,101 +1,179 @@
 <?php
-/** 
- * @package DevWPContentAutopilot
+/**
+ * @package DWContentPilot
  */
-namespace Dev\WpContentAutopilot;
+namespace DW\ContentPilot;
 
-use Dev\WpContentAutopilot\Core\Services;
+use DW\ContentPilot\Lib\Activate;
+use DW\ContentPilot\Lib\Deactivate;
+use DW\ContentPilot\Lib\Validations;
+use DW\ContentPilot\Core\Store;
+use DW\ContentPilot\Core\Service;
+use DW\ContentPilot\Core\CronJob;
 
-require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+class Main
+{
 
-class Main {
+    private $store;
 
-    private $store, $version;
+    private $service;
 
-    function __construct($store, $version = '1.0') {
+    private $cronJob;
 
-        $this->store = $store;
-        $this -> version = $version;
+    private $menus = array();
+
+    public function __construct()
+    {
+
+        $this -> store = new Store();
+
+        $this -> store -> debug(get_class($this).':__construct()', '{STARTED}');
     }
 
-    public function init() {
-        global $wpdb;
-
-        $tables = array('_audits', '_jobs', '_metas', '_secrets', '_services', '_triggers');
-
-        foreach($tables as $table) {
+    public function adminMenu()
+    {
             
-            $query = "SHOW TABLES LIKE '".PLUGIN_PREFIX.$table."'";
+        $this -> store -> debug(get_class($this).':adminMenu()', '{STARTED}');
 
-            $result = $wpdb->get_results( $query, 'ARRAY_A' );
+        if (!is_user_logged_in()) {
+            return $this -> store -> debug(get_class($this).':adminMenu()', '{WP AUTH BROKEN}');
+        }
+        
+        $this -> registerScripts() -> registerStyles() -> registerMenus();
+    }
 
-            if( ! $result ) {
-                return;
-            }
+    public function init()
+    {
+
+        $this -> store -> debug(get_class($this).':init()', '{STARTED}');
+
+        if (!$this -> compatibilityCheck()) {
+            return;
         }
 
-        add_filter( 'cron_schedules', array( $this, 'content_pilot_add_cron_interval') );
+        $this -> service = new Service();
+        $this -> cronJob = new CronJob();
 
-        $services = array(
-            Features\Dashboard:: class,
-            Features\Secret:: class,
-            Features\Meta:: class,
-            Features\Job:: class,
-            Features\CronJob:: class
-        );
+        if ($this -> service -> register() && $this -> cronJob -> register()) {
+            $this -> registerActions() -> registerFilters() -> registerPostTypes();
 
-        $_service = new Services($this -> store, $services);
-        $_service -> register();
-
+            add_action('admin_menu', array( $this, 'adminMenu' ));
+            
+            add_action('admin_init', array($this, 'adminInit'));
+        }
     }
 
-    public function admin_enqueue() {
-
-        $regex = "/^".PLUGIN_SLUG.".*$/i";
-        if ( ! isset( $_GET['page'] ) ) return;
-        if ( ! preg_match($regex, $_GET['page']) ) return;
-
-        wp_register_script(PLUGIN_SLUG . '-jquery3', 'https://code.jquery.com/jquery-3.3.1.min.js', array(), '3.3.1', true); // jQuery v3
-        wp_enqueue_script(PLUGIN_SLUG . '-jquery3');
-        wp_script_add_data(PLUGIN_SLUG . '-jquery3', array( 'integrity', 'crossorigin' ) , array( 'sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=', 'anonymous' ));
-
-        wp_register_script(PLUGIN_SLUG . '-bootstrap.bundle.min', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', array(), '5.1.3', true);
-        wp_enqueue_script(PLUGIN_SLUG . '-bootstrap.bundle.min');
-        wp_script_add_data(PLUGIN_SLUG . '-bootstrap.bundle.min', array( 'integrity', 'crossorigin' ) , array( ));
-
-        wp_enqueue_style( 
-            PLUGIN_SLUG . '-bootstrap.min', 
-            'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', 
-            array(), 
-            '5.1.3', 
-            'all'
-        );
-
-        wp_enqueue_script(PLUGIN_NAME . '-script.admin', PLUGIN_URL . 'assets/js/script.admin.js', array(), $this->version, true );
-        wp_enqueue_style(PLUGIN_NAME . '-style.admin', PLUGIN_URL . 'assets/css/style.admin.css', array(), $this->version, 'all' );
-
+    public function adminInit()
+    {
+        $this -> store -> debug(get_class($this).':adminInit()', '{STARTED}');
     }
 
+    private function compatibilityCheck()
+    {
 
-    public function content_pilot_add_cron_interval( $schedules ) { 
-        global $wpdb;
+        $php_version_check = Validations::validatePHPVersion($this -> store);
+
+        if (!$php_version_check) {
+            return $php_version_check;
+        }
+
+        $wp_version_check = Validations::validateWPVersion($this -> store);
+
+        if (!$wp_version_check) {
+            return $wp_version_check;
+        }
+
+        $db_tables_check = Validations::checkSQLTables($this -> store);
+
+        if (!$db_tables_check) {
+            return $db_tables_check;
+        }
         
-        $query = "SELECT * FROM " . PLUGIN_PREFIX . "_triggers WHERE disabled = 0 AND deleted = 0";
-    
-        $_result = $wpdb->get_results( $query, 'ARRAY_A' );
-    
-        foreach($_result as $_ => $row) {
+        return $this;
+    }
 
-            $name = PLUGIN_SLUG . '_' . $row['name'];
+    private function registerActions()
+    {
+            
+        $this -> store -> debug(get_class($this).':registerActions()', '{STARTED}');
 
-            $schedules[ $row['type'] ] = array(
+        do_action(DWContetPilotPrefix.'register_actions');
+
+        return $this;
+    }
+
+    private function registerPostTypes()
+    {
+            
+        $this -> store -> debug(get_class($this).':registerPostTypes()', '{STARTED}');
+
+        do_action(DWContetPilotPrefix.'register_post_types');
+
+        return $this;
+    }
+
+    private function registerScripts()
+    {
+
+        $this -> store -> debug(get_class($this).':registerScripts()', '{STARTED}');
+
+        do_action(DWContetPilotPrefix.'register_scripts');
+
+        return $this;
+    }
+
+    private function registerStyles()
+    {
+
+        $this -> store -> debug(get_class($this).':registerStyles()', '{STARTED}');
+
+        do_action(DWContetPilotPrefix.'register_styles');
+
+        return $this;
+    }
+
+    private function registerFilters()
+    {
+
+        $this -> store -> debug(get_class($this).':registerFilters()', '{STARTED}');
+
+        add_filter('cron_schedules', array( $this, 'addCronTriggers'));
+
+        do_action(DWContetPilotPrefix.'register_filters');
+
+        return $this;
+    }
+
+    private function registerMenus()
+    {
+
+        $this -> store -> debug(get_class($this).':registerMenus()', '{STARTED}');
+
+        do_action(DWContetPilotPrefix.'register_menus');
+    }
+
+    public function addCronTriggers($schedules)
+    {
+
+        $this -> store -> debug(get_class($this).':addCronTriggers()', '{STARTED}');
+        
+        global $wpdb;
+
+        $table_prefix = $wpdb -> base_prefix . esc_attr(DWContetPilotPrefix);
+        
+        $query = "SELECT * FROM " . $table_prefix . "_triggers WHERE disabled = 0 AND deleted = 0";
+    
+        $_result = $wpdb -> get_results($query, 'ARRAY_A');
+    
+        foreach ($_result as $_ => $row) {
+            $name = DWContetPilotPrefix . '_' . $row['name'];
+
+            $schedules[ DWContetPilotPrefix . '_' .$row['type'] ] = array(
                 'interval' => $row['seconds'] + ( $row['minutes'] + ( $row['hours'] + $row['days'] * 24 ) * 60 ) * 60,
-                'display'  => esc_html__( str_replace('_', ' ', $row['type']) ) 
+                'display'  => esc_html__(str_replace('_', ' ', $row['type']))
             );
-
         }
     
         return $schedules;
     }
-    
 }

@@ -1,93 +1,89 @@
 <?php
 /** 
- * @package DevWPContentAutopilot
+ * @package DWContentPilot
  */
 
 /*
     Plugin Name: Content Pilot
-    Description: This plugin is worst
-    Version: 0.0.1
+    Description: Crawls internet to create automated posts
+    Version: 0.1.1
     Author: Developers@Work
-    Author URI: https://developerswork.online
+    Author URI: https://thedevelopers.work
     License: GPLv2 or later
-    Text Domain: dev-content-pilot
+    Text Domain: dw-content-pilot
 */
-define('PLUGIN_NAME', 'Content Pilot');
-define('PLUGIN_VERSION', '0.0.1');
 
-$CORRUPTED = FALSE;
+$error = false;
 
 // If Absolute Path is not defined no point in starting this script.
-if( ! defined('ABSPATH') ) $CORRUPTED = TRUE;
+if( ! defined('ABSPATH') ) $error = true;
+require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
 // Require once the Composer Autoload
 if ( file_exists(dirname(__FILE__).'/vendor/autoload.php' ) ){
     require_once dirname(__FILE__).'/vendor/autoload.php';
-} else $CORRUPTED = TRUE;
+} else $error = true;
 
-use Dev\WpContentAutopilot\Main;
-use Dev\WpContentAutopilot\Core\{Store};
+use DW\ContentPilot\Main;
+use DW\ContentPilot\Lib\{ Activate, Deactivate };
 
-class DevWPContentAutopilot {
+// If someone already using the prefix hell and heaven with them
+if( defined('DWContetPilotPrefix') ) $error = true;
+else define('DWContetPilotPrefix', 'dw_cp');
 
-    protected $process;
+define( 'dw_cp_plugin_name', 'Content Pilot');
+define( 'dw_cp_plugin_version', '0.1.1');
+define( 'dw_cp_plugin_dir_path', plugin_dir_path(__FILE__));
+define( 'dw_cp_plugin_dir_url', plugin_dir_url(__FILE__));
+define( 'dw_cp_plugin_base_name', plugin_basename(__FILE__));
+
+class DWContentPilot {
+
+    private $main;
 
     public function __construct() {
 
-        $store = new Store();
+        $_activate = new Activate();
+        register_activation_hook( __FILE__, array($_activate, 'activate') );
 
-        $store->set('name', plugin_basename(__FILE__));
+        $_deactivate = new Deactivate();
+        register_deactivation_hook( __FILE__, array($_deactivate, 'deactivate') );
 
-        $store->set('Google_Client', Google_Client:: class);
-        $store->set('Google_Service_YouTube', Google_Service_YouTube:: class);
-        
-        $this->process = new Main($store, PLUGIN_VERSION);
+        if ( !is_plugin_active( dw_cp_plugin_base_name ) ) {
+            return;
+        }
 
-        add_action( 'admin_enqueue_scripts', array($this->process, 'admin_enqueue') );
+        if(isset($_REQUEST[DWContetPilotPrefix.'_API'])) {
+            
+        } else {
+            $this -> main = new Main();
+            add_action( 'plugins_loaded', array($this, 'plugins_loaded') );
+        }
     }
 
-    public function init() { $this->process->init(); }
+    public function plugins_loaded() {
+
+        add_action( 'init', array($this -> main, 'init') );
+
+        add_action( 'wp_loaded', array($this, 'wp_loaded') );
+
+    }
+
+    public function wp_loaded() {
+
+    }
 
 }
 
-/**
- * The code that runs during plugin activation
- */
-function onActivate() {
+if ( class_exists('DWContentPilot') && $error == FALSE ) {
 
-	Dev\WpContentAutopilot\Core\Activate:: activate();
+    $classes = array(
+        'Google_Client' => Google_Client:: class,
+        'Google_Service_YouTube' => Google_Service_YouTube:: class,
+        'PHPHtmlParser' => PHPHtmlParser\Dom:: class
+    );
+    define( 'dw_cp_classes', $classes);
 
-}
-
-/**
- * The code that runs during plugin deactivation
- */
-function onDeactivate() {
-	Dev\WpContentAutopilot\Core\Deactivate:: deactivate();
-}
-
-/**
- * Initialize all the core classes of the plugin
- */
-if ( class_exists('DevWPContentAutopilot') && $CORRUPTED == FALSE ) {
-    
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-    global $wpdb;
-
-    define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
-    define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-    define( 'PLUGIN_SLUG', 'dev-content-pilot' );
-    define( 'PLUGIN_PREFIX', $wpdb -> base_prefix . str_replace('-', '', PLUGIN_SLUG) );
-    
-    // file_put_contents('php://stderr', print_r(PLUGIN_NAME . ": {STARTED}\n", TRUE));
-
-    $devWPContentAutopilot = new DevWPContentAutopilot();
-
-    register_activation_hook( __FILE__, 'onActivate' );
-
-    register_deactivation_hook( __FILE__, 'onDeactivate' );
-
-    add_action( 'init', array($devWPContentAutopilot, 'init') );
+    new DWContentPilot();
 
 }

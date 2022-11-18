@@ -1,24 +1,33 @@
 {
-    "name": "dev/wp-content-autopilot",
-    "description": "So far I've havent got anything",
+    "name": "dw/content-pilot",
+    "description": "Wordpress plugin to automatically create content",
     "type": "project",
-    "license": "GPL-3.0",
+    "license": "GPL-3.0-or-later",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Dev\\WpContentAutopilot\\": "src/"
+            "DW\\ContentPilot\\": "src/"
         }
     },
     "authors": [
         {
             "name": "developerswork",
-            "email": "admin@developerswork.com"
+            "email": "admin@thedevelopers.work"
         }
     ],
     "require": {
-        "google/apiclient": "^2.12.1"
+        "google/apiclient": "^2.12.1",
+        "paquettg/php-html-parser": "^3.1"
+    },
+    "require-dev": {
+        "overtrue/phplint": "^2.0.0",
+        "squizlabs/php_codesniffer": "^3.5"
     },
     "scripts": {
-        "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
+        "pre-autoload-dump": "Google\\Task\\Composer::cleanup",
+        "lint": "phplint --no-cache src/",
+        "phpcs": "phpcs --standard=PSR2 --no-cache --warning-severity=8 --error-severity=1 src/",
+        "phpcbf": "phpcbf --standard=PSR2 src/"
     },
     "extra": {
         "google/apiclient-services": [
