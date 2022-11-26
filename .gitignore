@@ -4,4 +4,3 @@ vendor/**
 *.log
 
 composer.lock
-.env
