@@ -24,8 +24,7 @@
 		"VisualStudioExptTeam.vscodeintellicode",
 		"bmewburn.vscode-intelephense-client",
 		"wix.vscode-import-cost",
-		"esbenp.prettier-vscode",
-		"DEVSENSE.phptools-vscode"
+		"esbenp.prettier-vscode"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

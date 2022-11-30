@@ -3,6 +3,8 @@ then
     exit 1
 fi
 
+apt-get update && apt-get install git -y
+
 ###################################
 # Installing Node Version Manager #
 ###################################

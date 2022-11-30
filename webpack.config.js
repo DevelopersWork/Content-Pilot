@@ -70,7 +70,6 @@ module.exports = (env, argv) => ({
 		}),
 		new VersionFile({
 			packageFile: path.join(__dirname, 'package.json'),
-			template: path.join(__dirname, 'version.ejs'),
 			outputFile: path.join(BUILD_DIR, 'version.json'),
 			data: {
 				date: new Date(),

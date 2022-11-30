@@ -23,29 +23,28 @@
  * Update URI:        https://github.com/DevelopersWork/Content-Pilot/tags
  */
 
-$error = false;
+$error = FALSE;
+
+// If someone already using the prefix hell and heaven with them
+define('dw_cp_prefix', 'dw_cp');
+// Constants
+define('dw_cp_name', 'Content Pilot');
+define('dw_cp_version', '0.1.1');
+define('dw_cp_dir', plugin_dir_path(__FILE__));
+define('dw_cp_url', plugin_dir_url(__FILE__));
+define('dw_cp_base_name', plugin_basename(__FILE__));
 
 // If Absolute Path is not defined no point in starting this script.
-if (!defined('ABSPATH')) $error = true;
-require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+if (!defined('ABSPATH')) $error = TRUE;
+else require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
 // Require once the Composer Autoload
 if (file_exists(dirname(__FILE__) . '/vendor/autoload.php')) {
     require_once dirname(__FILE__) . '/vendor/autoload.php';
-} else $error = true;
+} else $error = TRUE;
 
 use DW\ContentPilot\Main;
 use DW\ContentPilot\Lib\{Activate, Deactivate};
-
-// If someone already using the prefix hell and heaven with them
-if (defined('DWContetPilotPrefix')) $error = true;
-else define('DWContetPilotPrefix', 'dw_cp');
-
-define('dw_cp_plugin_name', 'Content Pilot');
-define('dw_cp_plugin_version', '0.1.1');
-define('dw_cp_plugin_dir_path', plugin_dir_path(__FILE__));
-define('dw_cp_plugin_dir_url', plugin_dir_url(__FILE__));
-define('dw_cp_plugin_base_name', plugin_basename(__FILE__));
 
 class DWContentPilot
 {
@@ -54,29 +53,35 @@ class DWContentPilot
 
     public function __construct()
     {
-
+        // Hook for the activation of the plugin
         $_activate = new Activate();
         register_activation_hook(__FILE__, array($_activate, 'activate'));
 
+        
+        // If plugin isn't active just stop here
+        if (!is_plugin_active(dw_cp_plugin_base_name)) return;
+
+        
+        // Hook for the deactivation of the plugin
         $_deactivate = new Deactivate();
         register_deactivation_hook(__FILE__, array($_deactivate, 'deactivate'));
 
-        if (!is_plugin_active(dw_cp_plugin_base_name)) {
-            return;
-        }
 
-        if (isset($_REQUEST[DWContetPilotPrefix . '_API'])) {
-        } else {
-            $this->main = new Main();
-            add_action('plugins_loaded', array($this, 'plugins_loaded'));
-        }
+        // Now the plugin is active start the execution main
+        // Creating the main object
+        $this->main = new Main();
+
+        // Adding an action to plugins_loaded
+        add_action('plugins_loaded', array($this, 'plugins_loaded'));
     }
 
     public function plugins_loaded()
     {
 
+        // Adding an action to init
         add_action('init', array($this->main, 'init'));
 
+        // Adding an action to wp_loaded
         add_action('wp_loaded', array($this, 'wp_loaded'));
     }
 
@@ -85,14 +90,9 @@ class DWContentPilot
     }
 }
 
-if (class_exists('DWContentPilot') && $error == FALSE) {
-
-    $classes = array(
-        'Google_Client' => Google_Client::class,
-        'Google_Service_YouTube' => Google_Service_YouTube::class,
-        'PHPHtmlParser' => PHPHtmlParser\Dom::class
-    );
-    define('dw_cp_classes', $classes);
+// If there are no errors start the execution of the Plugin
+if (class_exists('DWContentPilot') && !$error) {
 
     new DWContentPilot();
+
 }

@@ -6,7 +6,8 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "DW\\ContentPilot\\": "src/"
+            "DW\\ContentPilot\\Core\\": "core/",
+            "DW\\ContentPilot\\Lib\\": "lib/"
         }
     },
     "authors": [
