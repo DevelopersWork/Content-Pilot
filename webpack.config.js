@@ -1,89 +1,27 @@
+// import path from 'path';
 const path = require('path');
-
-const JS_DIR = path.resolve(__dirname, 'assets/js');
-const IMG_DIR = path.resolve(__dirname, 'assets/img');
-const LIB_DIR = path.resolve(__dirname, 'src/Lib');
-const BUILD_DIR = path.resolve(__dirname, 'build');
-
-const entry = {
-	editor: JS_DIR + '/editor.js',
-};
-const output = {
-	path: BUILD_DIR,
-	filename: 'js/[name].js',
-};
-
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
-const DependencyExtractionWebpackPlugin = require('@wordpress/dependency-extraction-webpack-plugin');
-
-const plugins = (argv) => [
-	new CleanWebpackPlugin({
-		cleanStaleWebpackAssets: 'production' === argv.mode, // Automatically remove all unused webpack assets on rebuild, when set to true in production. ( https://www.npmjs.com/package/clean-webpack-plugin#options-and-defaults-optional )
-	}),
-
-	new MiniCssExtractPlugin({
-		filename: 'css/[name].css',
-	}),
-
-	// new CopyPlugin({
-	// 	patterns: [{ from: LIB_DIR, to: BUILD_DIR + '/library' }],
-	// }),
-
-	new DependencyExtractionWebpackPlugin({
-		injectPolyfill: true,
-		combineAssets: true,
-	}),
-];
-
-const rules = [
-	{
-		test: /\.js$/,
-		include: [JS_DIR],
-		exclude: /node_modules/,
-		use: 'babel-loader',
-	},
-	{
-		test: /\.scss$/,
-		exclude: /node_modules/,
-		use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
-	},
-	{
-		test: /\.(png|jpg|svg|jpeg|gif|ico)$/,
-		use: {
-			loader: 'file-loader',
-			options: {
-				name: 'img/[name].[ext]',
-				publicPath: 'production' === process.env.NODE_ENV ? '../' : '../../',
-			},
-		},
-	},
-	{
-		test: /\.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
-		exclude: [IMG_DIR, /node_modules/],
-		use: {
-			loader: 'file-loader',
-			options: {
-				name: '[path][name].[ext]',
-				publicPath: 'production' === process.env.NODE_ENV ? '../' : '../../',
-			},
-		},
-	},
-];
-
+const webpack = require('webpack');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const VersionFile = require('webpack-version-file-plugin');
+const WebpackShellPluginNext = require('webpack-shell-plugin-next');
+
+const REACTJS_DIR = path.resolve(__dirname, 'src');
+const BUILD_DIR = path.resolve(__dirname, 'build');
+
+const GIT_FILE = path.join(BUILD_DIR, 'git.json');
 
 module.exports = (env, argv) => ({
-	entry: entry,
-	output: output,
-	devtool: 'source-map',
-	module: {
-		rules: rules,
+	entry: `${REACTJS_DIR}/index.js`,
+	output: {
+		path: BUILD_DIR,
+		filename: 'bundle.js',
 	},
 	optimization: {
 		minimize: true,
+		chunkIds: 'named',
+		mangleWasmImports: true,
+		providedExports: false,
 		minimizer: [
 			new CssMinimizerPlugin(),
 			new TerserPlugin({
@@ -91,8 +29,56 @@ module.exports = (env, argv) => ({
 			}),
 		],
 	},
-	plugins: plugins(argv),
-	externals: {
-		jquery: 'jQuery',
+	module: {
+		rules: [
+			{
+				test: /\.(jsx|js)$/,
+				include: REACTJS_DIR,
+				exclude: /node_modules/,
+				use: [
+					{
+						loader: 'babel-loader',
+						options: {
+							presets: ['@babel/preset-env', '@babel/preset-react'],
+						},
+					},
+				],
+			},
+		],
 	},
+	plugins: [
+		new webpack.ids.DeterministicChunkIdsPlugin({
+			maxLength: 5,
+		}),
+		new WebpackShellPluginNext({
+			onBuildStart: {
+				scripts: [
+					`echo "{" > ${GIT_FILE}`,
+					`echo "\\"branch\\": \\"$(git name-rev --name-only HEAD)\\"," >> ${GIT_FILE}`,
+					`echo "\\"commits\\": \\"$(git rev-list HEAD --count)\\"," >> ${GIT_FILE}`,
+					`echo "\\"hash\\": \\"$(git rev-parse HEAD)\\"" >> ${GIT_FILE}`,
+					`echo "}" >> ${GIT_FILE}`,
+				],
+				blocking: true,
+				parallel: false,
+			},
+			onBuildEnd: {
+				scripts: ['echo "Webpack End"'],
+				blocking: false,
+				parallel: true,
+			},
+		}),
+		new VersionFile({
+			packageFile: path.join(__dirname, 'package.json'),
+			template: path.join(__dirname, 'version.ejs'),
+			outputFile: path.join(BUILD_DIR, 'version.json'),
+			data: {
+				date: new Date(),
+				environment: process.env.NODE_ENV || 'development',
+			},
+			extras: {
+				timestamp: Date.now(),
+			},
+		}),
+	],
 });

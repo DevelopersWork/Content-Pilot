@@ -3,6 +3,7 @@
 		[
 			"@babel/preset-env",
 			{
+				"modules": false,
 				"targets": {
 					"browsers": [
 						"last 2 Chrome versions",
@@ -17,5 +18,23 @@
 			}
 		],
 		"@babel/preset-react"
+	],
+	"plugins": [
+		[
+			"@wordpress/babel-plugin-import-jsx-pragma",
+			{
+				"scopeVariable": "createElement",
+				"scopeVariableFrag": "Fragment",
+				"source": "@wordpress/element",
+				"isDefault": false
+			}
+		],
+		[
+			"@babel/plugin-transform-react-jsx",
+			{
+				"pragma": "createElement",
+				"pragmaFrag": "Fragment"
+			}
+		]
 	]
 }
