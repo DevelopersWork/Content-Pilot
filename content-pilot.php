@@ -24,13 +24,14 @@
 **/
 
 // If someone already using the prefix hell and heaven with them
-define('dw_cp_prefix', 'dw_cp');
+define('dw_cp_prefix', 'dw_content_pilot_');
 // Constants
 define('dw_cp_name', 'Content Pilot');
 define('dw_cp_version', '0.1.1');
 define('dw_cp_dir', plugin_dir_path(__FILE__));
 define('dw_cp_url', plugin_dir_url(__FILE__));
 define('dw_cp_base_name', plugin_basename(__FILE__));
+define('dw_cp_slug', 'dw-cp-');
 
 $error = FALSE;
 
