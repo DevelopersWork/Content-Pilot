@@ -33,6 +33,9 @@ define('dw_cp_url', plugin_dir_url(__FILE__));
 define('dw_cp_base_name', plugin_basename(__FILE__));
 define('dw_cp_slug', 'dw-cp-');
 
+define('dw_cp_json_git', json_decode(file_get_contents(dw_cp_dir.'build/git.json')));
+define('dw_cp_json_version', json_decode(file_get_contents(dw_cp_dir.'build/version.json')));
+
 $error = FALSE;
 
 // If Absolute Path is not defined no point in starting this script.

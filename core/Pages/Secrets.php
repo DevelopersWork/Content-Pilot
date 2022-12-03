@@ -6,7 +6,7 @@ namespace DW\ContentPilot\Core\Pages;
 
 use DW\ContentPilot\Lib\{WPPage};
 
-class Dashboard extends WPPage {
+class Secrets extends WPPage {
 
     public function __construct($parent_slug){
         parent::__construct();
@@ -14,9 +14,7 @@ class Dashboard extends WPPage {
         $this -> page = [
             ...$this -> page,
             'parent_slug' => $parent_slug,
-            'menu_slug' => $parent_slug,
             'callback' => array($this, 'callback')
         ];
     }
-
 }

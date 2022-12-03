@@ -4,12 +4,10 @@
  */
 namespace DW\ContentPilot\Core;
 
-use DW\ContentPilot\Core\Pages\{Dashboard};
+use DW\ContentPilot\Core\Pages\{Dashboard, Secrets};
 use DW\ContentPilot\Lib\{WPPage};
 
 class Main{
-
-    private $wp_page;
 
     public function plugins_loaded(){
         // Adding an action to init
@@ -30,8 +28,6 @@ class Main{
 
         // if user is logged in
         if (is_user_logged_in()){
-
-            $this -> wp_page = new WPPage();
 
             // TODO: making roles dynamic
             // allowed roles
@@ -84,12 +80,12 @@ class Main{
         $root = new WPPage();
         $root -> page = [
             ...$root -> page,
-            'menu_slug' => dw_cp_slug . 'home',
             'icon_url' => 'dashicons-hammer',
             'position' => 22
         ];
 
-        new Dashboard();
+        new Dashboard($root -> page['menu_slug']);
+        new Secrets($root -> page['menu_slug']);
 
         do_action(dw_cp_prefix.'admin_menu');
     }

@@ -1,3 +1,15 @@
-import React from 'react';
+import { Fragment } from 'react';
 
-const App = ({ props }) => <div>Webpack HMR is Working!</div>;
+import Dashboard from './Pages/Dashboard';
+import Secrets from './Pages/Secrets';
+
+const App = ({ props }) => {
+	return (
+		<Fragment>
+			<Dashboard {...props} />
+			<Secrets {...props} />
+		</Fragment>
+	);
+};
+
+export default App;
