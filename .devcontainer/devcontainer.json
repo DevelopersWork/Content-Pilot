@@ -20,12 +20,7 @@
 	"settings": {},
 
 	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"VisualStudioExptTeam.vscodeintellicode",
-		"bmewburn.vscode-intelephense-client",
-		"wix.vscode-import-cost",
-		"esbenp.prettier-vscode"
-	],
+	"extensions": ["dbaeumer.vscode-eslint"],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

@@ -4,6 +4,8 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const VersionFile = require('webpack-version-file-plugin');
 const WebpackShellPluginNext = require('webpack-shell-plugin-next');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 const REACTJS_DIR = path.resolve(__dirname, 'src');
 const BUILD_DIR = path.resolve(__dirname, 'build');
@@ -18,7 +20,6 @@ module.exports = (env, argv) => {
 	return {
 		mode: mode,
 		watch: mode === 'production' ? false : true,
-		devtool: 'cheap-module-source-map',
 		entry: path.join(REACTJS_DIR, 'index.js'),
 		output: {
 			path: BUILD_DIR,
@@ -28,11 +29,6 @@ module.exports = (env, argv) => {
 			minimize: true,
 			nodeEnv: mode,
 			chunkIds: mode === 'development' ? 'named' : 'deterministic',
-			concatenateModules: true,
-			innerGraph: true,
-			mangleExports: true,
-			providedExports: false,
-			mergeDuplicateChunks: true,
 			minimizer: [
 				new CssMinimizerPlugin(),
 				new TerserPlugin({
@@ -55,10 +51,21 @@ module.exports = (env, argv) => {
 						},
 					],
 				},
+				{
+					test: /\.(sa|sc|c)ss$/,
+					use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+				},
 			],
 		},
 		plugins: [
-			new webpack.HotModuleReplacementPlugin(),
+			new ESLintPlugin({
+				emitError: mode !== 'development',
+			}),
+			new MiniCssExtractPlugin({
+				filename: 'css/[name].css',
+				chunkFilename: 'css/[id].css',
+				experimentalUseImportModule: true,
+			}),
 			new webpack.ids.DeterministicChunkIdsPlugin({
 				maxLength: 5,
 			}),
