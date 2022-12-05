@@ -1,10 +1,10 @@
-import { Fragment } from 'react';
+import React from 'react';
 
 const Presentation = ({ props }) => {
 	return (
-		<Fragment>
+		<React.Fragment>
 			<h1>Dashboard</h1>
-		</Fragment>
+		</React.Fragment>
 	);
 };
 

@@ -1,7 +1,7 @@
-import { Component } from 'react';
+import React from 'react';
 import Presentation from './Presentation';
 
-class ContainerComponent extends Component {
+class ContainerComponent extends React.Component {
 	constructor(props) {
 		super(props);
 	}
