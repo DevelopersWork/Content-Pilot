@@ -9,7 +9,17 @@ use DW\ContentPilot\Lib\{WPPage};
 
 class Main{
 
+    private $pages;
+
     public function plugins_loaded(){
+
+        $root = new WPPage();
+        $this -> pages = array(
+            'root' => $root,
+            'dashboard' => new Dashboard($root -> page['menu_slug']),
+            'secrets' => new Secrets($root -> page['menu_slug'])
+        );
+
         // Adding an action to init
         add_action('init', array($this, 'init'));
 
@@ -77,15 +87,11 @@ class Main{
 
     public function admin_menu(){
         
-        $root = new WPPage();
-        $root -> page = [
-            ...$root -> page,
+        $this -> pages['root'] -> page = [
+            ...$this -> pages['root'] -> page,
             'icon_url' => 'dashicons-hammer',
             'position' => 22
         ];
-
-        new Dashboard($root -> page['menu_slug']);
-        new Secrets($root -> page['menu_slug']);
 
         do_action(dw_cp_prefix.'admin_menu');
     }

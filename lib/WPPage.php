@@ -19,12 +19,12 @@ class WPPage {
             'capability' => 'manage_options', 
             'menu_slug' => strtolower(dw_cp_slug.$this -> class_name),
         ]; 
+        
+        add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_styles'));
+        add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
+        add_action( 'rest_api_init', array($this, 'rest_api_init'));
 
         add_action(dw_cp_prefix.'admin_menu', array($this, 'admin_menu'));
-
-        add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
-        add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_styles'));
-        add_action( 'rest_api_init', array($this, 'rest_api_init'));
     }
 
     public function admin_menu(){
@@ -48,11 +48,13 @@ class WPPage {
             dw_cp_json_git -> hash
         );
 
-        wp_enqueue_script('bundle.js', dw_cp_url.'build/bundle.js', ['jquery', 'wp-element'], $version, true);
-        wp_localize_script('bundle.js', 'bundle_js', [
+        wp_register_script(dw_cp_prefix.'bundle', dw_cp_url.'build/bundle.js', ['jquery', 'wp-element'], $version, true);
+        wp_localize_script(dw_cp_prefix.'bundle', dw_cp_prefix.'bundle_js', [
             'apiUrl' => home_url('/wp-json'),
             'nonce' => wp_create_nonce('wp_rest'),
         ]);
+        wp_enqueue_script(dw_cp_prefix.'bundle');
+
     }
 
     public function admin_enqueue_styles(){
@@ -64,8 +66,8 @@ class WPPage {
             dw_cp_json_git -> hash
         );
 
-        wp_register_style('bundle.css', dw_cp_url.'build/css/main.css', array(), $version);
-        wp_enqueue_style('bundle.css');
+        wp_register_style(dw_cp_prefix.'main', dw_cp_url.'build/css/main.css', array(), $version, 'all');
+        wp_enqueue_style(dw_cp_prefix.'main');
     }
 
     public function rest_api_init(){}

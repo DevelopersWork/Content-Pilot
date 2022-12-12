@@ -1,12 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-// https://react-bootstrap.github.io/getting-started/introduction/
-import 'bootstrap/scss/bootstrap.scss';
-
 import { ThemeProvider } from 'react-bootstrap';
 
-import App from './App';
+import App from './src/App';
 
 document.addEventListener('DOMContentLoaded', function () {
 	const element = document.getElementById('dwcp-admin-root');

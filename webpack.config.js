@@ -7,20 +7,22 @@ const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 
-const REACTJS_DIR = path.resolve(__dirname, 'src');
+const SRC_DIR = path.resolve(__dirname, 'src');
 const BUILD_DIR = path.resolve(__dirname, 'build');
 
 const GIT_FILE = path.join(BUILD_DIR, 'git.json');
 
 module.exports = (env, argv) => {
-	console.log(argv);
+	console.log(env, argv);
 
 	const mode = argv.mode || 'development';
 
 	return {
+		context: SRC_DIR,
 		mode: mode,
+		devtool: mode === 'production' ? false : 'source-map',
 		watch: mode === 'production' ? false : true,
-		entry: path.join(REACTJS_DIR, 'index.js'),
+		entry: path.join(__dirname, 'index.js'),
 		output: {
 			path: BUILD_DIR,
 			filename: 'bundle.js',
@@ -33,6 +35,9 @@ module.exports = (env, argv) => {
 				new CssMinimizerPlugin(),
 				new TerserPlugin({
 					parallel: true,
+					terserOptions: {
+						compress: mode === 'production',
+					},
 				}),
 			],
 		},
@@ -40,7 +45,6 @@ module.exports = (env, argv) => {
 			rules: [
 				{
 					test: /\.(jsx|js)$/,
-					include: REACTJS_DIR,
 					exclude: /node_modules/,
 					use: [
 						{
@@ -53,7 +57,13 @@ module.exports = (env, argv) => {
 				},
 				{
 					test: /\.(sa|sc|c)ss$/,
-					use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+					exclude: /node_modules/,
+					use: [
+						MiniCssExtractPlugin.loader,
+						'css-loader',
+						'sass-loader',
+						'postcss-loader',
+					],
 				},
 			],
 		},
@@ -99,5 +109,10 @@ module.exports = (env, argv) => {
 				},
 			}),
 		],
+		watchOptions: {
+			aggregateTimeout: 500,
+			poll: 1000, // Check for changes every second
+			ignored: /node_modules/,
+		},
 	};
 };
