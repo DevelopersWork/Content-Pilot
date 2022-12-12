@@ -1,22 +1,55 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 
-import { Container, Card } from 'react-bootstrap';
+import { Container, Card, Form, Button } from 'react-bootstrap';
+
+import MenuHeader from '../../Components/menuHeader';
+import TabTemplate from '../../Components/tabTemplate';
+import ViewPostsTemplate from '../../Components/viewPostsTemplate';
+
+const addNewSecrets = (props) => (
+	<Form>
+		<Form.Group className="mb-3" controlId="formBasicEmail">
+			<Form.Label>Email address</Form.Label>
+			<Form.Control type="email" placeholder="Enter email" />
+			<Form.Text className="text-muted">
+				We'll never share your email with anyone else.
+			</Form.Text>
+		</Form.Group>
+		<Form.Group className="mb-3" controlId="formBasicPassword">
+			<Form.Label>Password</Form.Label>
+			<Form.Control type="password" placeholder="Password" />
+		</Form.Group>
+		<Form.Group className="mb-3" controlId="formBasicCheckbox">
+			<Form.Check type="checkbox" label="Check me out" />
+		</Form.Group>
+		<Button variant="primary" type="submit">
+			Submit
+		</Button>
+	</Form>
+);
+
+const allSecrets = (props) => <ViewPostsTemplate {...props} />;
 
 const Presentation = (props) => {
 	return (
 		<React.Fragment>
-			<Card>
-				<Card.Body>
-					<Card.Title>
-						<h2>{props.name || ''}</h2>
-					</Card.Title>
-					<Card.Subtitle>{props.description || ''}</Card.Subtitle>
-					<Container>
-						<h1>HELLO WORLD</h1>
-					</Container>
-				</Card.Body>
-			</Card>
+			<MenuHeader {...props} />
+			<TabTemplate
+				defaultActiveKey="all-secrets"
+				id="secrets-tab"
+				tabs={[
+					{
+						eventKey: 'all-secrets',
+						title: 'All Secrets',
+						component: allSecrets,
+					},
+					{
+						eventKey: 'add-new-secrets',
+						title: 'Add New',
+						component: addNewSecrets,
+					},
+				]}
+			/>
 		</React.Fragment>
 	);
 };
