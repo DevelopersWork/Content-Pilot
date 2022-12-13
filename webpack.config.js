@@ -20,23 +20,48 @@ module.exports = (env, argv) => {
 	return {
 		context: SRC_DIR,
 		mode: mode,
-		devtool: mode === 'production' ? false : 'source-map',
-		watch: mode === 'production' ? false : true,
-		entry: path.join(__dirname, 'index.js'),
+		devtool: mode === 'production' ? 'inline-source-map' : false,
+		watch: mode === 'development',
+		entry: path.join(SRC_DIR, 'index.js'),
 		output: {
 			path: BUILD_DIR,
 			filename: 'bundle.js',
+			clean: mode === 'production',
 		},
 		optimization: {
 			minimize: true,
 			nodeEnv: mode,
 			chunkIds: mode === 'development' ? 'named' : 'deterministic',
+			splitChunks: {
+				chunks: 'async',
+				minSize: 20000,
+				minRemainingSize: 0,
+				minChunks: 1,
+				maxAsyncRequests: 30,
+				maxInitialRequests: 30,
+				enforceSizeThreshold: 50000,
+				cacheGroups: {
+					defaultVendors: {
+						test: /[\\/]node_modules[\\/]/,
+						priority: -10,
+						reuseExistingChunk: true,
+					},
+					default: {
+						minChunks: 2,
+						priority: -20,
+						reuseExistingChunk: true,
+					},
+				},
+			},
 			minimizer: [
 				new CssMinimizerPlugin(),
 				new TerserPlugin({
+					test: /\.js(\?.*)?$/i,
+					extractComments: mode === 'production',
 					parallel: true,
 					terserOptions: {
 						compress: mode === 'production',
+						module: false,
 					},
 				}),
 			],
@@ -45,6 +70,7 @@ module.exports = (env, argv) => {
 			rules: [
 				{
 					test: /\.(jsx|js)$/,
+					include: SRC_DIR,
 					exclude: /node_modules/,
 					use: [
 						{
@@ -57,6 +83,7 @@ module.exports = (env, argv) => {
 				},
 				{
 					test: /\.(sa|sc|c)ss$/,
+					include: SRC_DIR,
 					exclude: /node_modules/,
 					use: [
 						MiniCssExtractPlugin.loader,
@@ -74,11 +101,8 @@ module.exports = (env, argv) => {
 			new MiniCssExtractPlugin({
 				filename: 'css/[name].css',
 				chunkFilename: 'css/[id].css',
-				experimentalUseImportModule: true,
 			}),
-			new webpack.ids.DeterministicChunkIdsPlugin({
-				maxLength: 5,
-			}),
+			new webpack.ids.DeterministicChunkIdsPlugin(),
 			new WebpackShellPluginNext({
 				onBuildStart: {
 					scripts: [

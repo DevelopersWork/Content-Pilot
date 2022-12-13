@@ -49,7 +49,7 @@ class WPPage {
         );
 
         wp_register_script(dw_cp_prefix.'bundle', dw_cp_url.'build/bundle.js', ['jquery', 'wp-element'], $version, true);
-        wp_localize_script(dw_cp_prefix.'bundle', dw_cp_prefix.'bundle_js', [
+        wp_localize_script(dw_cp_prefix.'bundle', dw_cp_prefix.'app', [
             'apiUrl' => home_url('/wp-json'),
             'nonce' => wp_create_nonce('wp_rest'),
         ]);

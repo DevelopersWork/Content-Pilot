@@ -5,12 +5,12 @@ import Secrets from './Pages/Secrets';
 
 import './App.scss';
 
-const App = () => {
+const App = (props) => {
 	// accessing query parameter "page"
 	const page = new URL(window.location.href).searchParams.get('page');
 
-	if (page === 'dw-cp-wppage') return <Dashboard />;
-	else if (page === 'dw-cp-secrets') return <Secrets />;
+	if (page === 'dw-cp-wppage') return <Dashboard {...props} />;
+	else if (page === 'dw-cp-secrets') return <Secrets {...props} />;
 
 	return <React.Fragment></React.Fragment>;
 };

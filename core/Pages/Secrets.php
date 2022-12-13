@@ -16,6 +16,7 @@ class Secrets extends WPPage {
             'parent_slug' => $parent_slug,
             'callback' => array($this, 'callback')
         ];
+
     }
 
     public function rest_api_init(){
@@ -36,7 +37,10 @@ class Secrets extends WPPage {
     }
 
     public function handleGetRequest(){
-        $response = [];
+        $response = ['GET RESPONSE'];
+        // $firstname = get_option( 'wprk_settings_firstname' );
+        // $lastname  = get_option( 'wprk_settings_lastname' );
+        // $email     = get_option( 'wprk_settings_email' );
 
         return rest_ensure_response( $response );
     }

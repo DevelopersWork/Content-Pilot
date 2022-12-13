@@ -5,7 +5,7 @@ import { Tabs, Tab } from 'react-bootstrap';
 
 const createTab = (options) => (
 	<Tab key={options.eventKey} eventKey={options.eventKey} title={options.title}>
-		<Container>
+		<Container fluid>
 			{(() => {
 				if (options.component) return options.component(options.props || {});
 				return <h1>{options.title}</h1>;
