@@ -1,18 +1,41 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 
 import { Container } from 'react-bootstrap';
 import { Tabs, Tab } from 'react-bootstrap';
 
-const createTab = (options) => (
-	<Tab key={options.eventKey} eventKey={options.eventKey} title={options.title}>
-		<Container fluid>
-			{(() => {
-				if (options.component) return options.component(options.props || {});
-				return <h1>{options.title}</h1>;
-			})()}
-		</Container>
-	</Tab>
-);
+const LoadingAnimation = lazy(() => import('./loadingAnimation'));
+
+const createTab = (options, activeKey) => {
+	console.log(options, activeKey);
+	if (activeKey === options.eventKey)
+		return (
+			<Tab
+				key={options.eventKey}
+				eventKey={options.eventKey}
+				title={options.title}
+			>
+				<Suspense fallback={<LoadingAnimation />}>
+					<Container fluid>
+						{(() => {
+							if (options.component)
+								return options.component(options.props || {});
+							return <h1>{options.title}</h1>;
+						})()}
+					</Container>
+				</Suspense>
+			</Tab>
+		);
+	else
+		return (
+			<Tab
+				key={options.eventKey}
+				eventKey={options.eventKey}
+				title={options.title}
+			>
+				<Container fluid></Container>
+			</Tab>
+		);
+};
 
 const tabTemplate = (props) => {
 	const options = {
@@ -21,16 +44,17 @@ const tabTemplate = (props) => {
 		tabs: props.tabs || [],
 	};
 
+	const [key, setKey] = React.useState(options.defaultActiveKey);
+
 	return (
-		<React.Fragment>
-			<Tabs
-				defaultActiveKey={options.defaultActiveKey}
-				id={options.id}
-				className="mb-3"
-			>
-				{options.tabs.map((tab) => createTab(tab))}
-			</Tabs>
-		</React.Fragment>
+		<Tabs
+			activeKey={key}
+			onSelect={(k) => setKey(k)}
+			id={options.id}
+			className="mb-3"
+		>
+			{options.tabs.map((tab) => createTab(tab, key))}
+		</Tabs>
 	);
 };
 

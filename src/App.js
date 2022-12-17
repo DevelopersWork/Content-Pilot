@@ -1,18 +1,25 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 
-import Dashboard from './Pages/Dashboard';
-import Secrets from './Pages/Secrets';
+const Dashboard = lazy(() => import('./Pages/Dashboard'));
+const Credentials = lazy(() => import('./Pages/Credentials'));
+const LoadingAnimation = lazy(() => import('./Components/loadingAnimation'));
 
 import './App.scss';
 
-const App = (props) => {
-	// accessing query parameter "page"
-	const page = new URL(window.location.href).searchParams.get('page');
-
-	if (page === 'dw-cp-wppage') return <Dashboard {...props} />;
-	else if (page === 'dw-cp-secrets') return <Secrets {...props} />;
+const RouterComponent = (props) => {
+	if (props.page === 'dw-cp-wppage') return <Dashboard {...props} />;
+	else if (props.page === 'dw-cp-credentials')
+		return <Credentials {...props} />;
 
 	return <React.Fragment></React.Fragment>;
+};
+
+const App = (props) => {
+	return (
+		<Suspense fallback={<LoadingAnimation />}>
+			<RouterComponent {...props} />
+		</Suspense>
+	);
 };
 
 export default App;

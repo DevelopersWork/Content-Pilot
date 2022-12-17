@@ -25,7 +25,8 @@ module.exports = (env, argv) => {
 		entry: path.join(SRC_DIR, 'index.js'),
 		output: {
 			path: BUILD_DIR,
-			filename: 'bundle.js',
+			filename: '[name].js',
+			library: '[name]',
 			clean: mode === 'production',
 		},
 		optimization: {
