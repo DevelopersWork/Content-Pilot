@@ -15,7 +15,7 @@ class Dashboard extends WPPage {
             ...$this -> page,
             'parent_slug' => $parent_slug,
             'menu_slug' => $parent_slug,
-            'callback' => array($this, 'callback')
+            'callback' => array($this, 'menu_page_callback')
         ];
     }
 

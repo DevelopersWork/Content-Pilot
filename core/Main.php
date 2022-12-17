@@ -4,7 +4,7 @@
  */
 namespace DW\ContentPilot\Core;
 
-use DW\ContentPilot\Core\Pages\{Dashboard, Secrets};
+use DW\ContentPilot\Core\Pages\{Dashboard, Credentials};
 use DW\ContentPilot\Lib\{WPPage};
 
 class Main{
@@ -17,7 +17,7 @@ class Main{
         $this -> pages = array(
             'root' => $root,
             'dashboard' => new Dashboard($root -> page['menu_slug']),
-            'secrets' => new Secrets($root -> page['menu_slug'])
+            'credentials' => new Credentials($root -> page['menu_slug'])
         );
 
         // Adding an action to init
@@ -92,6 +92,10 @@ class Main{
             'icon_url' => 'dashicons-hammer',
             'position' => 22
         ];
+
+        do_action(dw_cp_prefix.'register_post_type');
+
+        do_action(dw_cp_prefix.'register_categories');
 
         do_action(dw_cp_prefix.'admin_menu');
     }
