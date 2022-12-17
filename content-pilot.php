@@ -24,7 +24,7 @@
 **/
 
 // If someone already using the prefix hell and heaven with them
-define('dw_cp_prefix', 'dw_content_pilot_');
+define('dw_cp_prefix', 'dwcp_');
 // Constants
 define('dw_cp_name', 'Content Pilot');
 define('dw_cp_version', '0.1.1');
