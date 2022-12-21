@@ -6,7 +6,6 @@ import { Tabs, Tab } from 'react-bootstrap';
 const LoadingAnimation = lazy(() => import('./loadingAnimation'));
 
 const createTab = (options, activeKey) => {
-	console.log(options, activeKey);
 	if (activeKey === options.eventKey)
 		return (
 			<Tab

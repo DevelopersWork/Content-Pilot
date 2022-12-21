@@ -6,6 +6,10 @@ namespace DW\ContentPilot\Core\Pages;
 
 use DW\ContentPilot\Lib\{WPPage};
 
+use \WP_REST_Request as WP_REST_Request;
+use \WP_REST_Response as WP_REST_Response;
+use \WP_Error as WP_Error;
+
 class Credentials extends WPPage {
 
     private $post_type, $categories;
@@ -27,12 +31,12 @@ class Credentials extends WPPage {
         $author_id = get_current_user_id();
 
         $args = array(
-            'post_name'    => md5($title.$author_id),
-            'post_title'    => $title,
-            'post_content'  => $value,
-            'post_status'   => 'publish',
-            'post_author'   => $author_id,
-            'post_type'     => strtolower(dw_cp_prefix.$this -> class_name),
+            'post_name' => md5($title.$author_id),
+            'post_title' => $title,
+            'post_content' => $value,
+            'post_status' => 'publish',
+            'post_author' => $author_id,
+            'post_type' => strtolower(dw_cp_prefix.$this -> class_name),
             'post_category' => $categories
         );
 
@@ -53,6 +57,8 @@ class Credentials extends WPPage {
                 'capability_type' =>  'post'
             )
         );
+
+        // echo $this -> post_type -> name;
     }
 
     public function register_categories(){
@@ -64,47 +70,82 @@ class Credentials extends WPPage {
     }
 
     public function rest_api_init(){
+        parent::rest_api_init();
 
         $route = dw_cp_prefix.'api/v1';
         $endpoint = '/'.strtolower($this -> class_name);
 
-        register_rest_route( $route, $endpoint, [
+        if(register_rest_route( $route, $endpoint, [
             'methods' => 'GET',
             'callback' => [ $this, 'handleGetRequest' ],
             'permission_callback' => [ $this, 'getRequestPermission' ]
-        ] );
-        register_rest_route( $route, $endpoint, [
+        ]))
+        if(register_rest_route( $route, $endpoint, [
             'methods' => 'POST',
             'callback' => [ $this, 'handlePostRequest' ],
             'permission_callback' => [ $this, 'postRequestPermission' ]
-        ] );
+        ]))
+            return true;
     }
 
-    public function handleGetRequest(){
-        $response = get_posts(array(
-            'post_type' => strtolower(dw_cp_prefix.$this -> class_name)
+    public function handleGetRequest(WP_REST_Request $request){
+
+        $queryParams = $request -> get_query_params();
+
+        $posts_per_page = 10;
+        if(isset($queryParams['posts_per_page']))
+            $posts_per_page = $queryParams['posts_per_page'];
+
+        $offset = 0;
+        if(isset($queryParams['offset']))
+            $offset = $queryParams['offset'];
+
+        $post_status = '';
+        if(isset($queryParams['post_status']))
+            $post_status = $queryParams['post_status'];
+
+        $posts = get_posts(array(
+            'numberposts' => $posts_per_page, 
+            'offset'=> $offset,
+            'post_type' => $this -> post_type -> name,
+            'post_author' => get_current_user_id(),
+            'post_status' => $post_status,            
         ));
 
-        return rest_ensure_response( $response );
+        $_ts = time();
+        $_hash = md5(json_encode($posts).$_ts);
+        return rest_ensure_response( new WP_REST_Response(data: [
+            'total_posts' => wp_count_posts($this -> post_type -> name, 'readable') -> publish,
+            'posts' => $posts,
+            '_ts' => $_ts,
+            '_hash' => $_hash
+        ], status: 200) );
     }
     public function getRequestPermission(){
         return True;
     }
 
-    public function handlePostRequest($request){
+    public function handlePostRequest(WP_REST_Request $request){
 
         if(!isset($request['name']) || !isset($request['value']) || !isset($request['category']))
-            return rest_ensure_response('failed');
+            return rest_ensure_response(new WP_REST_Response(data: [
+                'code' => 'MissingRequiredQueryParameter',
+                'message' => 'A required query parameter was not specified for this request.'
+            ], status: 400));
 
         $name = sanitize_text_field( $request['name'] );
         $value = sanitize_text_field( $request['value'] );
         $category = sanitize_text_field( $request['category'] );
+
+        $response = new WP_REST_Response(data: [
+            '_ts' => time()
+        ], status: 200);
         
         // if($this -> add($name, $value, $categories))
         if(1==1)
-        return rest_ensure_response( 'success' );
+        return rest_ensure_response( $response );
         else
-        return rest_ensure_response( 'failed' );
+        return rest_ensure_response( $response );
     }
     public function postRequestPermission(){
         return current_user_can( 'publish_posts' );

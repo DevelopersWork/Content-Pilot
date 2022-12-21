@@ -94,7 +94,10 @@ class WPPage {
         return $this;
     }
 
-    public function rest_api_init(){}
+    public function rest_api_init(){
+        $this -> register_post_type();
+        $this -> register_categories();
+    }
 
     public function register_post_type(){}
 

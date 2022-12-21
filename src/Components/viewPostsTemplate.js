@@ -4,96 +4,60 @@ import { Row, Col, Container } from 'react-bootstrap';
 import { Table, Pagination } from 'react-bootstrap';
 import { Dropdown, DropdownButton, Button } from 'react-bootstrap';
 
+function populateColumn(name, value) {
+	return <td key={name}>{value}</td>;
+}
+
+function populateRows(rows, columns) {
+	return rows.map((row) => (
+		<tr key={JSON.stringify(row)}>
+			{columns.map((column) =>
+				populateColumn(column.name, row[column.name] || '')
+			)}
+		</tr>
+	));
+}
+
+function populateHeader(columns) {
+	return columns.map((column) => <th key={column.name}>{column.value}</th>);
+}
+
+function getPagination(page, current_page) {
+	return (
+		<Pagination.Item key={page} active={current_page === page - 1}>
+			{page}
+		</Pagination.Item>
+	);
+}
+
+function setupPagination(total_pages, current_page) {
+	return (
+		<Pagination>
+			<Pagination.First disabled={current_page === 0} />
+			<Pagination.Prev disabled={current_page === 0} />
+
+			{/* <Pagination.Ellipsis /> */}
+			{[1, 2, 3, 4, 5].map((page) => getPagination(page, current_page))}
+
+			<Pagination.Next disabled={current_page === total_pages - 1} />
+			<Pagination.Last disabled={current_page === total_pages - 1} />
+		</Pagination>
+	);
+}
+
 const viewPostsTemplate = (props) => {
 	return (
 		<React.Fragment>
 			<Table bordered striped hover className="min-vh-80">
 				<thead>
-					<tr>
-						<th>#</th>
-						<th>Title</th>
-						<th>Categories</th>
-						<th>Tags</th>
-						<th>Author</th>
-						<th>Date</th>
-					</tr>
+					<tr>{populateHeader(props.columns || [])}</tr>
 				</thead>
-				<tbody>
-					<tr>
-						<td>1</td>
-						<td>Key for YouTube</td>
-						<td></td>
-						<td></td>
-						<td>DevelopersWork</td>
-						<td>1999-01-01 00:00:00.000</td>
-						<td>
-							<DropdownButton
-								id="dropdown-basic-button"
-								title="Dropdown button"
-							>
-								<Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-								<Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-								<Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-							</DropdownButton>
-						</td>
-					</tr>
-					<tr>
-						<td>1</td>
-						<td>Key for YouTube</td>
-						<td></td>
-						<td></td>
-						<td>DevelopersWork</td>
-						<td>1999-01-01 00:00:00.000</td>
-						<td>
-							<DropdownButton
-								id="dropdown-basic-button"
-								title="Dropdown button"
-							>
-								<Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-								<Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-								<Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-							</DropdownButton>
-						</td>
-					</tr>
-					<tr>
-						<td>1</td>
-						<td>Key for YouTube</td>
-						<td></td>
-						<td></td>
-						<td>DevelopersWork</td>
-						<td>1999-01-01 00:00:00.000</td>
-						<td>
-							<DropdownButton
-								id="dropdown-basic-button"
-								title="Dropdown button"
-							>
-								<Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-								<Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-								<Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-							</DropdownButton>
-						</td>
-					</tr>
-				</tbody>
+				<tbody>{populateRows(props.posts || [], props.columns || [])}</tbody>
 			</Table>
-			<Container className="justify-content-end">
-				<Pagination>
-					<Pagination.First />
-					<Pagination.Prev />
-					<Pagination.Item>{1}</Pagination.Item>
-					<Pagination.Ellipsis />
-
-					<Pagination.Item>{10}</Pagination.Item>
-					<Pagination.Item>{11}</Pagination.Item>
-					<Pagination.Item active>{12}</Pagination.Item>
-					<Pagination.Item>{13}</Pagination.Item>
-					<Pagination.Item disabled>{14}</Pagination.Item>
-
-					<Pagination.Ellipsis />
-					<Pagination.Item>{20}</Pagination.Item>
-					<Pagination.Next />
-					<Pagination.Last />
-				</Pagination>
-			</Container>
+			{setupPagination(
+				(props.total_posts || 0) / props.posts_per_page,
+				props.current_page
+			)}
 		</React.Fragment>
 	);
 };
