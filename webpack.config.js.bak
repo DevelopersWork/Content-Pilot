@@ -1,13 +1,11 @@
 const path = require('path');
 const webpack = require('webpack');
-
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-
-const ESLintPlugin = require('eslint-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const VersionFile = require('webpack-version-file-plugin');
+const WebpackShellPluginNext = require('webpack-shell-plugin-next');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 const SRC_DIR = path.resolve(__dirname, 'src');
 const BUILD_DIR = path.resolve(__dirname, 'build');
@@ -15,21 +13,25 @@ const BUILD_DIR = path.resolve(__dirname, 'build');
 const GIT_FILE = path.join(BUILD_DIR, 'git.json');
 
 module.exports = (env, argv) => {
-	const isProduction = argv.mode === 'production';
 
-	console.log(isProduction);
+	const mode = argv.mode || 'development';
 
 	return {
-		watch: !isProduction,
-		devtool: isProduction ? 'source-map' : 'eval-source-map',
-		entry: path.join(SRC_DIR, 'index.js'), // The entry point of your application
+		context: SRC_DIR,
+		mode: mode,
+		devtool: mode === 'production' ? 'inline-source-map' : false,
+		watch: mode === 'development',
+		entry: path.join(SRC_DIR, 'index.js'),
 		output: {
-			path: BUILD_DIR, // The output directory
-			filename: '[name].js', // The name of the output file
+			path: BUILD_DIR,
+			filename: '[name].js',
+			library: '[name]',
+			clean: mode === 'production',
 		},
 		optimization: {
-			minimize: isProduction,
-			chunkIds: 'deterministic',
+			minimize: true,
+			nodeEnv: mode,
+			chunkIds: mode === 'development' ? 'named' : 'deterministic',
 			splitChunks: {
 				chunks: 'async',
 				minSize: 20000,
@@ -52,12 +54,13 @@ module.exports = (env, argv) => {
 				},
 			},
 			minimizer: [
+				new CssMinimizerPlugin(),
 				new TerserPlugin({
 					test: /\.js(\?.*)?$/i,
-					extractComments: isProduction,
+					extractComments: mode === 'production',
 					parallel: true,
 					terserOptions: {
-						compress: isProduction,
+						compress: mode === 'production',
 						module: false,
 					},
 				}),
@@ -66,15 +69,17 @@ module.exports = (env, argv) => {
 		module: {
 			rules: [
 				{
-					test: /\.(jsx|js)$/, // Apply the loader for all js files
+					test: /\.(jsx|js)$/,
 					include: SRC_DIR,
-					exclude: /node_modules/, // Exclude the node_modules directory
-					use: {
-						loader: 'babel-loader', // Use the babel-loader
-						options: {
-							presets: ['@babel/preset-env', '@babel/preset-react'], // Use the env and react presets
+					exclude: /node_modules/,
+					use: [
+						{
+							loader: 'babel-loader',
+							options: {
+								presets: ['@babel/preset-env', '@babel/preset-react'],
+							},
 						},
-					},
+					],
 				},
 				{
 					test: /\.(sa|sc|c)ss$/,
@@ -91,24 +96,11 @@ module.exports = (env, argv) => {
 		},
 		plugins: [
 			new ESLintPlugin({
-				emitError: isProduction,
+				emitError: mode !== 'development',
 			}),
 			new MiniCssExtractPlugin({
 				filename: 'css/[name].css',
 				chunkFilename: 'css/[id].css',
-			}),
-			new CssMinimizerPlugin({
-				minify: CssMinimizerPlugin.cleanCssMinify,
-				minimizerOptions: {
-					preset: [
-						'default',
-						{
-							discardComments: {
-								removeAll: true,
-							},
-						},
-					],
-				},
 			}),
 			new webpack.ids.DeterministicChunkIdsPlugin(),
 			new WebpackShellPluginNext({
@@ -134,7 +126,7 @@ module.exports = (env, argv) => {
 				outputFile: path.join(BUILD_DIR, 'version.json'),
 				data: {
 					date: new Date(),
-					environment: argv.mode,
+					environment: env,
 				},
 				extras: {
 					timestamp: Date.now(),
