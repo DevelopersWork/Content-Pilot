@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Presentation = ({ props }) => {
+const Presentation = () => {
 	return (
 		<React.Fragment>
 			<h1>Dashboard</h1>

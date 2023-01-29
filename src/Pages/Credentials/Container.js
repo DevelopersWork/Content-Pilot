@@ -5,8 +5,8 @@ import Presentation from './Presentation';
 class ContainerComponent extends React.Component {
 	constructor(props) {
 		super(props);
+
 		this.state = {
-			addButton: 'Add',
 			REST_API: {
 				url: `${this.props.wp_localize_script.apiUrl.replace(
 					/\/?$/,
@@ -19,21 +19,27 @@ class ContainerComponent extends React.Component {
 			columns: [
 				{ name: 'ID', value: '#' },
 				{ name: 'post_name', value: 'Title' },
+				{ name: 'author', value: 'Author' },
+				{ name: 'categories', value: 'Categories' },
 				{ name: 'post_date', value: 'Created On' },
 				{ name: 'post_modified', value: 'Last Modified On' },
 			],
+			page: '',
+			new_post: 0,
 			posts_per_page: 1,
 			current_page: 0,
 			total_posts: 0,
 			posts: [],
+			static: {},
 		};
 	}
 
-	fetchPosts = () => {
+	fetchCredentials = (queryParams = {}) => {
 		fetch(
 			this.state.REST_API.url +
 				'?' +
 				new URLSearchParams({
+					...queryParams,
 					posts_per_page: this.state.posts_per_page,
 					offset: this.state.current_page,
 				}),
@@ -55,7 +61,7 @@ class ContainerComponent extends React.Component {
 	};
 
 	componentDidMount() {
-		this.fetchPosts();
+		this.fetchCredentials();
 	}
 
 	handleOnChange = () => {};
@@ -87,6 +93,7 @@ class ContainerComponent extends React.Component {
 				{...this.state}
 				handleOnChange={this.handleOnChange}
 				handleOnSubmit={this.handleOnSubmit}
+				fetchPosts={this.fetchCredentials}
 			/>
 		);
 	}

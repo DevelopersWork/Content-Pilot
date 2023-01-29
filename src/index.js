@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 
 import { ThemeProvider } from 'react-bootstrap';
 
@@ -22,7 +23,9 @@ document.addEventListener('DOMContentLoaded', function () {
 						breakpoints={['xxxl', 'xxl', 'xl', 'lg', 'md', 'sm', 'xs', 'xxs']}
 						minBreakpoint="xxs"
 					>
-						<App wp_localize_script={wp_localize_script} page={page} />
+						<BrowserRouter>
+							<App wp_localize_script={wp_localize_script} page={page} />
+						</BrowserRouter>
 					</ThemeProvider>
 				</React.StrictMode>
 			);

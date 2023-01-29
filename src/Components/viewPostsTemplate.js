@@ -1,8 +1,6 @@
 import React from 'react';
 
-import { Row, Col, Container } from 'react-bootstrap';
 import { Table, Pagination } from 'react-bootstrap';
-import { Dropdown, DropdownButton, Button } from 'react-bootstrap';
 
 function populateColumn(name, value) {
 	return <td key={name}>{value}</td>;
@@ -46,6 +44,7 @@ function setupPagination(total_pages, current_page) {
 }
 
 const viewPostsTemplate = (props) => {
+	// props.fetchPosts(props.options);
 	return (
 		<React.Fragment>
 			<Table bordered striped hover className="min-vh-80">
