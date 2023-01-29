@@ -83,7 +83,12 @@ class Credentials extends WPPage {
         if(register_rest_route( $route, $endpoint, [
             'methods' => 'POST',
             'callback' => [ $this, 'handlePostRequest' ],
-            'permission_callback' => [ $this, 'postRequestPermission' ]
+            'permission_callback' => [ $this, 'postRequestPermission' ],
+            'args' => [
+                'title' => ['required' => true],
+                'value' => ['required' => true],
+                'category' => ['required' => true]
+            ],
         ]))
             return true;
     }
@@ -117,21 +122,16 @@ class Credentials extends WPPage {
         return rest_ensure_response( new WP_REST_Response(data: [
             'total_posts' => wp_count_posts($this -> post_type -> name, 'readable') -> publish,
             'posts' => $posts,
+            'author' => wp_get_current_user() -> display_name,
             '_ts' => $_ts,
             '_hash' => $_hash
         ], status: 200) );
     }
     public function getRequestPermission(){
-        return True;
+        return current_user_can('read');
     }
 
     public function handlePostRequest(WP_REST_Request $request){
-
-        if(!isset($request['name']) || !isset($request['value']) || !isset($request['category']))
-            return rest_ensure_response(new WP_REST_Response(data: [
-                'code' => 'MissingRequiredQueryParameter',
-                'message' => 'A required query parameter was not specified for this request.'
-            ], status: 400));
 
         $name = sanitize_text_field( $request['name'] );
         $value = sanitize_text_field( $request['value'] );

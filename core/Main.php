@@ -14,6 +14,15 @@ class Main{
     public function plugins_loaded(){
 
         $root = new WPPage();
+        $root -> page = [
+            ...$root -> page,
+            'page_title' => dw_cp_name, 
+            'menu_title' => dw_cp_name, 
+            'menu_slug' => strtolower(dw_cp_slug.'main'),
+            'icon_url' => 'dashicons-hammer',
+            'position' => 22
+        ];
+
         $this -> pages = array(
             'root' => $root,
             'dashboard' => new Dashboard($root -> page['menu_slug']),
@@ -86,12 +95,6 @@ class Main{
     }
 
     public function admin_menu(){
-        
-        $this -> pages['root'] -> page = [
-            ...$this -> pages['root'] -> page,
-            'icon_url' => 'dashicons-hammer',
-            'position' => 22
-        ];
 
         do_action(dw_cp_prefix.'register_post_type');
 
