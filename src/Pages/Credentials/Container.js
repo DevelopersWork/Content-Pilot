@@ -5,7 +5,6 @@ import Presentation from './Presentation';
 class ContainerComponent extends React.Component {
 	constructor(props) {
 		super(props);
-
 		this.state = {
 			REST_API: {
 				url: `${this.props.wp_localize_script.apiUrl.replace(
@@ -24,18 +23,22 @@ class ContainerComponent extends React.Component {
 				{ name: 'post_date', value: 'Created On' },
 				{ name: 'post_modified', value: 'Last Modified On' },
 			],
-			page: '',
-			new_post: 0,
-			posts_per_page: 1,
-			current_page: 0,
-			total_posts: 0,
+			page: new URL(window.location.href).searchParams.get('page'),
+			post_id: new URL(window.location.href).searchParams.get('post_id'),
+			posts_per_page:
+				new URL(window.location.href).searchParams.get('posts_per_page') || 10,
+			current_page:
+				new URL(window.location.href).searchParams.get('current_page') || 0,
+			total_posts:
+				new URL(window.location.href).searchParams.get('total_posts') || 0,
 			posts: [],
 			static: {},
+			tab: 'all-credentials',
 		};
 	}
 
-	fetchCredentials = (queryParams = {}) => {
-		fetch(
+	fetchCredentials = async (queryParams = {}) => {
+		return fetch(
 			this.state.REST_API.url +
 				'?' +
 				new URLSearchParams({
@@ -86,6 +89,15 @@ class ContainerComponent extends React.Component {
 			);
 	};
 
+	handleOnTabChange = async (key) => {
+		const queryParams = {
+			post_status: key.split('-')[0],
+		};
+		return this.fetchCredentials(queryParams).then(() => {
+			return this.setState({ tab: key });
+		});
+	};
+
 	render() {
 		return (
 			<Presentation
@@ -93,7 +105,7 @@ class ContainerComponent extends React.Component {
 				{...this.state}
 				handleOnChange={this.handleOnChange}
 				handleOnSubmit={this.handleOnSubmit}
-				fetchPosts={this.fetchCredentials}
+				handleOnTabChange={this.handleOnTabChange}
 			/>
 		);
 	}

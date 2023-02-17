@@ -15,7 +15,6 @@ const addNewButton = () => {
 };
 
 const menuHeader = (props) => {
-	console.log(props.addNewButton);
 	return (
 		<React.Fragment>
 			<h2 className="d-inline-flex">

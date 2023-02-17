@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { lazy } from 'react';
 
 import { Table, Pagination } from 'react-bootstrap';
+
+const Placeholder = lazy(() => import('./placeholder'));
 
 function populateColumn(name, value) {
 	return <td key={name}>{value}</td>;
@@ -44,14 +46,16 @@ function setupPagination(total_pages, current_page) {
 }
 
 const viewPostsTemplate = (props) => {
-	// props.fetchPosts(props.options);
+	const posts = props.posts || [];
+	const columns = props.columns || [];
+	if (!columns.length || !posts.length) return <Placeholder />;
 	return (
 		<React.Fragment>
 			<Table bordered striped hover className="min-vh-80">
 				<thead>
-					<tr>{populateHeader(props.columns || [])}</tr>
+					<tr>{populateHeader(columns)}</tr>
 				</thead>
-				<tbody>{populateRows(props.posts || [], props.columns || [])}</tbody>
+				<tbody>{populateRows(posts, columns)}</tbody>
 			</Table>
 			{setupPagination(
 				(props.total_posts || 0) / props.posts_per_page,

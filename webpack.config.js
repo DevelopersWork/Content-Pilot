@@ -17,8 +17,6 @@ const GIT_FILE = path.join(BUILD_DIR, 'git.json');
 module.exports = (env, argv) => {
 	const isProduction = argv.mode === 'production';
 
-	console.log(isProduction);
-
 	return {
 		watch: !isProduction,
 		devtool: isProduction ? 'source-map' : 'eval-source-map',

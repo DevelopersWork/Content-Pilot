@@ -2,6 +2,9 @@ import React, { lazy } from 'react';
 
 const MenuHeader = lazy(() => import('../../Components/menuHeader'));
 const TabTemplate = lazy(() => import('../../Components/tabTemplate'));
+const EditPostsTemplate = lazy(() =>
+	import('../../Components/editPostsTemplate')
+);
 const ViewPostsTemplate = lazy(() =>
 	import('../../Components/viewPostsTemplate')
 );
@@ -32,44 +35,31 @@ const ViewPostsTemplate = lazy(() =>
 // };
 
 const SwitchComponent = (props) => {
-	const options = {
-		all: {},
-		published: {
-			post_status: 'published',
-		},
-		trash: {
-			post_status: 'trash',
-		},
-	};
-	if (props.new_post) return <React.Fragment></React.Fragment>;
+	if (props.post_id !== undefined && props.post_id !== null)
+		return <EditPostsTemplate {...props} />;
 	return (
 		<React.Fragment>
 			<TabTemplate
-				defaultActiveKey="all-credentials"
+				defaultActiveKey={props.tab}
 				id="credentials-tab"
 				tabs={[
 					{
 						eventKey: 'all-credentials',
 						title: 'All',
-						component: () => (
-							<ViewPostsTemplate {...props} options={options['all']} />
-						),
+						component: () => <ViewPostsTemplate {...props} />,
 					},
 					{
 						eventKey: 'published-credentials',
 						title: 'Published',
-						component: () => (
-							<ViewPostsTemplate {...props} options={options['published']} />
-						),
+						component: () => <ViewPostsTemplate {...props} />,
 					},
 					{
 						eventKey: 'trash-credentials',
 						title: 'Trash',
-						component: () => (
-							<ViewPostsTemplate {...props} options={options['trash']} />
-						),
+						component: () => <ViewPostsTemplate {...props} />,
 					},
 				]}
+				setTab={props.handleOnTabChange}
 			/>
 		</React.Fragment>
 	);
