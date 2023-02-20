@@ -30,6 +30,7 @@ function getPagination(page, current_page) {
 	);
 }
 
+// eslint-disable-next-line no-unused-vars
 function setupPagination(total_pages, current_page) {
 	return (
 		<Pagination>
@@ -57,10 +58,11 @@ const viewPostsTemplate = (props) => {
 				</thead>
 				<tbody>{populateRows(posts, columns)}</tbody>
 			</Table>
-			{setupPagination(
+			{/* TODO: Pagenation functionality */}
+			{/* {setupPagination(
 				(props.total_posts || 0) / props.posts_per_page,
 				props.current_page
-			)}
+			)} */}
 		</React.Fragment>
 	);
 };

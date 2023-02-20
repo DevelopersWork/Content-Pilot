@@ -34,6 +34,22 @@ class ContainerComponent extends React.Component {
 			posts: [],
 			static: {},
 			tab: 'all-credentials',
+			fields: [
+				{
+					label: 'Name',
+					control: { type: 'text', placeholder: 'Name of the credential' },
+					text: 'Custom Text',
+					_priority: 0,
+					_type: 'text',
+				},
+				{
+					label: 'Value',
+					control: { type: 'password', placeholder: 'Value of the Credential' },
+					text: "We'll never share your email with anyone else.",
+					_priority: 1,
+					_type: 'text',
+				},
+			],
 		};
 	}
 
