@@ -1,7 +1,9 @@
 <?php
+
 /**
  * @package DWContentPilot
  */
+
 namespace DW\ContentPilot\Lib;
 
 use DW\ContentPilot\Core\Store;
@@ -15,16 +17,16 @@ class Activate
 
     public function __construct()
     {
-        $this -> store = new Store();
+        $this->store = new Store();
     }
 
     public function activate()
     {
-        $this -> store -> debug(get_class($this).':activate()', '{STARTED}');
+        $this->store->debug(get_class($this) . ':activate()', '{STARTED}');
 
-        $this -> compatibilityCheck();
-        $this -> createSQLTables();
-        $this -> loadReferenceData();
+        $this->compatibilityCheck();
+        $this->createSQLTables();
+        $this->loadReferenceData();
 
         flush_rewrite_rules();
     }
@@ -33,7 +35,7 @@ class Activate
     {
         global $wpdb;
 
-        $this -> store -> debug(get_class($this).':createSQLTables()', '{STARTED}');
+        $this->store->debug(get_class($this) . ':createSQLTables()', '{STARTED}');
 
         $charset_collate = $wpdb->get_charset_collate();
 
@@ -44,14 +46,14 @@ class Activate
 
         $tables = array('triggers');
 
-        $table_prefix = $wpdb -> base_prefix . esc_attr(DWContetPilotPrefix);
+        $table_prefix = $wpdb->base_prefix . esc_attr(DWContetPilotPrefix);
 
 
         for ($i = 0; $i < count($tables); $i++) {
             $table = $tables[$i];
             $ddl = $table . '.sql';
 
-            if (! in_array($ddl, $ddls, true)) {
+            if (!in_array($ddl, $ddls, true)) {
                 continue;
             }
 
@@ -66,28 +68,28 @@ class Activate
     private function compatibilityCheck()
     {
 
-        $this -> store -> debug(get_class($this).':compatibilityCheck()', '{STARTED}');
+        $this->store->debug(get_class($this) . ':compatibilityCheck()', '{STARTED}');
 
-        $php_version_check = Validations::validatePHPVersion($this -> store);
+        $php_version_check = Validations::validatePHPVersion($this->store);
 
         if (!$php_version_check) {
             return $php_version_check;
         }
 
-        $wp_version_check = Validations::validateWPVersion($this -> store);
+        $wp_version_check = Validations::validateWPVersion($this->store);
 
         if (!$wp_version_check) {
             return $wp_version_check;
         }
 
-        return $this -> store -> debug(get_class($this).':compatibilityCheck()', 'PHP v'.$php_version_check.', Wordpress v'.$wp_version_check);
+        return $this->store->debug(get_class($this) . ':compatibilityCheck()', 'PHP v' . $php_version_check . ', Wordpress v' . $wp_version_check);
     }
 
     private function loadReferenceData()
     {
         global $wpdb;
 
-        $this -> store -> debug(get_class($this).':loadReferenceData()', '{STARTED}');
+        $this->store->debug(get_class($this) . ':loadReferenceData()', '{STARTED}');
 
         $charset_collate = $wpdb->get_charset_collate();
 
@@ -98,20 +100,20 @@ class Activate
 
         $tables = array('triggers');
 
-        $table_prefix = $wpdb -> base_prefix . esc_attr(DWContetPilotPrefix);
-        
+        $table_prefix = $wpdb->base_prefix . esc_attr(DWContetPilotPrefix);
+
 
         for ($i = 0; $i < count($tables); $i++) {
             $table = $tables[$i];
             $dml = $table . '.sql';
 
-            if (! preg_match($regex, $dml)) {
+            if (!preg_match($regex, $dml)) {
                 continue;
             }
 
             $queries = file_get_contents($path . $dml);
             $queries = str_replace("%table_prefix%", $table_prefix, $queries);
-            
+
             foreach (explode('\n', $queries) as $query) {
                 dbDelta($query);
             }

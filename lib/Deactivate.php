@@ -1,7 +1,9 @@
 <?php
+
 /**
  * @package DWContentPilot
  */
+
 namespace DW\ContentPilot\Lib;
 
 use DW\ContentPilot\Core\Store;
@@ -15,12 +17,12 @@ class Deactivate
 
     public function __construct()
     {
-        $this -> store = new Store();
+        $this->store = new Store();
     }
 
     public function deactivate()
     {
-        $this -> store -> debug(get_class($this).':deactivate()', '{STARTED}');
+        $this->store->debug(get_class($this) . ':deactivate()', '{STARTED}');
 
         flush_rewrite_rules();
 
@@ -38,9 +40,9 @@ class Deactivate
                 triggers.type AS trigger_type, 
                 jobs.hash AS job_hash
             FROM 
-                ".dw_cp_PLUGIN_PREFIX."_jobs AS jobs
+                " . dw_cp_PLUGIN_PREFIX . "_jobs AS jobs
             JOIN 
-                ".dw_cp_PLUGIN_PREFIX."_triggers AS triggers ON triggers.id = jobs.trigger_id
+                " . dw_cp_PLUGIN_PREFIX . "_triggers AS triggers ON triggers.id = jobs.trigger_id
         ";
 
         try {

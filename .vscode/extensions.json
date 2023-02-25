@@ -1,4 +1,8 @@
 {
-    "recommendations": [
-    ]
+	"recommendations": [
+		"VisualStudioExptTeam.vscodeintellicode",
+		"bmewburn.vscode-intelephense-client",
+		"esbenp.prettier-vscode",
+		"wix.vscode-import-cost"
+	]
 }

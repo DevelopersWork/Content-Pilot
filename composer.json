@@ -6,7 +6,8 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "DW\\ContentPilot\\": "src/"
+            "DW\\ContentPilot\\Core\\": "core/",
+            "DW\\ContentPilot\\Lib\\": "lib/"
         }
     },
     "authors": [
@@ -21,8 +22,15 @@
     },
     "require-dev": {
         "overtrue/phplint": "^2.0.0",
-        "squizlabs/php_codesniffer": "^3.5"
+        "squizlabs/php_codesniffer": "^3.5",
+        "wp-coding-standards/wpcs": "^2.3",
+		"phpcompatibility/phpcompatibility-wp": "^2.1"
     },
+    "config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
     "scripts": {
         "pre-autoload-dump": "Google\\Task\\Composer::cleanup",
         "lint": "phplint --no-cache src/",
