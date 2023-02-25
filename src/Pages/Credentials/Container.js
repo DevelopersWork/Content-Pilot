@@ -12,7 +12,8 @@ class ContainerComponent extends React.Component {
 					''
 				)}/credentials`,
 				headers: {
-					'X-WP-NONCE': `${this.props.wp_localize_script.nonce}`,
+					'X-WP-Nonce': `${this.props.wp_localize_script.nonce}`,
+					'X-DWCP-Nonce': `${this.props.wp_localize_script.dwcp_nonce}`,
 				},
 			},
 			columns: [
@@ -50,6 +51,7 @@ class ContainerComponent extends React.Component {
 					_type: 'text',
 				},
 			],
+			addButton: 'Add',
 		};
 	}
 
@@ -91,8 +93,15 @@ class ContainerComponent extends React.Component {
 			addButton: 'Adding...',
 		});
 
+		var body = new FormData();
+		body.append('title', 'ABc');
+		body.append('value', '1234');
+		body.append('category', 'YouTube111');
+
 		fetch(this.state.REST_API.url, {
+			method: 'POST',
 			headers: this.state.REST_API.headers,
+			body: body,
 		})
 			.then((response) => response.json())
 			.then(

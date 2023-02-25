@@ -1,32 +1,36 @@
 <?php
+
 /**
  * @package DWContentPilot
  */
+
 namespace DW\ContentPilot\Core;
 
 use DW\ContentPilot\Core\Pages\{Dashboard, Credentials};
 use DW\ContentPilot\Lib\{WPPage};
 
-class Main{
+class Main
+{
 
     private $pages;
 
-    public function plugins_loaded(){
+    public function plugins_loaded()
+    {
 
         $root = new WPPage();
-        $root -> page = [
-            ...$root -> page,
-            'page_title' => dw_cp_name, 
-            'menu_title' => dw_cp_name, 
-            'menu_slug' => strtolower(dw_cp_slug.'main'),
+        $root->page = [
+            ...$root->page,
+            'page_title' => dw_cp_name,
+            'menu_title' => dw_cp_name,
+            'menu_slug' => strtolower(dw_cp_slug . 'main'),
             'icon_url' => 'dashicons-hammer',
             'position' => 22
         ];
 
-        $this -> pages = array(
+        $this->pages = array(
             'root' => $root,
-            'dashboard' => new Dashboard($root -> page['menu_slug']),
-            'credentials' => new Credentials($root -> page['menu_slug'])
+            'dashboard' => new Dashboard($root->page['menu_slug']),
+            'credentials' => new Credentials($root->page['menu_slug'])
         );
 
         // Adding an action to init
@@ -39,14 +43,15 @@ class Main{
         add_action('admin_init', array($this, 'admin_init'));
     }
 
-    public function init(){
+    public function init()
+    {
 
         // checking everything is working
         // else necessary action need to be taken
-        $this -> compatibilityCheck();
+        $this->compatibilityCheck();
 
         // if user is logged in
-        if (is_user_logged_in()){
+        if (is_user_logged_in()) {
 
             // TODO: making roles dynamic
             // allowed roles
@@ -55,16 +60,18 @@ class Main{
             $user = wp_get_current_user();
 
             // checking if  current user has allowed roles
-            if(array_intersect($roles, $user -> roles)){
+            if (array_intersect($roles, $user->roles)) {
 
                 // if current request is for a user admin screen
-                if(is_user_admin()){} else{}
+                if (is_user_admin()) {
+                } else {
+                }
 
                 add_action('admin_menu', array($this, 'admin_menu'));
-
-            } else {}
-
-        }else {}
+            } else {
+            }
+        } else {
+        }
 
         // everything else
         // do_action(dw_cp_prefix.'register_actions');
@@ -75,31 +82,34 @@ class Main{
         // do_action(dw_cp_prefix.'register_actions');
 
         // add_action('admin_init', array($this, 'adminInit'));
-        
-        
+
+
     }
 
-    public function wp_loaded(){
-        
+    public function wp_loaded()
+    {
     }
 
-    public function admin_init(){
-        do_action(dw_cp_prefix.'register_admin_pages');
+    public function admin_init()
+    {
+        do_action(dw_cp_prefix . 'register_admin_pages');
     }
 
-    private function compatibilityCheck(){
+    private function compatibilityCheck()
+    {
         // Validations related to
         // PHP Version
         // WP Version
         // MySQL Tables
     }
 
-    public function admin_menu(){
+    public function admin_menu()
+    {
 
-        do_action(dw_cp_prefix.'register_post_type');
+        do_action(dw_cp_prefix . 'register_post_type');
 
-        do_action(dw_cp_prefix.'register_categories');
+        do_action(dw_cp_prefix . 'register_categories');
 
-        do_action(dw_cp_prefix.'admin_menu');
+        do_action(dw_cp_prefix . 'admin_menu');
     }
 }
