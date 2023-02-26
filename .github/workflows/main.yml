@@ -1,92 +1,92 @@
 name: ✨ Build
-on: [push]
+on:
+  push:
+    branches:
+      - 'master'
+
 jobs:
   warmup:
     name: 🔥 Warming up Engines
     runs-on: ubuntu-latest
     steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v2
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v2
 
-    - name: 😇 Cache composer dependencies
-      uses: actions/cache@v2
-      with:
-        path: /tmp/composer-cache
-        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: ${{ runner.os }}-php-
+      - name: 😇 Cache composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-php-
 
-    - name: ⚡ Validate composer.json and composer.lock
-      run: composer validate --strict
+      - name: ⚡ Validate composer.json and composer.lock
+        run: composer validate --strict
 
-    - name: 🤬 Install dependencies
-      uses: php-actions/composer@v6
-      
+      - name: 🤬 Install dependencies
+        uses: php-actions/composer@v6
+
   security-checker:
     name: 🛡️ Security Checker
     runs-on: ubuntu-latest
     needs: warmup
     steps:
-    
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v2
-      with:
-        path: /tmp/composer-cache
-        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: ${{ runner.os }}-php-
-    - run: composer validate --strict
-    - uses: php-actions/composer@v6
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-php-
+      - run: composer validate --strict
+      - uses: php-actions/composer@v6
 
-    - uses: symfonycorp/security-checker-action@v2
-  
+      - uses: symfonycorp/security-checker-action@v2
+
   psalm:
     name: 🔐 Psalm
     runs-on: ubuntu-latest
     needs: warmup
     steps:
-    
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v2
-      with:
-        path: /tmp/composer-cache
-        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: ${{ runner.os }}-php-
-    - run: composer validate --strict
-    - uses: php-actions/composer@v6
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-php-
+      - run: composer validate --strict
+      - uses: php-actions/composer@v6
 
-    - uses: docker://vimeo/psalm-github-actions
-      with: 
-        security_analysis: true
-  
+      - uses: docker://vimeo/psalm-github-actions
+        with:
+          security_analysis: true
+
   lint:
     name: 📖 Lint
     runs-on: ubuntu-latest
     needs: warmup
     steps:
-    
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v2
-      with:
-        path: /tmp/composer-cache
-        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: ${{ runner.os }}-php-
-    - run: composer validate --strict
-    - uses: php-actions/composer@v6
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-php-
+      - run: composer validate --strict
+      - uses: php-actions/composer@v6
 
-    - run: composer lint
-  
+      - run: composer lint
+
   code-sniff:
     name: 📕 Code Sniffer
     runs-on: ubuntu-latest
     needs: warmup
     steps:
-    
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v2
-      with:
-        path: /tmp/composer-cache
-        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: ${{ runner.os }}-php-
-    - run: composer validate --strict
-    - uses: php-actions/composer@v6
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-php-
+      - run: composer validate --strict
+      - uses: php-actions/composer@v6
 
-    - run: composer phpcs
+      - run: composer phpcs
