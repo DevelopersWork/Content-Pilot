@@ -15,7 +15,8 @@
         "lint-css": "stylelint 'assets/src/sass/**/*.scss'",
         "lint-css:fix": "npm run lint-css --fix",
         "precommit": "npm run lint:php && npm run lint-css:fix && npm run lint:fix && npm run prod",
-        "cypress:open": "node_modules/.bin/cypress open"
+        "cypress:open": "node_modules/.bin/cypress open",
+        "cypress:run:headless": "xvfb-run node_modules/.bin/cypress run --headless"
     },
     "keywords": [
         "wordpress",
@@ -41,6 +42,7 @@
         "cross-env": "^7.0.3",
         "css-loader": "^6.7.2",
         "css-minimizer-webpack-plugin": "^4.2.2",
+        "cypress": "^12.7.0",
         "eslint": "^8.28.0",
         "eslint-config-wordpress": "^2.0.0",
         "eslint-plugin-jsdoc": "^39.6.4",

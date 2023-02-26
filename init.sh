@@ -3,7 +3,7 @@ then
     exit 1
 fi
 
-apt-get update && apt-get install git -y
+apt-get update && apt-get install git xvfb libnss3 libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0 libgbm1 libasound2 -y
 
 ###################################
 # Installing Node Version Manager #
