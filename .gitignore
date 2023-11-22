@@ -1,8 +1,9 @@
+**/**/*.log
+**/**/*.zip
+
 **/build/**
 **/node_modules/**
 **/vendor/**
+**/.phplint.cache/**
 
-composer.lock
-package-lock.json
-
-**/*.log
+wp-config.php

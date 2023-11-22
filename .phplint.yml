@@ -1,0 +1,13 @@
+# https://github.com/overtrue/phplint/blob/main/.phplint.yml
+path:
+  - . 
+jobs: 10
+extensions:
+  - php
+exclude:
+  - vendor
+warning: true
+memory-limit: -1
+no-cache: true
+log-json: false
+log-junit: false

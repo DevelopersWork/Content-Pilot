@@ -7,7 +7,8 @@
     "autoload": {
         "psr-4": {
             "DW\\ContentPilot\\Core\\": "core/",
-            "DW\\ContentPilot\\Lib\\": "lib/"
+            "DW\\ContentPilot\\Lib\\": "lib/",
+            "DW\\ContentPilot\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -21,21 +22,38 @@
         "paquettg/php-html-parser": "^3.1"
     },
     "require-dev": {
-        "overtrue/phplint": "^2.0.0",
-        "squizlabs/php_codesniffer": "^3.5",
-        "wp-coding-standards/wpcs": "^2.3",
-		"phpcompatibility/phpcompatibility-wp": "^2.1"
+        "overtrue/phplint": "*",
+        "phpunit/phpunit": "*",
+        "phpmd/phpmd": "*",
+        "vimeo/psalm": "*",
+        "squizlabs/php_codesniffer": "*",
+        "wp-coding-standards/wpcs": "*"
     },
     "config": {
-		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
-		}
-	},
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
     "scripts": {
         "pre-autoload-dump": "Google\\Task\\Composer::cleanup",
-        "lint": "phplint --no-cache src/",
-        "phpcs": "phpcs --standard=PSR2 --no-cache --warning-severity=8 --error-severity=1 src/",
-        "phpcbf": "phpcbf --standard=PSR2 src/"
+        "test": [
+            "composer install --no-progress --optimize-autoloader",
+            "@lint",
+            "@phpcs",
+            "@psalm",
+            "@phpmd",
+            "@phpunit"
+        ],
+        "build": [
+            "@test",
+            "composer install --no-progress --no-dev --optimize-autoloader"
+        ],
+        "lint": "phplint --configuration=.phplint.yml",
+        "phpcs": "phpcs --standard=WordPress --no-cache --warning-severity=8 --error-severity=1 core/ lib/ includes/",
+        "phpcbf": "phpcbf --standard=WordPress core/ lib/ includes/",
+        "phpunit": "phpunit tests/",
+        "psalm": "psalm",
+        "phpmd": "phpmd . text phpmd.xml"
     },
     "extra": {
         "google/apiclient-services": [

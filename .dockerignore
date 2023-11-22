@@ -1,6 +1,6 @@
 **/build/**
 **/node_modules/**
 **/vendor/**
+**/.phplint.cache/**
 
-composer.lock
-package-lock.json
+wp-config.php
