@@ -10,7 +10,8 @@
 			"settings": {},
 			"extensions": [
 				"dbaeumer.vscode-eslint",
-				"bmewburn.vscode-intelephense-client"
+				"bmewburn.vscode-intelephense-client",
+				"RobbOwen.synthwave-vscode"
 			]
 		}
 	},
