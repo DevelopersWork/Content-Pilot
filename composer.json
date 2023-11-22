@@ -23,12 +23,11 @@
     },
     "require-dev": {
         "overtrue/phplint": "*",
-        "squizlabs/php_codesniffer": "*",
-        "wp-coding-standards/wpcs": "*",
-        "phpcompatibility/phpcompatibility-wp": "*",
         "phpunit/phpunit": "*",
+        "phpmd/phpmd": "*",
         "vimeo/psalm": "*",
-        "phpmd/phpmd": "*"
+        "squizlabs/php_codesniffer": "*",
+        "wp-coding-standards/wpcs": "*"
     },
     "config": {
         "allow-plugins": {
@@ -38,6 +37,7 @@
     "scripts": {
         "pre-autoload-dump": "Google\\Task\\Composer::cleanup",
         "test": [
+            "composer install --no-progress --optimize-autoloader",
             "@lint",
             "@phpcs",
             "@psalm",
@@ -45,19 +45,15 @@
             "@phpunit"
         ],
         "build": [
-            "composer install --no-dev --optimize-autoloader",
-            "@test"
+            "@test",
+            "composer install --no-progress --no-dev --optimize-autoloader"
         ],
-        "release": [
-            "@build",
-            "zip -r content-pilot.zip . -x node_modules/**\/* .git/**\/* .github/**\/*"
-        ],
-        "lint": "phplint --no-cache core/ lib/ includes/",
-        "phpcs": "phpcs --standard=WordPress core/ lib/ includes/",
+        "lint": "phplint --configuration=.phplint.yml",
+        "phpcs": "phpcs --standard=WordPress --no-cache --warning-severity=8 --error-severity=1 core/ lib/ includes/",
         "phpcbf": "phpcbf --standard=WordPress core/ lib/ includes/",
-        "phpunit": "phpunit",
+        "phpunit": "phpunit tests/",
         "psalm": "psalm",
-        "phpmd": "phpmd core/ lib/ includes/ text cleancode,codesize,controversial,design,naming,unusedcode"
+        "phpmd": "phpmd . text phpmd.xml"
     },
     "extra": {
         "google/apiclient-services": [

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<psalm
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    automatically_update_cache="true"
+    error_level="8"
+    report_level="progress"
+    find_unused_code="true"
+    unused_variable_detection="true"
+    check_methods="true"
+    check_internal_return_type="true"
+    check_property_declaration="true"
+    check_return_type="true"
+    track_nullable_property_types="true"
+    track_nullable_return_type="true"
+    track_nullable_references="true"
+    track_uninitialized_vars="true"
+    track_unused_variables="true"
+>
+    <projectFiles>
+        <directory name="core" />
+        <directory name="lib" />
+        <directory name="includes" />
+
+        <ignoreFiles>
+            <directory name="vendor" />
+            <directory name="node_modules" />
+        </ignoreFiles>
+    </projectFiles>
+</psalm>
