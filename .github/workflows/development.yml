@@ -1,69 +1,49 @@
 on:
   pull_request:
-    types: [closed]
     branches:
-      - 'master'
-name: 🚀 Deploy on Development Environment
+      - mainline/development
+
+name: 🧪 Code Quality and Testing
+
 jobs:
-  plugin-deploy:
-    name: 🎉 Deploying source code
+  code-quality-and-tests:
+    name: 🚀 Run Tests and Code Quality Checks
     runs-on: ubuntu-latest
-    environment: development
-    env:
-      DEVELOPMENT_FTP_SERVER: ${{ secrets.FTP_SERVER }}
-      DEVELOPMENT_FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-      DEVELOPMENT_FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
     steps:
-      - name: 🚚 Get latest code
+      - name: 📥 Get latest code
         uses: actions/checkout@v2
 
-      - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@4.2.0
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
         with:
-          server: ${{ env.DEVELOPMENT_FTP_SERVER }}
-          username: ${{ env.DEVELOPMENT_FTP_USERNAME }}
-          password: ${{ env.DEVELOPMENT_FTP_PASSWORD }}
-          server-dir: wp-content/plugins/dev-content-pilot/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.vscode*/**
-            **/.github*/**
-            **/vendor/**
+          php-version: '8.2'
+          tools: composer
 
-  dependencies-deploy:
-    name: 🎉 Deploying dependencies
-    runs-on: ubuntu-latest
-    environment: development
-    env:
-      DEVELOPMENT_FTP_SERVER: ${{ secrets.FTP_SERVER }}
-      DEVELOPMENT_FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-      DEVELOPMENT_FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-    steps:
-      - name: 🚚 Get latest code
-        uses: actions/checkout@v2
+      - name: 🔍 Get Composer Cache Directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-      - name: 😇 Cache composer dependencies
+      - name: 📦 Cache Composer dependencies
         uses: actions/cache@v2
         with:
-          path: /tmp/composer-cache
-          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer
 
-      - name: 🤬 Install dependencies
-        uses: php-actions/composer@v6
+      - name: 📚 Install Dependencies
+        run: composer install --no-progress --optimize-autoloader
 
-      - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@4.2.0
-        with:
-          server: ${{ env.DEVELOPMENT_FTP_SERVER }}
-          username: ${{ env.DEVELOPMENT_FTP_USERNAME }}
-          password: ${{ env.DEVELOPMENT_FTP_PASSWORD }}
-          local-dir: ./vendor/
-          server-dir: wp-content/plugins/dev-content-pilot/vendor/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.vscode*/**
-            **/.github*/**
+      - name: 📋 Run linter (phplint)
+        run: composer lint
+
+      - name: 📋 Check Coding Standards (phpcs)
+        run: composer phpcs
+      
+      - name: 📋 Run PHP Mess Detector (phpmd)
+        run: composer phpmd
+
+      - name: 🔍 Check for Code Quality (psalm)
+        run: composer psalm
+
+      - name: ✅ Run Unit Tests (phpunit)
+        run: composer phpunit
