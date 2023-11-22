@@ -7,8 +7,9 @@
     <file>lib/</file>
     <file>includes/</file>
 
-    <!-- Exclude the 'vendor' directory -->
+    <!-- Exclude the directories -->
     <exclude-pattern>vendor/</exclude-pattern>
+    <exclude-pattern>node_modules/</exclude-pattern>
 
     <!-- Define the rulesets you want to apply -->
     <rule ref="rulesets/cleancode.xml" />
