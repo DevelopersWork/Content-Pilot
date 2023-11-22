@@ -22,6 +22,10 @@ jobs:
       - name: 🔍 Get Composer Cache Directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      
+      - name: 🔍 Get NPM Cache Directory
+        id: npm-cache
+        run: echo "::set-output name=dir::$(npm config get cache)"
 
       - name: 📦 Cache Composer dependencies
         uses: actions/cache@v2
@@ -29,9 +33,19 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer
+      
+      - name: 📦 Cache NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.npm-cache.outputs.dir }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm
 
-      - name: 📚 Install Dependencies
+      - name: 📚 Install Composer Dependencies
         run: composer install --no-progress --optimize-autoloader
+      
+      - name: 📚 Install Node.js Dependencies
+        run: npm install --no-progress
 
       - name: 📋 Run linter (phplint)
         run: composer lint
