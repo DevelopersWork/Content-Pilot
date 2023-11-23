@@ -6,8 +6,9 @@ on:
 name: 🧪 Code Quality and Testing
 
 jobs:
-  code-quality-and-tests:
-    name: 🚀 Run Tests and Code Quality Checks
+  # Job to cache Composer and NPM dependencies
+  cache-dependencies:
+    name: 📦 Cache Dependencies
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Get latest code
@@ -19,45 +20,131 @@ jobs:
           php-version: '8.2'
           tools: composer
 
-      - name: 🔍 Get Composer Cache Directory
-        id: composer-cache
-        run: echo "COMPOSER_CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_ENV
+      - name: ⚡ Validate composer.json and composer.lock
+        run: composer validate --strict
 
-      - name: 🔍 Get NPM Cache Directory
-        id: npm-cache
-        run: echo "NPM_CACHE_DIR=$(npm config get cache)" >> $GITHUB_ENV
+      - name: 🔍 Get Composer and NPM Cache Directories
+        id: cache-dirs
+        run: |
+          echo "COMPOSER_CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_ENV
+          echo "NPM_CACHE_DIR=$(npm config get cache)" >> $GITHUB_ENV
 
-      - name: 📦 Cache Composer dependencies
+      - name: 📦 Cache Composer and NPM dependencies
         uses: actions/cache@v2
         with:
-          path: ${{ env.COMPOSER_CACHE_DIR }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer
-
-      - name: 📦 Cache NPM dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.NPM_CACHE_DIR }}
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-npm
-
+          path: |
+            ${{ env.COMPOSER_CACHE_DIR }}
+            ${{ env.NPM_CACHE_DIR }}
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/composer.lock', '**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-dependencies
+      
       - name: 📚 Install Composer Dependencies
         run: composer install --no-progress --optimize-autoloader
       
       - name: 📚 Install Node.js Dependencies
         run: npm install --no-progress
 
+  # Job for running linter
+  run-linter:
+    name: 📋 Run Linter (phplint)
+    runs-on: ubuntu-latest
+    needs: cache-dependencies
+    steps:
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 📚 Install Composer Dependencies
+        run: composer install --no-progress --optimize-autoloader
+
       - name: 📋 Run linter (phplint)
         run: composer lint
 
+  # Job for checking coding standards
+  check-coding-standards:
+    name: 📋 Check Coding Standards (phpcs)
+    runs-on: ubuntu-latest
+    needs: cache-dependencies
+    steps:
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 📚 Install Composer Dependencies
+        run: composer install --no-progress --optimize-autoloader
+
       - name: 📋 Check Coding Standards (phpcs)
         run: composer phpcs
-      
+
+  # Job for running PHP Mess Detector
+  run-phpmd:
+    name: 📋 Run PHP Mess Detector (phpmd)
+    runs-on: ubuntu-latest
+    needs: cache-dependencies
+    steps:
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 📚 Install Composer Dependencies
+        run: composer install --no-progress --optimize-autoloader
+
       - name: 📋 Run PHP Mess Detector (phpmd)
         run: composer phpmd
+      
+  # Job for checking code quality with Psalm
+  check-code-quality:
+    name: 🔍 Check for Code Quality (psalm)
+    runs-on: ubuntu-latest
+    needs: cache-dependencies
+    steps:
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 📚 Install Composer Dependencies
+        run: composer install --no-progress --optimize-autoloader
 
       - name: 🔍 Check for Code Quality (psalm)
         run: composer psalm
+
+  # Job for running Unit Testing
+  unit-tests:
+    name: ✅ Unit Tests
+    runs-on: ubuntu-latest
+    needs: cache-dependencies
+    steps:
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 📚 Install Composer Dependencies
+        run: composer install --no-progress --optimize-autoloader
 
       - name: ✅ Run Unit Tests (phpunit)
         run: composer phpunit

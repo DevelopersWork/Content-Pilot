@@ -25,7 +25,13 @@
 
         <ignoreFiles>
             <directory name="vendor" />
+        </ignoreFiles>
+
+        <ignoreFiles allowMissingFiles="true">
             <directory name="node_modules" />
         </ignoreFiles>
     </projectFiles>
+    <issueHandlers>
+        <PluginIssue name="IssueNameEmittedByPlugin" errorLevel="info" />
+    </issueHandlers>
 </psalm>
