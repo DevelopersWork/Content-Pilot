@@ -5,9 +5,6 @@ ARG PHP_VERSION
 # Extend the official WordPress image with specified versions
 FROM wordpress:${WORDPRESS_VERSION}-php${PHP_VERSION}-apache
 
-# Set the working directory in the container
-WORKDIR /var/www/html/wp-content/plugins/content-pilot
-
 # Install development tools
 RUN apt-get update && \
     apt-get install -y \
@@ -55,3 +52,6 @@ SHELL ["/bin/bash", "--login", "-c"]
 
 # Install LTS Node.js version using NVM
 RUN nvm install 'lts/*' --reinstall-packages-from=current
+
+# Set the working directory in the container
+WORKDIR /var/www/html/wp-content/plugins/content-pilot
