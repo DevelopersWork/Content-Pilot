@@ -52,6 +52,3 @@ SHELL ["/bin/bash", "--login", "-c"]
 
 # Install LTS Node.js version using NVM
 RUN nvm install 'lts/*' --reinstall-packages-from=current
-
-# Set the working directory in the container
-WORKDIR /var/www/html/wp-content/plugins/content-pilot

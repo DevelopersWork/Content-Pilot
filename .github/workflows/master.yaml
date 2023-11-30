@@ -1,0 +1,121 @@
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - mainline/master
+
+name: 🚀 Alpha Release and Test Deployment
+
+jobs:
+  # Job to cache Composer and NPM dependencies
+  cache-dependencies:
+    name: 📦 Cache Dependencies
+    runs-on: ubuntu-22.04
+    steps:
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 🔍 Get Composer and NPM Cache Directories
+        id: cache-dirs
+        run: |
+          echo "COMPOSER_CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_ENV
+          echo "NPM_CACHE_DIR=$(npm config get cache)" >> $GITHUB_ENV
+          
+      - name: 📦 Cache Composer and NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.COMPOSER_CACHE_DIR }}
+            ${{ env.NPM_CACHE_DIR }}
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/composer.json', '**/package.json') }}
+          restore-keys: ${{ runner.os }}-dependencies
+
+      - name: ⚡ Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: 📚 Build plugin zip
+        run: |
+          npm run plugin-zip
+
+  security-check:
+    name: 🔐 Security Check
+    runs-on: ubuntu-22.04
+    needs: cache-dependencies
+    steps:
+      - name: 📦 Cache Composer Security Checker
+        uses: actions/cache@v2
+        id: cache-db
+        with:
+          path: ~/.symfony/cache
+          key: ${{ runner.os }}-symfony-cache-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-symfony-cache
+
+      - name: 🛡️ Check PHP Dependencies for Security Vulnerabilities
+        id: symfonycorp-composer-security-check
+        uses: symfonycorp/security-checker-action@v4
+        with:
+          disable-exit-code: 1
+
+      - name: Display the vulnerabilities as JSON
+        run: echo ${{ steps.symfonycorp-composer-security-check.outputs.vulns }}
+
+      - name: ⚡ Check NPM security
+        id: npm-security-check
+        run: |
+          npm audit --json > npm-audit.json
+          echo "::set-output name=npm-audit::$(cat npm-audit.json)"
+
+  alpha-release:
+    name: 📦 Create Alpha Release
+    runs-on: ubuntu-22.04
+    needs: security-check
+    steps:
+      - name: 📦 Create Alpha Release
+        id: create-release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            # Specify the files you want to include in the alpha release
+            dw-content-pilot.zip
+          name: ${{ github.event.pull_request.title }}
+
+      - name: 📄 Set Release URL as Output
+        id: set-release-url
+        run: echo "RELEASE_URL=https://github.com/$GITHUB_REPOSITORY/releases/tag/${{ steps.create-release.outputs.upload_url }}" >> $GITHUB_ENV
+
+  draft:
+    name: 🐂 Draft Release
+    runs-on: ubuntu-22.04
+    needs: alpha-release
+    steps:
+      # Drafts your next Release notes as Pull Requests are merged into "master"
+      - uses: release-drafter/release-drafter@v5
+        # (Optional) specify config name to use, relative to .github/. Default: release-drafter.yml
+        with:
+          config-name: release-drafter.config.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-deployment:
+    name: 📂 Deploy to Test Server
+    runs-on: ubuntu-22.04
+    needs: security-check
+    environment: development
+    steps:
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ vars.REMOTE_DIR }}
+          exclude: |
+            **/.git*/**
+            **/node_modules/**
+            **/.vscode*/**
+            **/.github*/**

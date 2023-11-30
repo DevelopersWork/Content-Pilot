@@ -47,6 +47,19 @@ version-resolver:
       - 'patch'
   default: patch
 template: |
-  ## Changes
+  ## Changelog
 
-  $CHANGES
+  All notable changes to this project will be documented in this file. See [Semantic Versioning](http://semver.org/) for version numbering guidelines.
+
+  ### [Unreleased]
+
+  ### [Version $RESOLVED_VERSION] - $RESOLVED_DATE
+
+  #### Added
+  - New feature or functionality.
+  
+  #### Changed
+  - Updates or changes to existing features.
+  
+  #### Fixed
+  - Bug fixes or issue resolutions.

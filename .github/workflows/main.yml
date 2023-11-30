@@ -24,6 +24,9 @@ jobs:
 
       - name: 🤬 Install dependencies
         uses: php-actions/composer@v6
+        with:
+          dev: yes
+          php-version: '8.2'
 
   security-checker:
     name: 🛡️ Security Checker

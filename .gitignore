@@ -5,5 +5,3 @@
 **/node_modules/**
 **/vendor/**
 **/.phplint.cache/**
-
-wp-config.php
