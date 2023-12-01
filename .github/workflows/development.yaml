@@ -50,7 +50,35 @@ jobs:
     runs-on: ubuntu-22.04
     needs: cache-dependencies
     steps:
-      - run: composer lint
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 🔍 Get Composer and NPM Cache Directories
+        id: cache-dirs
+        run: |
+          echo "COMPOSER_CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_ENV
+          echo "NPM_CACHE_DIR=$(npm config get cache)" >> $GITHUB_ENV
+          
+      - name: 📦 Cache Composer and NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.COMPOSER_CACHE_DIR }}
+            ${{ env.NPM_CACHE_DIR }}
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/composer.json', '**/package.json') }}
+          restore-keys: ${{ runner.os }}-dependencies
+
+      - name: 📚 Install Composer Dependencies
+        run: composer install --no-progress --optimize-autoloader
+
+      - name: 📋 Run linter (phplint)
+        run: composer lint
 
   # Job for checking coding standards
   check-coding-standards:
@@ -58,7 +86,35 @@ jobs:
     runs-on: ubuntu-22.04
     needs: cache-dependencies
     steps:
-      - run: composer phpcs
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 🔍 Get Composer and NPM Cache Directories
+        id: cache-dirs
+        run: |
+          echo "COMPOSER_CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_ENV
+          echo "NPM_CACHE_DIR=$(npm config get cache)" >> $GITHUB_ENV
+          
+      - name: 📦 Cache Composer and NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.COMPOSER_CACHE_DIR }}
+            ${{ env.NPM_CACHE_DIR }}
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/composer.json', '**/package.json') }}
+          restore-keys: ${{ runner.os }}-dependencies
+
+      - name: 📚 Install Composer Dependencies
+        run: composer install --no-progress --optimize-autoloader
+
+      - name: 📋 Check Coding Standards (phpcs)
+        run: composer phpcs
 
   # Job for running PHP Mess Detector
   run-phpmd:
@@ -66,7 +122,35 @@ jobs:
     runs-on: ubuntu-22.04
     needs: cache-dependencies
     steps:
-      - run: composer phpmd
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 🔍 Get Composer and NPM Cache Directories
+        id: cache-dirs
+        run: |
+          echo "COMPOSER_CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_ENV
+          echo "NPM_CACHE_DIR=$(npm config get cache)" >> $GITHUB_ENV
+          
+      - name: 📦 Cache Composer and NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.COMPOSER_CACHE_DIR }}
+            ${{ env.NPM_CACHE_DIR }}
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/composer.json', '**/package.json') }}
+          restore-keys: ${{ runner.os }}-dependencies
+
+      - name: 📚 Install Composer Dependencies
+        run: composer install --no-progress --optimize-autoloader
+
+      - name: 📋 Run PHP Mess Detector (phpmd)
+        run: composer phpmd
       
   # Job for checking code quality with Psalm
   check-code-quality:
@@ -74,7 +158,35 @@ jobs:
     runs-on: ubuntu-22.04
     needs: cache-dependencies
     steps:
-      - run: composer psalm
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 🔍 Get Composer and NPM Cache Directories
+        id: cache-dirs
+        run: |
+          echo "COMPOSER_CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_ENV
+          echo "NPM_CACHE_DIR=$(npm config get cache)" >> $GITHUB_ENV
+          
+      - name: 📦 Cache Composer and NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.COMPOSER_CACHE_DIR }}
+            ${{ env.NPM_CACHE_DIR }}
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/composer.json', '**/package.json') }}
+          restore-keys: ${{ runner.os }}-dependencies
+
+      - name: 📚 Install Composer Dependencies
+        run: composer install --no-progress --optimize-autoloader
+
+      - name: 🔍 Check for Code Quality (psalm)
+        run: composer psalm
 
   # Job for running Unit Testing
   unit-tests:
@@ -82,4 +194,32 @@ jobs:
     runs-on: ubuntu-22.04
     needs: cache-dependencies
     steps:
-      - run: composer phpunit
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 🔍 Get Composer and NPM Cache Directories
+        id: cache-dirs
+        run: |
+          echo "COMPOSER_CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_ENV
+          echo "NPM_CACHE_DIR=$(npm config get cache)" >> $GITHUB_ENV
+          
+      - name: 📦 Cache Composer and NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.COMPOSER_CACHE_DIR }}
+            ${{ env.NPM_CACHE_DIR }}
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/composer.json', '**/package.json') }}
+          restore-keys: ${{ runner.os }}-dependencies
+
+      - name: 📚 Install Composer Dependencies
+        run: composer install --no-progress --optimize-autoloader
+
+      - name: ✅ Run Unit Tests (phpunit)
+        run: composer phpunit
