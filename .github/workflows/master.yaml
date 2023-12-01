@@ -40,14 +40,40 @@ jobs:
         run: composer validate --strict
 
       - name: 📚 Build plugin zip
-        run: |
-          npm run plugin-zip
+        run: npm run plugin-zip
 
   security-check:
     name: 🔐 Security Check
     runs-on: ubuntu-22.04
     needs: cache-dependencies
     steps:
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 🔍 Get Composer and NPM Cache Directories
+        id: cache-dirs
+        run: |
+          echo "COMPOSER_CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_ENV
+          echo "NPM_CACHE_DIR=$(npm config get cache)" >> $GITHUB_ENV
+          
+      - name: 📦 Cache Composer and NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.COMPOSER_CACHE_DIR }}
+            ${{ env.NPM_CACHE_DIR }}
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/composer.json', '**/package.json') }}
+          restore-keys: ${{ runner.os }}-dependencies
+
+      - name: 📚 Build plugin zip
+        run: npm run plugin-zip
+
       - name: 📦 Cache Composer Security Checker
         uses: actions/cache@v2
         id: cache-db
@@ -76,6 +102,33 @@ jobs:
     runs-on: ubuntu-22.04
     needs: security-check
     steps:
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 🔍 Get Composer and NPM Cache Directories
+        id: cache-dirs
+        run: |
+          echo "COMPOSER_CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_ENV
+          echo "NPM_CACHE_DIR=$(npm config get cache)" >> $GITHUB_ENV
+          
+      - name: 📦 Cache Composer and NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.COMPOSER_CACHE_DIR }}
+            ${{ env.NPM_CACHE_DIR }}
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/composer.json', '**/package.json') }}
+          restore-keys: ${{ runner.os }}-dependencies
+
+      - name: 📚 Build plugin zip
+        run: npm run plugin-zip
+
       - name: 📦 Create Alpha Release
         id: create-release
         uses: softprops/action-gh-release@v1
@@ -108,6 +161,33 @@ jobs:
     needs: security-check
     environment: development
     steps:
+      - name: 📥 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 🛠️ Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: 🔍 Get Composer and NPM Cache Directories
+        id: cache-dirs
+        run: |
+          echo "COMPOSER_CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_ENV
+          echo "NPM_CACHE_DIR=$(npm config get cache)" >> $GITHUB_ENV
+          
+      - name: 📦 Cache Composer and NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.COMPOSER_CACHE_DIR }}
+            ${{ env.NPM_CACHE_DIR }}
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/composer.json', '**/package.json') }}
+          restore-keys: ${{ runner.os }}-dependencies
+
+      - name: 📚 Build plugin zip
+        run: npm run plugin-zip
+        
       - uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
