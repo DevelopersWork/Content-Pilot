@@ -4,6 +4,9 @@ on:
     branches:
       # - mainline/master
       - mainline/development
+  push:
+    branches:
+      - feature/**
 
 name: 🚀 Alpha Release and Test Deployment
 
