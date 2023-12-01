@@ -92,12 +92,6 @@ jobs:
       - name: Display the vulnerabilities as JSON
         run: echo ${{ steps.symfonycorp-composer-security-check.outputs.vulns }}
 
-      - name: ⚡ Check NPM security
-        id: npm-security-check
-        run: |
-          npm audit --json > npm-audit.json
-          echo "::set-output name=npm-audit::$(cat npm-audit.json)"
-
   alpha-release:
     name: 📦 Create Alpha Release
     runs-on: ubuntu-22.04
