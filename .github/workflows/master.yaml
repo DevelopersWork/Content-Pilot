@@ -1,8 +1,9 @@
 on:
   pull_request:
-    types: [closed]
+    # types: [closed]
     branches:
-      - mainline/master
+      # - mainline/master
+      - mainline/development
 
 name: 🚀 Alpha Release and Test Deployment
 
@@ -187,7 +188,7 @@ jobs:
 
       - name: 📚 Build plugin zip
         run: npm run plugin-zip
-        
+
       - uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
